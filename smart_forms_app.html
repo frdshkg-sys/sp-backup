@@ -6691,6 +6691,61 @@
     }
   }
 
+  async function findPaidBatchMembers(tx) {
+    if (!tx || !tx.cheque) return [tx];
+    const chq = (tx.cheque || '').trim().toUpperCase();
+    if (!chq) return [tx];
+
+    // 1. First look in locally cached transactions
+    let matches = loadedEditTransactions.filter(t => t && (t.cheque || '').trim().toUpperCase() === chq);
+
+    // 2. If <= 1, query SharePoint for all records sharing this cheque
+    if (matches.length <= 1) {
+      try {
+        await getDigest();
+        const escapedQ = tx.cheque.replace(/[<>&'"]/g, '').trim();
+        const camlXml = `<View><Query><Where><Eq><FieldRef Name='_x652f__x7968__x7de8__x865f_' /><Value Type='Text'>${escapedQ}</Value></Eq></Where><OrderBy><FieldRef Name='ID' Ascending='TRUE' /></OrderBy></Query><RowLimit>200</RowLimit></View>`;
+        const postPayload = JSON.stringify({ parameters: { RenderOptions: 2, ViewXml: camlXml } });
+        const res = await spFetch(`${SITE_URL}/_api/web/lists(guid'${GUID_EXPENSE}')/RenderListDataAsStream`, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json;odata=verbose',
+            'Content-Type': 'application/json;odata=verbose',
+            'X-RequestDigest': digestValue
+          },
+          body: postPayload
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const rows = (data && data.Row) ? data.Row : [];
+          if (rows.length > 1) {
+            const serverItems = rows.map(r => parseRowToTx(r, true));
+            serverItems.forEach(item => {
+              const ex = loadedEditTransactions.find(t => t.Id === item.Id);
+              if (!ex) {
+                loadedEditTransactions.push(item);
+              } else {
+                Object.assign(ex, item);
+              }
+            });
+            matches = serverItems;
+          }
+        }
+      } catch (err) {
+        console.warn("findPaidBatchMembers server lookup notice:", err);
+      }
+    }
+
+    // Sort ascending by numeric Title or Id
+    matches.sort((a, b) => {
+      const aNum = parseInt((a.Title || '').replace(/\D/g, ''), 10) || a.Id || 0;
+      const bNum = parseInt((b.Title || '').replace(/\D/g, ''), 10) || b.Id || 0;
+      return aNum - bNum;
+    });
+
+    return matches.length > 0 ? matches : [tx];
+  }
+
   function findUnpaidBatchMembers(tx) {
     if (!tx || tx.paymentStatus !== '未付') return [tx];
 
@@ -6987,12 +7042,14 @@
       `;
     }).join('');
 
+    const chqTitlePart = (selectedEditTx && selectedEditTx.cheque) ? `（支票：${escapeHtml(selectedEditTx.cheque)}，共 ${selectedEditBatch.length} 筆項目）` : `（共 ${selectedEditBatch.length} 筆項目）`;
+
     batchContainer.innerHTML = `
       <div class="edit-tx-batch-card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
           <div style="display:flex; align-items:center; gap:8px;">
             <span style="font-size:16px;">📑</span>
-            <strong style="color:#0369a1; font-size:14px;">多項目分攤支出（共 ${selectedEditBatch.length} 筆項目）</strong>
+            <strong style="color:#0369a1; font-size:14px;">多項目分攤支出${chqTitlePart}</strong>
           </div>
           <div style="font-size:13px; color:#475569;">
             合計總金額：<strong style="color:#dc2626; font-size:16px;" id="edit-batch-total-amt">$${totalBatchAmt.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
@@ -7187,15 +7244,21 @@
     }
   }
 
-  function selectTransactionForEdit(tx) {
+  async function selectTransactionForEdit(tx) {
     if (!tx) return;
     selectedEditTx = Object.assign({}, tx);
     selectedEditBatch = null;
 
     const isExp = (currentEditType === 'expense');
 
-    // Check if this unpaid expense has batch members
-    if (isExp && tx.paymentStatus === '未付') {
+    // 1. If paid expense with cheque number, check if multiple records share this cheque
+    if (isExp && tx.cheque && tx.cheque.trim()) {
+      const paidMembers = await findPaidBatchMembers(tx);
+      if (paidMembers.length > 1) {
+        selectedEditBatch = paidMembers;
+      }
+    } else if (isExp && tx.paymentStatus === '未付') {
+      // 2. If unpaid expense without cheque, check unbroken contiguous sequence
       const batchMembers = findUnpaidBatchMembers(tx);
       if (batchMembers.length > 1) {
         selectedEditBatch = batchMembers;
@@ -7230,8 +7293,11 @@
       });
 
       const totalBatchAmt = selectedEditBatch.reduce((sum, item) => sum + (parseAmount(item.amount) || 0), 0);
-      document.getElementById('edit-display-id').textContent = `${selectedEditBatch[0].Title} ～ ${selectedEditBatch[selectedEditBatch.length - 1].Title} (共 ${selectedEditBatch.length} 筆)`;
-      document.getElementById('edit-display-type').textContent = '📑 多項目分攤支出';
+      const firstTitle = selectedEditBatch[0].Title;
+      const lastTitle = selectedEditBatch[selectedEditBatch.length - 1].Title;
+      const rangeText = (firstTitle !== lastTitle) ? `${firstTitle} ～ ${lastTitle}` : firstTitle;
+      document.getElementById('edit-display-id').textContent = `${rangeText} (共 ${selectedEditBatch.length} 筆)`;
+      document.getElementById('edit-display-type').textContent = tx.cheque ? `📑 多項目分攤支出 (${tx.cheque})` : '📑 多項目分攤支出';
       document.getElementById('edit-display-modified').textContent = tx.modifiedDisplay ? `最後修改: ${tx.modifiedDisplay}` : '';
 
       renderEditBatchTable();
