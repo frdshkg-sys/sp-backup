@@ -382,6 +382,22 @@
       background: var(--primary-light);
     }
 
+    .dropzone.disabled {
+      border: 2px solid #e2e8f0;
+      background: #f1f5f9;
+      cursor: not-allowed;
+      pointer-events: none;
+      opacity: 0.65;
+    }
+
+    .dropzone.disabled svg {
+      color: #cbd5e1;
+    }
+
+    .dropzone.disabled p {
+      color: #94a3b8;
+    }
+
     .dropzone svg {
       width: 36px;
       height: 36px;
@@ -417,6 +433,18 @@
       gap: 10px;
       font-size: 13px;
       font-weight: 500;
+      flex-wrap: wrap;
+    }
+
+    .file-name-target {
+      font-weight: 700;
+      color: #0284c7;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+    }
+
+    .file-name-orig {
+      font-size: 11.5px;
+      color: #64748b;
     }
 
     .remove-file {
@@ -426,6 +454,13 @@
       cursor: pointer;
       font-size: 12px;
       font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+
+    .remove-file:hover {
+      background: #fee2e2;
     }
 
     /* Submit Button */
@@ -2808,17 +2843,17 @@
 
           <!-- File Upload -->
           <div class="form-group col-full">
-            <label>收據/支票檔案上傳 (PDF / JPG / PNG) <span class="badge-auto">自動存放至合適目錄並關聯至所有分攤記錄</span></label>
-            <div class="dropzone" id="exp-dropzone" onclick="document.getElementById('exp-file').click()">
+            <label>收據/支票檔案上傳 (PDF / JPG / PNG) <span class="badge-auto" id="exp-file-badge">自動以支票號碼命名並存檔</span></label>
+            <div class="dropzone" id="exp-dropzone" onclick="triggerFileUpload('expense')">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-              <p>拖放收據圖檔或 PDF 至此，或 <span>點擊瀏覽上傳</span></p>
+              <p id="exp-dropzone-text">拖放收據圖檔或 PDF 至此，或 <span>點擊瀏覽上傳</span> (系統將自動以支票號碼命名)</p>
               <input type="file" id="exp-file" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleFileSelect('expense', this.files)">
             </div>
             <div id="exp-file-preview" style="display:none;" class="file-preview">
               <div class="file-info">
                 <span>📄</span>
-                <span id="exp-file-name">filename.pdf</span>
-                <span id="exp-file-size" style="color:#94a3b8; font-size:11px;">(0 KB)</span>
+                <span id="exp-file-target-name" class="file-name-target">CK0000.pdf</span>
+                <span id="exp-file-orig-name" class="file-name-orig">(原始: filename.pdf, 0 KB)</span>
               </div>
               <button type="button" class="remove-file" onclick="removeFile('expense')">移除 ✕</button>
             </div>
@@ -2948,17 +2983,17 @@
 
         <!-- File Upload -->
         <div class="form-group col-full">
-          <label>收據/水單檔案上傳 (PDF / JPG / PNG) <span class="badge-auto">自動儲存至 DocLib/收入 並關聯</span></label>
-          <div class="dropzone" id="inc-dropzone" onclick="document.getElementById('inc-file').click()">
+          <label>收據/水單檔案上傳 (PDF / JPG / PNG) <span class="badge-auto" id="inc-file-badge">自動以單號命名並存放至 DocLib/收入</span></label>
+          <div class="dropzone" id="inc-dropzone" onclick="triggerFileUpload('income')">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-            <p>拖放銀行入賬傳票或水單至此，或 <span>點擊瀏覽上傳</span></p>
+            <p id="inc-dropzone-text">拖放銀行入賬傳票或水單至此，或 <span>點擊瀏覽上傳</span> (系統將自動以單號命名)</p>
             <input type="file" id="inc-file" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleFileSelect('income', this.files)">
           </div>
           <div id="inc-file-preview" style="display:none;" class="file-preview">
             <div class="file-info">
               <span>📄</span>
-              <span id="inc-file-name">filename.pdf</span>
-              <span id="inc-file-size" style="color:#94a3b8; font-size:11px;">(0 KB)</span>
+              <span id="inc-file-target-name" class="file-name-target">INC-00000.pdf</span>
+              <span id="inc-file-orig-name" class="file-name-orig">(原始: filename.pdf, 0 KB)</span>
             </div>
             <button type="button" class="remove-file" onclick="removeFile('income')">移除 ✕</button>
           </div>
@@ -3330,16 +3365,16 @@
               <span id="edit-no-receipt-label" style="display:none; color:var(--text-muted);">無收據檔案</span>
             </div>
 
-            <div class="dropzone" id="edit-dropzone" onclick="document.getElementById('edit-file').click()">
+            <div class="dropzone" id="edit-dropzone" onclick="triggerFileUpload('edit')">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-              <p>若需更換收據，請拖放新檔案至此，或 <span>點擊瀏覽上傳</span></p>
+              <p id="edit-dropzone-text">若需更換收據，請拖放新檔案至此，或 <span>點擊瀏覽上傳</span> (系統將自動以號碼命名)</p>
               <input type="file" id="edit-file" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleFileSelect('edit', this.files)">
             </div>
             <div id="edit-file-preview" style="display:none;" class="file-preview">
               <div class="file-info">
                 <span>📄 新收據：</span>
-                <span id="edit-file-name">filename.pdf</span>
-                <span id="edit-file-size" style="color:#94a3b8; font-size:11px;">(0 KB)</span>
+                <span id="edit-file-target-name" class="file-name-target">CK0000.pdf</span>
+                <span id="edit-file-orig-name" class="file-name-orig">(原始: filename.pdf, 0 KB)</span>
               </div>
               <button type="button" class="remove-file" onclick="removeFile('edit')">移除 ✕</button>
             </div>
@@ -3850,7 +3885,22 @@
     generateIncomeDefaults();
     checkHashAndSwitchTab();
 
-    // 2. Fetch live data in background without blocking UI
+    // 2. Setup receipt dropzones and cheque number live sync
+    if (typeof initDropzoneDragAndDrop === 'function') initDropzoneDragAndDrop();
+    const expChqInput = document.getElementById('exp-chq-num');
+    if (expChqInput) {
+      expChqInput.addEventListener('input', () => {
+        if (typeof updateFilePreviewUI === 'function') updateFilePreviewUI('expense');
+      });
+    }
+    const editChqInput = document.getElementById('edit-cheque');
+    if (editChqInput) {
+      editChqInput.addEventListener('input', () => {
+        if (typeof updateFilePreviewUI === 'function') updateFilePreviewUI('edit');
+      });
+    }
+
+    // 3. Fetch live data in background without blocking UI
     getDigest();
     loadProjects();
     fetchLiveMaxSequences();
@@ -4517,6 +4567,7 @@
       numInput.value = '';
       numInput.placeholder = '請手動輸入支票編號';
     }
+    updateFilePreviewUI('expense');
   }
 
   function onExpPaymentStatusChange() {
@@ -4539,6 +4590,9 @@
       if (chqBadge) {
         chqBadge.textContent = '未付無需填寫支票編號';
       }
+      // Unpaid restriction: remove any selected file and lock dropzone
+      removeFile('expense');
+      setDropzoneEnabled('exp-dropzone', false, '未付記錄無需且不支援上傳收據 (待切換為已付並取得支票編號後方可上傳)');
     } else {
       if (chqNum) {
         chqNum.disabled = false;
@@ -4551,6 +4605,8 @@
         chqBadge.textContent = '選擇字頭即自動計算下一個號碼';
       }
       onChequePrefixChange();
+      setDropzoneEnabled('exp-dropzone', true);
+      updateFilePreviewUI('expense');
     }
   }
 
@@ -4566,21 +4622,131 @@
     } catch (_) {}
   }
 
-  // File Upload Handling
+  // File Upload Helper Utilities
+  function getCleanFileExtension(filename) {
+    if (!filename) return '.pdf';
+    const lastDot = filename.lastIndexOf('.');
+    if (lastDot === -1) return '.pdf';
+    const ext = filename.slice(lastDot).toLowerCase();
+    return ['.pdf', '.jpg', '.jpeg', '.png'].includes(ext) ? ext : ext;
+  }
+
+  function resolveTargetReceiptFileName(type, originalFileName) {
+    const ext = getCleanFileExtension(originalFileName);
+    if (type === 'expense') {
+      const chq = (document.getElementById('exp-chq-num')?.value || '').trim();
+      return chq ? `${chq}${ext}` : (originalFileName || `EXP_${Date.now()}${ext}`);
+    } else if (type === 'income') {
+      const incTitle = (document.getElementById('inc-title')?.value || '').trim();
+      return incTitle ? `${incTitle}${ext}` : (originalFileName || `INC_${Date.now()}${ext}`);
+    } else if (type === 'edit') {
+      if (currentEditType === 'expense') {
+        const chq = (document.getElementById('edit-cheque')?.value || '').trim();
+        return chq ? `${chq}${ext}` : `${selectedEditTx?.Title || 'EXP'}${ext}`;
+      } else {
+        const incTitle = (selectedEditTx?.Title || document.getElementById('edit-display-id')?.textContent || '').trim();
+        return incTitle ? `${incTitle}${ext}` : (originalFileName || `INC_${Date.now()}${ext}`);
+      }
+    }
+    return originalFileName;
+  }
+
+  function triggerFileUpload(type) {
+    if (type === 'expense') {
+      const payStatus = document.getElementById('exp-payment-status')?.value || '已付';
+      if (payStatus === '未付') {
+        const toast = document.getElementById('exp-toast');
+        if (toast) {
+          toast.className = 'toast error';
+          toast.innerHTML = '⚠️ 付款狀態為「未付」時尚未有支票編號，無需且不支援上傳收據。請切換為「已付」後方可上傳。';
+          toast.style.display = 'block';
+        }
+        return;
+      }
+      document.getElementById('exp-file')?.click();
+    } else if (type === 'income') {
+      document.getElementById('inc-file')?.click();
+    } else if (type === 'edit') {
+      if (currentEditType === 'expense') {
+        const payStatus = document.getElementById('edit-payment-status')?.value || '已付';
+        if (payStatus === '未付') {
+          const toast = document.getElementById('edit-toast');
+          if (toast) {
+            toast.className = 'toast error';
+            toast.innerHTML = '⚠️ 付款狀態為「未付」時尚未有支票編號，不支援上傳收據。請切換為「已付」後方可更換收據。';
+            toast.style.display = 'block';
+          }
+          return;
+        }
+      }
+      document.getElementById('edit-file')?.click();
+    }
+  }
+
+  function setDropzoneEnabled(dropzoneId, enabled, disabledReason = '') {
+    const dz = document.getElementById(dropzoneId);
+    if (!dz) return;
+    const textEl = dz.querySelector('p');
+
+    if (!enabled) {
+      dz.classList.add('disabled');
+      if (textEl) {
+        if (!dz._originalText) dz._originalText = textEl.innerHTML;
+        textEl.innerHTML = `🔒 ${disabledReason || '未付記錄無需且不支援上傳收據'}`;
+      }
+    } else {
+      dz.classList.remove('disabled');
+      if (textEl && dz._originalText) {
+        textEl.innerHTML = dz._originalText;
+      }
+    }
+  }
+
   function handleFileSelect(type, files) {
-    if (files.length === 0) return;
+    if (!files || files.length === 0) return;
     const file = files[0];
+
+    // Unpaid restriction check
+    if (type === 'expense') {
+      const payStatus = document.getElementById('exp-payment-status')?.value || '已付';
+      if (payStatus === '未付') {
+        removeFile('expense');
+        alert('未付記錄無需且不支援上傳收據，請切換為「已付」並取得支票編號後再上傳。');
+        return;
+      }
+    } else if (type === 'edit' && currentEditType === 'expense') {
+      const payStatus = document.getElementById('edit-payment-status')?.value || '已付';
+      if (payStatus === '未付') {
+        removeFile('edit');
+        alert('未付記錄不支援上傳收據，請切換為「已付」並填寫支票編號後再上傳。');
+        return;
+      }
+    }
+
     currentUploadedFiles[type] = file;
+    updateFilePreviewUI(type);
 
-    const prefix = type === 'expense' ? 'exp' : (type === 'income' ? 'inc' : 'edit');
-    const preview = document.getElementById(`${prefix}-file-preview`);
-    const nameSpan = document.getElementById(`${prefix}-file-name`);
-    const sizeSpan = document.getElementById(`${prefix}-file-size`);
-
-    if (nameSpan) nameSpan.textContent = file.name;
-    if (sizeSpan) sizeSpan.textContent = `(${(file.size / 1024).toFixed(1)} KB)`;
-    if (preview) preview.style.display = 'flex';
     if (type === 'edit') setEditSubmitButtonState('idle');
+  }
+
+  function updateFilePreviewUI(type) {
+    const file = currentUploadedFiles[type];
+    const prefix = (type === 'expense') ? 'exp' : ((type === 'income') ? 'inc' : 'edit');
+    const preview = document.getElementById(`${prefix}-file-preview`);
+    const targetSpan = document.getElementById(`${prefix}-file-target-name`);
+    const origSpan = document.getElementById(`${prefix}-file-orig-name`);
+
+    if (!file) {
+      if (preview) preview.style.display = 'none';
+      return;
+    }
+
+    const targetName = resolveTargetReceiptFileName(type, file.name);
+    file.targetFileName = targetName;
+
+    if (targetSpan) targetSpan.textContent = targetName;
+    if (origSpan) origSpan.textContent = `(原始檔名: ${file.name}, ${(file.size / 1024).toFixed(1)} KB)`;
+    if (preview) preview.style.display = 'flex';
   }
 
   function removeFile(type) {
@@ -4592,6 +4758,40 @@
     if (preview) preview.style.display = 'none';
     if (type === 'edit') setEditSubmitButtonState('idle');
   }
+
+  function initDropzoneDragAndDrop() {
+    [
+      { id: 'exp-dropzone', type: 'expense' },
+      { id: 'inc-dropzone', type: 'income' },
+      { id: 'edit-dropzone', type: 'edit' }
+    ].forEach(({ id, type }) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        if (el.classList.contains('disabled')) return;
+        el.classList.add('dragover');
+      });
+      el.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        el.classList.remove('dragover');
+      });
+      el.addEventListener('drop', (e) => {
+        e.preventDefault();
+        el.classList.remove('dragover');
+        if (el.classList.contains('disabled')) return;
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+          handleFileSelect(type, e.dataTransfer.files);
+        }
+      });
+    });
+  }
+  window.triggerFileUpload = triggerFileUpload;
+  window.handleFileSelect = handleFileSelect;
+  window.removeFile = removeFile;
+  window.updateFilePreviewUI = updateFilePreviewUI;
+  window.setDropzoneEnabled = setDropzoneEnabled;
+  window.initDropzoneDragAndDrop = initDropzoneDragAndDrop;
 
   // Ensure SharePoint folder exists (creates if missing)
   async function ensureFolder(folderPath) {
@@ -4614,11 +4814,11 @@
     }
   }
 
-  // Upload file helper
-  async function uploadFileToDocLib(file, folderPath) {
+  // Upload file helper (supports target file name)
+  async function uploadFileToDocLib(file, folderPath, customFileName = null) {
     await ensureFolder(folderPath);
     await getDigest();
-    const cleanName = file.name.replace(/#/g, '').replace(/%/g, '');
+    const cleanName = (customFileName || file.targetFileName || file.name).replace(/#/g, '').replace(/%/g, '');
     const uploadUrl = `${SITE_URL}/_api/web/GetFolderByServerRelativeUrl('${folderPath}')/Files/add(url='${encodeURIComponent(cleanName)}',overwrite=true)`;
 
     const res = await spFetch(uploadUrl, {
@@ -5162,8 +5362,8 @@
       let fileUrl = null;
       let fileName = null;
 
-      // Upload receipt file once if attached
-      if (currentUploadedFiles.expense) {
+      // Upload receipt file once if attached (only if paid)
+      if (currentUploadedFiles.expense && paymentStatus !== '未付') {
         btn.innerHTML = '<span>⏳</span> 正在上傳收據/支票檔案...';
         let folder = '/sites/CHUNKING/DocLib';
         if (prefix === 'CK') folder += '/CK';
@@ -5172,8 +5372,9 @@
         else if (prefix === 'DBS') folder += '/DBS';
         else if (prefix === 'TEST') folder += '/TEST';
 
-        fileName = currentUploadedFiles.expense.name;
-        fileUrl = await uploadFileToDocLib(currentUploadedFiles.expense, folder);
+        const targetName = resolveTargetReceiptFileName('expense', currentUploadedFiles.expense.name);
+        fileName = targetName;
+        fileUrl = await uploadFileToDocLib(currentUploadedFiles.expense, folder, targetName);
       }
 
       const count = expenseRowList.length;
@@ -5336,8 +5537,9 @@
 
       if (currentUploadedFiles.income) {
         const folder = `/sites/CHUNKING/DocLib/收入/${bank}`;
-        fileName = currentUploadedFiles.income.name;
-        fileUrl = await uploadFileToDocLib(currentUploadedFiles.income, folder);
+        const targetName = resolveTargetReceiptFileName('income', currentUploadedFiles.income.name);
+        fileName = targetName;
+        fileUrl = await uploadFileToDocLib(currentUploadedFiles.income, folder, targetName);
       }
 
       const payload = {
@@ -6961,6 +7163,7 @@
       numInput.placeholder = '請手動輸入支票編號';
       if (badgeEl) badgeEl.textContent = '手動輸入模式';
     }
+    updateFilePreviewUI('edit');
     setEditSubmitButtonState('idle');
   }
   window.onEditChequePrefixChange = onEditChequePrefixChange;
@@ -6984,6 +7187,8 @@
       if (chqBadge) {
         chqBadge.textContent = '未付無需填寫支票編號';
       }
+      removeFile('edit');
+      setDropzoneEnabled('edit-dropzone', false, '未付記錄不支援上傳收據 (待切換為已付並設定支票號碼後方可更換收據)');
     } else {
       if (chqPrefix) {
         chqPrefix.disabled = false;
@@ -6998,6 +7203,8 @@
       } else if (chqBadge) {
         chqBadge.textContent = '選擇字頭即自動計算下一個號碼';
       }
+      setDropzoneEnabled('edit-dropzone', true);
+      updateFilePreviewUI('edit');
     }
     setEditSubmitButtonState('idle');
   }
@@ -7451,6 +7658,11 @@
     }
 
     removeFile('edit');
+    if (isExp && (tx.paymentStatus === '未付' || (!tx.cheque && tx.paymentStatus !== '已付'))) {
+      setDropzoneEnabled('edit-dropzone', false, '未付記錄不支援上傳收據 (待切換為已付並設定支票號碼後方可更換收據)');
+    } else {
+      setDropzoneEnabled('edit-dropzone', true);
+    }
 
     document.getElementById('edit-tx-form-container').style.display = 'block';
     document.getElementById('edit-tx-empty-hint').style.display = 'none';
@@ -7503,6 +7715,7 @@
     document.getElementById('form-edit-tx').reset();
     if (editProjCombobox) editProjCombobox.clear();
     removeFile('edit');
+    setDropzoneEnabled('edit-dropzone', true);
     setEditSubmitButtonState('idle');
 
     document.getElementById('edit-tx-form-container').style.display = 'none';
@@ -7607,10 +7820,10 @@
         const payeeVal = (document.getElementById('edit-payee')?.value || '').trim();
         const editPayStatus = document.getElementById('edit-payment-status')?.value || '已付';
 
-        // Upload receipt once if selected
+        // Upload receipt once if selected (only if paid)
         let newFileUrl = null;
         let newFileName = null;
-        if (currentUploadedFiles.edit) {
+        if (currentUploadedFiles.edit && editPayStatus !== '未付') {
           let folder = '/sites/CHUNKING/DocLib';
           let prefix = 'CK';
           if (chqNum.startsWith('WS')) prefix = 'WS';
@@ -7618,8 +7831,9 @@
           else if (chqNum.startsWith('DBS')) prefix = 'DBS';
           else if (chqNum.startsWith('TEST')) prefix = 'TEST';
           folder += `/${prefix}`;
-          newFileName = currentUploadedFiles.edit.name;
-          newFileUrl = await uploadFileToDocLib(currentUploadedFiles.edit, folder);
+          const targetName = resolveTargetReceiptFileName('edit', currentUploadedFiles.edit.name);
+          newFileName = targetName;
+          newFileUrl = await uploadFileToDocLib(currentUploadedFiles.edit, folder, targetName);
         }
 
         const count = selectedEditBatch.length;
@@ -7832,12 +8046,15 @@
       const newProjVal = document.getElementById('edit-project').value;
       const newProjId = newProjVal ? parseInt(newProjVal, 10) : null;
 
+      const editPayStatus = isExp ? (document.getElementById('edit-payment-status')?.value || '已付') : '已付';
+      const origPayStatus = isExp ? (selectedEditTx.paymentStatus || (selectedEditTx.cheque ? '已付' : '未付')) : '已付';
+
       let newFileUrl = null;
       let newFileName = null;
-      if (currentUploadedFiles.edit) {
+      if (currentUploadedFiles.edit && (!isExp || editPayStatus !== '未付')) {
         let folder = '/sites/CHUNKING/DocLib';
         if (isExp) {
-          const chq = document.getElementById('edit-cheque').value || '';
+          const chq = (document.getElementById('edit-cheque')?.value || '').trim();
           let prefix = 'CK';
           if (chq.startsWith('WS')) prefix = 'WS';
           else if (chq.startsWith('CHQ')) prefix = 'CHQ';
@@ -7848,8 +8065,9 @@
           const bank = getBankValue('edit-inc') || '其他';
           folder += `/收入/${bank}`;
         }
-        newFileName = currentUploadedFiles.edit.name;
-        newFileUrl = await uploadFileToDocLib(currentUploadedFiles.edit, folder);
+        const targetName = resolveTargetReceiptFileName('edit', currentUploadedFiles.edit.name);
+        newFileName = targetName;
+        newFileUrl = await uploadFileToDocLib(currentUploadedFiles.edit, folder, targetName);
       }
 
       const payload = {
@@ -7858,9 +8076,6 @@
         "OData__x91d1__x984d_": newAmount,
         "RecordStatus": newStatus
       };
-
-      const editPayStatus = isExp ? (document.getElementById('edit-payment-status')?.value || '已付') : '已付';
-      const origPayStatus = isExp ? (selectedEditTx.paymentStatus || (selectedEditTx.cheque ? '已付' : '未付')) : '已付';
 
       if (isExp) {
         payload["OData__x652f__x7968__x7de8__x865f_"] = document.getElementById('edit-cheque').value;
