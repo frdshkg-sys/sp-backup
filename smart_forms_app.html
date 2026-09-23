@@ -3300,8 +3300,8 @@
           <div class="form-group edit-expense-field">
             <label>付款狀態</label>
             <select id="edit-payment-status" onchange="onEditPaymentStatusChange()">
-              <option value="已付">已付 (已出支票 / 已付款)</option>
-              <option value="未付">未付 (暫未付款 / 掛賬)</option>
+              <option value="已付">已付</option>
+              <option value="未付">未付</option>
             </select>
           </div>
 
@@ -6229,6 +6229,22 @@
       const currentPayStatus = document.getElementById('edit-payment-status')?.value || '已付';
       const origPayStatus = selectedEditTx.paymentStatus || (selectedEditTx.cheque ? '已付' : '未付');
       if (currentPayStatus !== origPayStatus) return false;
+
+      // Check each row in the batch
+      for (const item of selectedEditBatch) {
+        const orig = item._orig || item;
+        const curProjId = String(item.projId || '');
+        const origProjId = String(orig.projId || '');
+        if (curProjId !== origProjId) return false;
+
+        const curSubitem = (item.subitem || '').trim();
+        const origSubitem = (orig.subitem || '').trim();
+        if (curSubitem !== origSubitem) return false;
+
+        const curAmt = parseAmount(item.amount);
+        const origAmt = parseAmount(orig.amount);
+        if (curAmt !== origAmt) return false;
+      }
       return true;
     }
 
@@ -6667,7 +6683,7 @@
       loadedEditTransactions = rows.map(r => parseRowToTx(r, isExp));
 
       if (badgeEl) badgeEl.textContent = `已快取最新 ${loadedEditTransactions.length} 筆 (支援全庫搜尋)`;
-      if (statusEl) statusEl.textContent = `已就緒 (已載入 ${loadedEditTransactions.length} 筆最新記錄，輸入單號/支票/廠商可穿透全庫搜尋)`;
+      if (statusEl) statusEl.textContent = '已就緒';
 
     } catch (err) {
       console.error("loadRecentTransactions error:", err);
@@ -6922,6 +6938,255 @@
     }
   }
 
+  function renderEditBatchTable() {
+    const batchContainer = document.getElementById('edit-tx-batch-container');
+    if (!batchContainer || !selectedEditBatch || selectedEditBatch.length <= 1) return;
+
+    let totalBatchAmt = 0;
+    selectedEditBatch.forEach(item => {
+      totalBatchAmt += (parseAmount(item.amount) || 0);
+    });
+
+    const rowsHtml = selectedEditBatch.map((item, idx) => {
+      const curProjName = item.projName || (item.projId ? ('項目 #' + item.projId) : '');
+      const curSubitem = item.subitem || '';
+      const curAmt = (item.amount !== undefined && item.amount !== null && item.amount !== '') ? item.amount : '';
+      return `
+        <tr id="edit-batch-row-${idx}">
+          <td style="text-align: center;"><span class="exp-row-num">${idx + 1}</span></td>
+          <td>
+            <div class="exp-row-proj-box" id="edit-batch-proj-box-${idx}">
+              <input type="text" class="exp-row-proj-input" id="edit-batch-proj-input-${idx}"
+                     placeholder="🔍 輸入項目名稱或編號搜尋..."
+                     value="${escapeHtml(curProjName)}"
+                     autocomplete="off"
+                     onfocus="onEditBatchRowProjFocus(${idx})"
+                     oninput="onEditBatchRowProjInput(${idx}, this.value)"
+                     onkeydown="onEditBatchRowProjKeydown(event, ${idx})">
+              <button type="button" class="exp-row-proj-clear" id="edit-batch-proj-clear-${idx}"
+                      onclick="clearEditBatchRowProj(${idx})"
+                      style="${item.projId ? 'display:flex' : 'display:none'}" title="清除選取">✕</button>
+              <div class="exp-row-proj-dropdown" id="edit-batch-proj-dropdown-${idx}"></div>
+            </div>
+          </td>
+          <td>
+            <input type="text" class="exp-row-subitem-input" id="edit-batch-subitem-${idx}"
+                   list="exp-subitem-presets"
+                   placeholder="例如：材料款、工程尾款..."
+                   value="${escapeHtml(curSubitem)}"
+                   oninput="onEditBatchRowSubitemChange(${idx}, this.value)">
+          </td>
+          <td>
+            <input type="text" inputmode="decimal" class="exp-row-amt-input" id="edit-batch-amt-${idx}"
+                   placeholder="0.00"
+                   value="${curAmt}"
+                   oninput="onEditBatchRowAmtInput(${idx}, this)"
+                   onblur="onEditBatchRowAmtBlur(${idx}, this)">
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    batchContainer.innerHTML = `
+      <div class="edit-tx-batch-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:16px;">📑</span>
+            <strong style="color:#0369a1; font-size:14px;">多項目分攤支出（共 ${selectedEditBatch.length} 筆項目）</strong>
+          </div>
+          <div style="font-size:13px; color:#475569;">
+            合計總金額：<strong style="color:#dc2626; font-size:16px;" id="edit-batch-total-amt">$${totalBatchAmt.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+          </div>
+        </div>
+        <div class="exp-entries-table-wrap" style="margin-bottom:0;">
+          <table class="exp-entries-table">
+            <thead>
+              <tr>
+                <th style="width: 38px; text-align: center;">#</th>
+                <th style="width: 48%;">所屬項目 <span class="req">*</span></th>
+                <th style="width: 26%;">小類</th>
+                <th style="width: 26%; text-align: right;">分攤金額 (HKD) <span class="req">*</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    // Attach setupAmountInput to each batch row's amount input
+    selectedEditBatch.forEach((item, idx) => {
+      const amtInput = document.getElementById(`edit-batch-amt-${idx}`);
+      if (amtInput) setupAmountInput(amtInput, false);
+    });
+
+    batchContainer.style.display = 'block';
+  }
+
+  function onEditBatchRowProjFocus(idx) {
+    const inp = document.getElementById(`edit-batch-proj-input-${idx}`);
+    onEditBatchRowProjInput(idx, inp ? inp.value : '');
+  }
+
+  function onEditBatchRowProjInput(idx, query) {
+    const dropdown = document.getElementById(`edit-batch-proj-dropdown-${idx}`);
+    if (!dropdown) return;
+
+    // Close any other open dropdowns
+    document.querySelectorAll('.exp-row-proj-dropdown').forEach(d => {
+      if (d.id !== `edit-batch-proj-dropdown-${idx}`) d.style.display = 'none';
+    });
+
+    const q = (query || '').trim().toLowerCase();
+    const projects = window.dashboardProjectsList || allProjects || INITIAL_PROJECTS || [];
+
+    let filtered = projects;
+    if (q) {
+      filtered = projects.filter(p => {
+        const title = (p.title || p.Title || '').toLowerCase();
+        const code = (p.code || p.OData__x9805__x76ee__x7de8__x865f_ || '').toLowerCase();
+        const mgr = (p.mgr || p.OData__x8ca0__x8cac__x4eba_ || '').toLowerCase();
+        return title.includes(q) || code.includes(q) || mgr.includes(q);
+      });
+    }
+
+    if (filtered.length === 0) {
+      dropdown.innerHTML = '<div class="combobox-empty">無相符的工程項目</div>';
+      dropdown.style.display = 'block';
+      return;
+    }
+
+    const item = selectedEditBatch ? selectedEditBatch[idx] : null;
+    const selectedId = item ? String(item.projId || '') : '';
+
+    dropdown.innerHTML = filtered.map(p => {
+      const pId = p.id !== undefined ? p.id : (p.Id !== undefined ? p.Id : '');
+      const pTitle = p.title || p.Title || '';
+      const pCode = p.code || p.OData__x9805__x76ee__x7de8__x865f_ || '';
+      const pMgr = p.mgr || p.OData__x8ca0__x8cac__x4eba_ || '';
+      const isSelected = String(pId) === selectedId;
+
+      let displayTitle = escapeHtml(pTitle);
+      if (q) {
+        try {
+          const regex = new RegExp(`(${escapeRegex(q)})`, 'gi');
+          displayTitle = displayTitle.replace(regex, '<mark>$1</mark>');
+        } catch (_) {}
+      }
+
+      let metaParts = [];
+      if (pCode) metaParts.push(`編號: ${escapeHtml(pCode)}`);
+      if (pMgr) metaParts.push(`負責人: ${escapeHtml(pMgr)}`);
+
+      return `
+        <div class="combobox-item ${isSelected ? 'selected' : ''}" 
+             onclick="selectEditBatchRowProj(${idx}, ${pId}, '${escapeHtml(pTitle).replace(/'/g, "\\'")}', '${escapeHtml(pCode).replace(/'/g, "\\'")}')">
+          <div class="combobox-item-title">${displayTitle}</div>
+          ${metaParts.length ? `<div class="combobox-item-meta">${metaParts.join(' &nbsp;|&nbsp; ')}</div>` : ''}
+        </div>
+      `;
+    }).join('');
+
+    dropdown.style.display = 'block';
+  }
+
+  function onEditBatchRowProjKeydown(e, idx) {
+    const dropdown = document.getElementById(`edit-batch-proj-dropdown-${idx}`);
+    if (!dropdown || dropdown.style.display === 'none') return;
+    if (e.key === 'Escape') {
+      dropdown.style.display = 'none';
+    } else if (e.key === 'Enter') {
+      const firstItem = dropdown.querySelector('.combobox-item');
+      if (firstItem) {
+        e.preventDefault();
+        firstItem.click();
+      }
+    }
+  }
+
+  function selectEditBatchRowProj(idx, projId, projTitle, projCode) {
+    if (!selectedEditBatch || !selectedEditBatch[idx]) return;
+    const item = selectedEditBatch[idx];
+    item.projId = projId;
+    item.projName = projTitle + (projCode ? ` (${projCode})` : '');
+
+    const inp = document.getElementById(`edit-batch-proj-input-${idx}`);
+    if (inp) inp.value = item.projName;
+
+    const clearBtn = document.getElementById(`edit-batch-proj-clear-${idx}`);
+    if (clearBtn) clearBtn.style.display = 'flex';
+
+    const dropdown = document.getElementById(`edit-batch-proj-dropdown-${idx}`);
+    if (dropdown) dropdown.style.display = 'none';
+
+    setEditSubmitButtonState('idle');
+  }
+
+  function clearEditBatchRowProj(idx) {
+    if (!selectedEditBatch || !selectedEditBatch[idx]) return;
+    const item = selectedEditBatch[idx];
+    item.projId = null;
+    item.projName = '';
+
+    const inp = document.getElementById(`edit-batch-proj-input-${idx}`);
+    if (inp) {
+      inp.value = '';
+      inp.focus();
+    }
+
+    const clearBtn = document.getElementById(`edit-batch-proj-clear-${idx}`);
+    if (clearBtn) clearBtn.style.display = 'none';
+
+    const dropdown = document.getElementById(`edit-batch-proj-dropdown-${idx}`);
+    if (dropdown) dropdown.style.display = 'none';
+
+    setEditSubmitButtonState('idle');
+  }
+
+  function onEditBatchRowSubitemChange(idx, val) {
+    if (!selectedEditBatch || !selectedEditBatch[idx]) return;
+    selectedEditBatch[idx].subitem = val;
+    setEditSubmitButtonState('idle');
+  }
+
+  function onEditBatchRowAmtInput(idx, inputEl) {
+    if (!selectedEditBatch || !selectedEditBatch[idx]) return;
+    selectedEditBatch[idx].amount = inputEl.value;
+    recalcEditBatchTotal();
+    setEditSubmitButtonState('idle');
+  }
+
+  function onEditBatchRowAmtBlur(idx, inputEl) {
+    if (!selectedEditBatch || !selectedEditBatch[idx]) return;
+    const item = selectedEditBatch[idx];
+    const a = parseAmount(inputEl.value);
+    if (a && a > 0) {
+      item.amount = a.toFixed(2);
+      inputEl.value = item.amount;
+    }
+    recalcEditBatchTotal();
+  }
+
+  function recalcEditBatchTotal() {
+    if (!selectedEditBatch) return;
+    let sum = 0;
+    selectedEditBatch.forEach(item => {
+      sum += (parseAmount(item.amount) || 0);
+    });
+
+    const totalEl = document.getElementById('edit-batch-total-amt');
+    if (totalEl) {
+      totalEl.textContent = `$${sum.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+
+    const mainAmtInput = document.getElementById('edit-amount');
+    if (mainAmtInput) {
+      mainAmtInput.value = sum > 0 ? (Math.round(sum * 100) / 100) : '';
+    }
+  }
+
   function selectTransactionForEdit(tx) {
     if (!tx) return;
     selectedEditTx = Object.assign({}, tx);
@@ -6948,55 +7213,28 @@
     if (clearBtn) clearBtn.style.display = 'block';
 
     if (selectedEditBatch && selectedEditBatch.length > 1) {
-      const totalBatchAmt = selectedEditBatch.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+      // Snapshot original values for accurate delta synchronization
+      selectedEditBatch.forEach(item => {
+        if (item.projId && !item.projName) {
+          const p = (window.dashboardProjectsList || allProjects || []).find(x => (x.id || x.Id) === item.projId);
+          if (p) item.projName = (p.title || p.Title || '') + (p.code ? ` (${p.code})` : '');
+        }
+        item._orig = {
+          projId: item.projId,
+          projName: item.projName,
+          subitem: item.subitem,
+          amount: item.amount,
+          status: item.status,
+          paymentStatus: item.paymentStatus
+        };
+      });
+
+      const totalBatchAmt = selectedEditBatch.reduce((sum, item) => sum + (parseAmount(item.amount) || 0), 0);
       document.getElementById('edit-display-id').textContent = `${selectedEditBatch[0].Title} ～ ${selectedEditBatch[selectedEditBatch.length - 1].Title} (共 ${selectedEditBatch.length} 筆)`;
-      document.getElementById('edit-display-type').textContent = '📑 多項目分攤支出 (批次模式)';
+      document.getElementById('edit-display-type').textContent = '📑 多項目分攤支出';
       document.getElementById('edit-display-modified').textContent = tx.modifiedDisplay ? `最後修改: ${tx.modifiedDisplay}` : '';
 
-      if (batchContainer) {
-        const rowsHtml = selectedEditBatch.map(item => `
-          <tr style="border-bottom:1px solid #f1f5f9;">
-            <td style="padding:6px 10px; font-weight:600; color:#0369a1;">${escapeHtml(item.Title)}</td>
-            <td style="padding:6px 10px; color:#334155;">${escapeHtml(item.projName || ('項目 #' + item.projId))}</td>
-            <td style="padding:6px 10px; color:#64748b;">${escapeHtml(item.subitem || '其他')}</td>
-            <td style="padding:6px 10px; text-align:right; font-weight:600; color:#dc2626;">$${(item.amount || 0).toLocaleString()}</td>
-          </tr>
-        `).join('');
-
-        batchContainer.innerHTML = `
-          <div class="edit-tx-batch-card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
-              <div style="display:flex; align-items:center; gap:8px;">
-                <span style="font-size:16px;">📑</span>
-                <strong style="color:#0369a1; font-size:14px;">多項目分攤支出（共 ${selectedEditBatch.length} 筆關聯記錄）</strong>
-                <span style="background:#e0f2fe; color:#0284c7; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:600;">批次連動模式</span>
-              </div>
-              <div style="font-size:13px; color:#475569;">
-                總分攤金額：<strong style="color:#dc2626; font-size:16px;">$${totalBatchAmt.toLocaleString()}</strong>
-              </div>
-            </div>
-            <p style="font-size:12px; color:#0284c7; margin:0 0 10px 0;">
-              💡 提示：此處修改<strong>付款狀態</strong>、<strong>支票編號</strong>、<strong>轉賬銀行</strong>或<strong>收據憑證</strong>，將會一次同步更新至下方全數分攤記錄中。
-            </p>
-            <div style="overflow-x:auto;">
-              <table class="edit-tx-batch-table">
-                <thead>
-                  <tr style="background:#f8fafc; color:#64748b; text-align:left; border-bottom:1px solid #e2e8f0;">
-                    <th>交易編號</th>
-                    <th>所屬項目</th>
-                    <th>小類</th>
-                    <th style="text-align:right;">分攤金額</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${rowsHtml}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        `;
-        batchContainer.style.display = 'block';
-      }
+      renderEditBatchTable();
 
       if (singleProjGroup) singleProjGroup.style.display = 'none';
       if (singleAmtInput) {
@@ -7284,11 +7522,33 @@
         }
 
         const count = selectedEditBatch.length;
+
+        // Validate each row has valid amount > 0
+        for (let i = 0; i < count; i++) {
+          const it = selectedEditBatch[i];
+          const amt = parseAmount(it.amount);
+          if (!amt || amt <= 0) {
+            toast.className = 'toast error';
+            toast.innerHTML = `❌ 請為第 ${i + 1} 筆分攤項目輸入大於 0 的有效金額！`;
+            toast.style.display = 'block';
+            const amtInp = document.getElementById(`edit-batch-amt-${i}`);
+            if (amtInp) amtInp.focus();
+            setEditSubmitButtonState('idle');
+            isSubmittingEditTx = false;
+            return;
+          }
+        }
+
         const syncResults = [];
         const submitBtn = document.getElementById('edit-submit-btn');
 
         for (let i = 0; i < count; i++) {
           const item = selectedEditBatch[i];
+          const orig = item._orig || item;
+          const rowProjId = item.projId ? parseInt(item.projId, 10) : null;
+          const rowSubitem = (item.subitem || '').trim() || '其他';
+          const rowAmount = parseAmount(item.amount);
+
           if (submitBtn) {
             submitBtn.innerHTML = `<span>⏳</span> 正在更新第 ${i + 1} / ${count} 筆 (${item.Title})...`;
           }
@@ -7300,7 +7560,10 @@
             "OData__x652f__x7968__x7de8__x865f_": chqNum,
             "OData__x8f49__x5e33__x9280__x884c_": bankVal,
             "OData__x6536__x6b3e__x4eba_": payeeVal,
-            "OData__x4ed8__x6b3e__x72c0__x614b_": editPayStatus
+            "OData__x4ed8__x6b3e__x72c0__x614b_": editPayStatus,
+            "OData__x6240__x5c6c__x9805__x76ee_Id": rowProjId,
+            "OData__x5b50__x9805__x76ee_": rowSubitem,
+            "OData__x91d1__x984d_": rowAmount
           };
 
           if (newFileUrl) {
@@ -7327,14 +7590,14 @@
             throw new Error(`更新記錄 ${item.Title} 失敗 (${res.status}): ${await res.text()}`);
           }
 
-          // Financial cost sync: check transition
-          const oldPay = item.paymentStatus || (item.cheque ? '已付' : '未付');
+          // Financial cost sync: calculate delta between original and new values
+          const oldPay = orig.paymentStatus || (orig.cheque ? '已付' : '未付');
           const projDelta = await syncProjectAmountDelta(
-            item.projId,
-            item.amount,
-            item.status,
-            item.projId,
-            item.amount,
+            orig.projId,
+            orig.amount,
+            orig.status,
+            rowProjId,
+            rowAmount,
             newStatus,
             'expense',
             oldPay,
@@ -7351,10 +7614,17 @@
           item.payee = payeeVal;
           item.status = newStatus;
           item.dateIso = newDateVal;
-          if (newFileUrl) {
-            item.receiptUrl = newFileUrl;
-            item.receiptDesc = newFileName;
-          }
+          item.projId = rowProjId;
+          item.subitem = rowSubitem;
+          item.amount = rowAmount;
+          item._orig = {
+            projId: rowProjId,
+            projName: item.projName,
+            subitem: rowSubitem,
+            amount: rowAmount,
+            status: newStatus,
+            paymentStatus: editPayStatus
+          };
 
           const inMem = loadedEditTransactions.find(t => t.Id === item.Id);
           if (inMem) {
@@ -7362,11 +7632,16 @@
           }
 
           // Update projectTxCache if present
-          if (item.projId && projectTxCache[item.projId]) {
-            const pTx = projectTxCache[item.projId].find(t => t.id === item.Id || t.title === item.Title);
+          if (orig.projId && projectTxCache[orig.projId] && orig.projId !== rowProjId) {
+            projectTxCache[orig.projId] = projectTxCache[orig.projId].filter(t => t.id !== item.Id && t.title !== item.Title);
+          }
+          if (rowProjId && projectTxCache[rowProjId]) {
+            const pTx = projectTxCache[rowProjId].find(t => t.id === item.Id || t.title === item.Title);
             if (pTx) {
               pTx.paymentStatus = editPayStatus;
               pTx.cheque = chqNum;
+              pTx.amount = rowAmount;
+              pTx.subitem = rowSubitem;
               if (newFileUrl) {
                 pTx.receipt = newFileUrl;
                 pTx.receiptDesc = newFileName;
