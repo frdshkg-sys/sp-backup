@@ -1,0 +1,36 @@
+# Version Control Ignore Rules
+
+# Archived & Historical Scratch/Testing Files
+_archive/
+
+# Sensitive Authentication & Session Credentials
+cookies.json
+*.session
+
+# Python Bytecode & Cache
+__pycache__/
+*.py[cod]
+*.class
+*.venv/
+env/
+venv/
+
+# Large Binary Receipt PDF Directories (8GB+ total)
+CHQ/
+CK/
+DBS/
+WS/
+收入/
+
+# Operating System & Editor Files
+.DS_Store
+Thumbs.db
+desktop.ini
+*.tmp
+*.bak
+*.swp
+.idea/
+.vscode/
+
+# Logs
+*.log

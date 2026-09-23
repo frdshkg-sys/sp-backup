@@ -1,0 +1,13 @@
+【CHUN KING 業務智慧表單 - Chrome 擴充功能安裝說明】
+
+此擴充功能用於在 SharePoint 內部自動打通智慧表單的頁籤跳轉與直接送出功能。
+
+【安裝步驟】（只需操作一次）：
+1. 將下載的「chrome-extension.zip」壓縮檔解壓縮到電腦中任意位置（例如：桌面或文件夾）。
+2. 開啟 Google Chrome 瀏覽器，在最上方的網址列輸入並前往：
+   chrome://extensions/
+3. 在頁面右上角，將「開發人員模式」(Developer mode) 的開關切換為【開啟】。
+4. 點選左上角的【載入未封裝項目】(Load unpacked) 按鈕。
+5. 在檔案選取視窗中，選擇剛剛解壓縮出來的「chrome-extension」資料夾（即包含 manifest.json 的資料夾），點選「選取資料夾」。
+6. 安裝完成！瀏覽器擴充功能清單中會出現「CHUN KING SharePoint Forms Auto-Bridge」。
+7. 返回 SharePoint 首頁或重新整理頁面，即可享受智慧表單的所有自動功能。
