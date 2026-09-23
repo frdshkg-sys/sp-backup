@@ -7285,6 +7285,15 @@
     document.querySelectorAll('.edit-expense-field').forEach(el => el.style.display = isExp ? 'flex' : 'none');
     document.querySelectorAll('.edit-income-field').forEach(el => el.style.display = isExp ? 'none' : 'flex');
 
+    // In batch edit mode, ensure single project and single subitem inputs remain hidden
+    if (selectedEditBatch && selectedEditBatch.length > 1) {
+      if (singleProjGroup) singleProjGroup.style.display = 'none';
+      if (singleSubitemInput) {
+        const subGroup = singleSubitemInput.closest('.form-group');
+        if (subGroup) subGroup.style.display = 'none';
+      }
+    }
+
     if (isExp) {
       const chqPrefix = document.getElementById('edit-chq-prefix');
       const chqNum = document.getElementById('edit-cheque');
