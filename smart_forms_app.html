@@ -6733,15 +6733,22 @@
       await getDigest();
       if (seq !== editTxSearchSeq) return; // Stale query superseded by user
 
-      const escapedQ = q.replace(/[<>&'"]/g, '').trim();
+      const rangeSplit = q.replace('～', '~').split(/\s*[~至]\s*/);
       let camlWhere = '';
-      if (isExp) {
-        camlWhere = `<Or><Contains><FieldRef Name='Title' /><Value Type='Text'>${escapedQ}</Value></Contains><Or><Contains><FieldRef Name='_x652f__x7968__x7de8__x865f_' /><Value Type='Text'>${escapedQ}</Value></Contains><Or><Contains><FieldRef Name='_x6536__x6b3e__x4eba_' /><Value Type='Text'>${escapedQ}</Value></Contains><Or><Contains><FieldRef Name='_x6240__x5c6c__x9805__x76ee_' /><Value Type='Lookup'>${escapedQ}</Value></Contains><Contains><FieldRef Name='_x5b50__x9805__x76ee_' /><Value Type='Text'>${escapedQ}</Value></Contains></Or></Or></Or></Or>`;
+      if (rangeSplit.length === 2 && rangeSplit[0].trim() && rangeSplit[1].trim()) {
+        const term1 = rangeSplit[0].replace(/[<>&'"]/g, '').trim();
+        const term2 = rangeSplit[1].replace(/[<>&'"]/g, '').trim();
+        camlWhere = `<Or><Contains><FieldRef Name='Title' /><Value Type='Text'>${term1}</Value></Contains><Contains><FieldRef Name='Title' /><Value Type='Text'>${term2}</Value></Contains></Or>`;
       } else {
-        camlWhere = `<Or><Contains><FieldRef Name='Title' /><Value Type='Text'>${escapedQ}</Value></Contains><Contains><FieldRef Name='_x6240__x5c6c__x9805__x76ee_' /><Value Type='Lookup'>${escapedQ}</Value></Contains></Or>`;
+        const escapedQ = q.replace(/[<>&'"]/g, '').trim();
+        if (isExp) {
+          camlWhere = `<Or><Contains><FieldRef Name='Title' /><Value Type='Text'>${escapedQ}</Value></Contains><Or><Contains><FieldRef Name='_x652f__x7968__x7de8__x865f_' /><Value Type='Text'>${escapedQ}</Value></Contains><Or><Contains><FieldRef Name='_x6536__x6b3e__x4eba_' /><Value Type='Text'>${escapedQ}</Value></Contains><Or><Contains><FieldRef Name='_x6240__x5c6c__x9805__x76ee_' /><Value Type='Lookup'>${escapedQ}</Value></Contains><Contains><FieldRef Name='_x5b50__x9805__x76ee_' /><Value Type='Text'>${escapedQ}</Value></Contains></Or></Or></Or></Or>`;
+        } else {
+          camlWhere = `<Or><Contains><FieldRef Name='Title' /><Value Type='Text'>${escapedQ}</Value></Contains><Contains><FieldRef Name='_x6240__x5c6c__x9805__x76ee_' /><Value Type='Lookup'>${escapedQ}</Value></Contains></Or>`;
+        }
       }
 
-      const camlXml = `<View><Query><Where>${camlWhere}</Where><OrderBy><FieldRef Name='ID' Ascending='FALSE' /></OrderBy></Query><RowLimit>100</RowLimit></View>`;
+      const camlXml = `<View><Query><Where>${camlWhere}</Where></Query><RowLimit>100</RowLimit></View>`;
       const postPayload = JSON.stringify({ parameters: { RenderOptions: 2, ViewXml: camlXml } });
 
       const res = await spFetch(`${SITE_URL}/_api/web/lists(guid'${guid}')/RenderListDataAsStream`, {
@@ -6974,7 +6981,7 @@
     return matches.length > 0 ? matches : [tx];
   }
 
-  function findUnpaidBatchMembers(tx) {
+  function computeUnpaidChain(tx, candidateList) {
     if (!tx || tx.paymentStatus !== '未付') return [tx];
 
     // Helper: Normalize date to YYYY-MM-DD for accurate comparison
@@ -7008,7 +7015,7 @@
     // 4. Compatible receipt URL
     // 5. CRITICALLY: Batch members must form an unbroken contiguous chain of transaction numbers (step = +1 / -1).
     //    Non-consecutive numbers (such as EXP-08166 and EXP-08168 with gaps or different payees) can NEVER be the same batch.
-    const candidates = loadedEditTransactions.filter(t => {
+    const candidates = (candidateList || []).filter(t => {
       if (!t || t.paymentStatus !== '未付') return false;
 
       // Date check
@@ -7093,6 +7100,53 @@
     }
 
     return [tx];
+  }
+
+  async function findUnpaidBatchMembers(tx) {
+    if (!tx || tx.paymentStatus !== '未付') return [tx];
+
+    let chain = computeUnpaidChain(tx, loadedEditTransactions);
+    if (chain.length > 1) return chain;
+
+    // If local chain <= 1, query SharePoint for all unpaid records sharing this payee
+    if (tx.payee && tx.payee.trim()) {
+      try {
+        await getDigest();
+        const escapedPayee = tx.payee.replace(/[<>&'"]/g, '').trim();
+        const camlWhere = `<And><Eq><FieldRef Name='_x4ed8__x6b3e__x72c0__x614b_' /><Value Type='Text'>未付</Value></Eq><Eq><FieldRef Name='_x6536__x6b3e__x4eba_' /><Value Type='Text'>${escapedPayee}</Value></Eq></And>`;
+        const camlXml = `<View><Query><Where>${camlWhere}</Where></Query><RowLimit>100</RowLimit></View>`;
+        const postPayload = JSON.stringify({ parameters: { RenderOptions: 2, ViewXml: camlXml } });
+        const res = await spFetch(`${SITE_URL}/_api/web/lists(guid'${GUID_EXPENSE}')/RenderListDataAsStream`, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json;odata=verbose',
+            'Content-Type': 'application/json;odata=verbose',
+            'X-RequestDigest': digestValue
+          },
+          body: postPayload
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const rows = (data && data.Row) ? data.Row : [];
+          if (rows.length > 0) {
+            const serverItems = rows.map(r => parseRowToTx(r, true));
+            serverItems.forEach(item => {
+              const ex = loadedEditTransactions.find(t => t.Id === item.Id);
+              if (!ex) {
+                loadedEditTransactions.push(item);
+              } else {
+                Object.assign(ex, item);
+              }
+            });
+            chain = computeUnpaidChain(tx, loadedEditTransactions);
+          }
+        }
+      } catch (err) {
+        console.warn("findUnpaidBatchMembers server lookup notice:", err);
+      }
+    }
+
+    return chain.length > 0 ? chain : [tx];
   }
 
   async function goToEditTx(txTitle, txId) {
@@ -7492,7 +7546,7 @@
       }
     } else if (isExp && tx.paymentStatus === '未付') {
       // 2. If unpaid expense without cheque, check unbroken contiguous sequence
-      const batchMembers = findUnpaidBatchMembers(tx);
+      const batchMembers = await findUnpaidBatchMembers(tx);
       if (batchMembers.length > 1) {
         selectedEditBatch = batchMembers;
       }
