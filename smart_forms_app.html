@@ -3190,10 +3190,10 @@
     <!-- Search / Record Selector -->
     <div class="edit-selector-card">
       <div class="form-group col-full">
-        <label>搜尋並選取交易記錄 <span class="badge-auto" id="edit-tx-count-badge">載入中...</span></label>
+        <label>搜尋並選取交易記錄 <span class="badge-auto" id="edit-tx-count-badge">全庫即時搜尋模式</span></label>
         <div class="combobox-container" id="edit-tx-combobox">
           <div class="combobox-input-wrap">
-            <input type="text" class="combobox-input" id="edit-tx-search" placeholder="🔍 輸入交易編號 (如 EXP-08162)、支票、廠商或項目搜尋..." autocomplete="off">
+            <input type="text" class="combobox-input" id="edit-tx-search" placeholder="🔍 輸入單號 (如 EXP-08162)、支票、廠商、小類或項目關鍵字全庫檢索..." autocomplete="off">
             <div class="combobox-actions">
               <button type="button" class="combobox-clear" id="edit-tx-clear" title="清除選取">✕</button>
               <span class="combobox-arrow">▼</span>
@@ -3205,7 +3205,7 @@
       </div>
       <div class="quick-actions-bar">
         <button type="button" class="btn-sm" onclick="refreshEditTxList()">🔄 重新載入最新記錄</button>
-        <span id="edit-load-status" style="font-size:12px; color:var(--text-muted);">正在準備最新記錄...</span>
+        <span id="edit-load-status" style="font-size:12px; color:var(--text-muted);">已就緒 (輸入關鍵字即可全庫檢索)</span>
       </div>
     </div>
 
@@ -6276,6 +6276,9 @@
     return true;
   }
 
+  let editTxSearchTimer = null;
+  let editTxSearchSeq = 0;
+
   function initEditTxCombobox() {
     const input = document.getElementById('edit-tx-search');
     const clearBtn = document.getElementById('edit-tx-clear');
@@ -6285,12 +6288,16 @@
     if (!input || !dropdown) return;
 
     input.addEventListener('focus', () => {
-      filterEditTransactions(input.value);
+      if (input.value && input.value.trim().length >= 2) {
+        handleEditTxSearchInput(input.value);
+      } else {
+        renderEditTxResults(loadedEditTransactions.slice(0, 30), '', false, 'recent');
+      }
     });
 
     input.addEventListener('input', () => {
       if (clearBtn) clearBtn.style.display = input.value ? 'block' : 'none';
-      filterEditTransactions(input.value);
+      handleEditTxSearchInput(input.value);
     });
 
     if (clearBtn) {
@@ -6299,7 +6306,7 @@
         input.value = '';
         clearBtn.style.display = 'none';
         cancelEditTransaction();
-        filterEditTransactions('');
+        renderEditTxResults(loadedEditTransactions.slice(0, 30), '', false, 'recent');
         input.focus();
       });
     }
@@ -6307,7 +6314,11 @@
     input.addEventListener('keydown', (e) => {
       if (dropdown.style.display === 'none') {
         if (e.key === 'ArrowDown') {
-          filterEditTransactions(input.value);
+          if (input.value && input.value.trim().length >= 2) {
+            handleEditTxSearchInput(input.value);
+          } else {
+            renderEditTxResults(loadedEditTransactions.slice(0, 30), '', false, 'recent');
+          }
           e.preventDefault();
         }
         return;
@@ -6345,7 +6356,11 @@
           if (e.target === clearBtn || e.target.closest('.combobox-clear')) return;
           if (dropdown.style.display === 'none') {
             input.focus();
-            filterEditTransactions(input.value);
+            if (input.value && input.value.trim().length >= 2) {
+              handleEditTxSearchInput(input.value);
+            } else {
+              renderEditTxResults(loadedEditTransactions.slice(0, 30), '', false, 'recent');
+            }
           }
         });
       }
@@ -6451,48 +6466,80 @@
     };
   }
 
-  let serverSearchTimer = null;
   let isServerSearching = false;
+
+  function handleEditTxSearchInput(rawVal) {
+    const q = (rawVal || '').trim();
+    clearTimeout(editTxSearchTimer);
+
+    if (!q) {
+      renderEditTxResults(loadedEditTransactions.slice(0, 30), '', false, 'recent');
+      const statusEl = document.getElementById('edit-load-status');
+      if (statusEl) statusEl.textContent = '已就緒 (輸入關鍵字即可全庫檢索)';
+      return;
+    }
+
+    if (q.length < 2) {
+      const dropdown = document.getElementById('edit-tx-dropdown');
+      if (dropdown) {
+        dropdown.innerHTML = `
+          <div class="combobox-empty" style="color:var(--text-muted); font-size:12.5px; padding:14px 16px; line-height:1.5;">
+            💡 請輸入至少 2 個字元以啟動全庫搜尋<br>
+            <span style="font-size:11.5px; color:#64748b;">(支援交易單號、支票編號、廠商、所屬項目或小類關鍵字)</span>
+          </div>
+        `;
+        dropdown.style.display = 'block';
+      }
+      const statusEl = document.getElementById('edit-load-status');
+      if (statusEl) statusEl.textContent = '請輸入至少 2 個字元以啟動全庫檢索...';
+      return;
+    }
+
+    // Immediately provide visual feedback in dropdown
+    const dropdown = document.getElementById('edit-tx-dropdown');
+    if (dropdown) {
+      dropdown.innerHTML = `
+        <div class="combobox-loading-item" style="padding:14px; text-align:center; color:#0284c7; font-size:13px; display:flex; align-items:center; justify-content:center; gap:8px;">
+          <span style="display:inline-block; width:13px; height:13px; border:2px solid #0284c7; border-top-color:transparent; border-radius:50%; animation:spin 0.8s linear infinite;"></span>
+          正在 SharePoint 全庫 (10,000+ 筆) 中即時搜尋 "<strong>${escapeHtml(q)}</strong>"...
+        </div>
+      `;
+      dropdown.style.display = 'block';
+    }
+    const statusEl = document.getElementById('edit-load-status');
+    if (statusEl) statusEl.textContent = `🔍 準備全庫搜尋 "${q}"...`;
+
+    // 300ms debounce to prevent API throttling
+    editTxSearchTimer = setTimeout(() => {
+      searchServerTransactions(q);
+    }, 300);
+  }
 
   async function searchServerTransactions(query) {
     const q = (query || '').trim();
     if (!q || q.length < 2) return;
+
+    const seq = ++editTxSearchSeq;
     const isExp = (currentEditType === 'expense');
     const guid = isExp ? GUID_EXPENSE : GUID_INCOME;
     const statusEl = document.getElementById('edit-load-status');
     const dropdown = document.getElementById('edit-tx-dropdown');
 
-    if (isServerSearching) return;
-    isServerSearching = true;
-
-    if (statusEl) statusEl.textContent = `🔍 正在穿透 SharePoint 全庫檢索 "${q}"...`;
-
-    if (dropdown) {
-      const loadingDiv = document.createElement('div');
-      loadingDiv.className = 'combobox-loading-item';
-      loadingDiv.style.padding = '10px 14px';
-      loadingDiv.style.fontSize = '12px';
-      loadingDiv.style.color = '#0284c7';
-      loadingDiv.style.backgroundColor = '#f0f9ff';
-      loadingDiv.style.borderTop = '1px solid #bae6fd';
-      loadingDiv.style.display = 'flex';
-      loadingDiv.style.alignItems = 'center';
-      loadingDiv.style.gap = '8px';
-      loadingDiv.innerHTML = `<span style="display:inline-block; width:12px; height:12px; border:2px solid #0284c7; border-top-color:transparent; border-radius:50%; animation:spin 0.8s linear infinite;"></span> 正在穿透全庫 (10,000+ 筆) 檢索 "${escapeHtml(q)}"...`;
-      dropdown.appendChild(loadingDiv);
-    }
+    if (statusEl) statusEl.textContent = `🔍 正在檢索 SharePoint 全庫 "${q}"...`;
 
     try {
       await getDigest();
+      if (seq !== editTxSearchSeq) return; // Stale query superseded by user
+
       const escapedQ = q.replace(/[<>&'"]/g, '').trim();
       let camlWhere = '';
       if (isExp) {
-        camlWhere = `<Or><Contains><FieldRef Name='Title' /><Value Type='Text'>${escapedQ}</Value></Contains><Or><Contains><FieldRef Name='_x652f__x7968__x7de8__x865f_' /><Value Type='Text'>${escapedQ}</Value></Contains><Or><Contains><FieldRef Name='_x6536__x6b3e__x4eba_' /><Value Type='Text'>${escapedQ}</Value></Contains><Contains><FieldRef Name='_x6240__x5c6c__x9805__x76ee_' /><Value Type='Lookup'>${escapedQ}</Value></Contains></Or></Or></Or>`;
+        camlWhere = `<Or><Contains><FieldRef Name='Title' /><Value Type='Text'>${escapedQ}</Value></Contains><Or><Contains><FieldRef Name='_x652f__x7968__x7de8__x865f_' /><Value Type='Text'>${escapedQ}</Value></Contains><Or><Contains><FieldRef Name='_x6536__x6b3e__x4eba_' /><Value Type='Text'>${escapedQ}</Value></Contains><Or><Contains><FieldRef Name='_x6240__x5c6c__x9805__x76ee_' /><Value Type='Lookup'>${escapedQ}</Value></Contains><Contains><FieldRef Name='_x5b50__x9805__x76ee_' /><Value Type='Text'>${escapedQ}</Value></Contains></Or></Or></Or></Or>`;
       } else {
         camlWhere = `<Or><Contains><FieldRef Name='Title' /><Value Type='Text'>${escapedQ}</Value></Contains><Contains><FieldRef Name='_x6240__x5c6c__x9805__x76ee_' /><Value Type='Lookup'>${escapedQ}</Value></Contains></Or>`;
       }
 
-      const camlXml = `<View><Query><Where>${camlWhere}</Where></Query><RowLimit>100</RowLimit></View>`;
+      const camlXml = `<View><Query><Where>${camlWhere}</Where><OrderBy><FieldRef Name='ID' Ascending='FALSE' /></OrderBy></Query><RowLimit>100</RowLimit></View>`;
       const postPayload = JSON.stringify({ parameters: { RenderOptions: 2, ViewXml: camlXml } });
 
       const res = await spFetch(`${SITE_URL}/_api/web/lists(guid'${guid}')/RenderListDataAsStream`, {
@@ -6505,53 +6552,51 @@
         body: postPayload
       });
 
+      if (seq !== editTxSearchSeq) return;
+
       if (res.ok) {
         const data = await res.json();
         const rows = (data && data.Row) ? data.Row : [];
         const newItems = rows.map(r => parseRowToTx(r, isExp));
         newItems.sort((a, b) => (b.Id || 0) - (a.Id || 0));
 
-        let addedCount = 0;
+        // Merge into loadedEditTransactions cache so batch lookups and selection operate on complete objects
         newItems.forEach(item => {
-          if (!loadedEditTransactions.some(ex => ex.Id === item.Id)) {
-            loadedEditTransactions.unshift(item);
-            addedCount++;
+          const idx = loadedEditTransactions.findIndex(ex => ex.Id === item.Id);
+          if (idx >= 0) {
+            loadedEditTransactions[idx] = item;
+          } else {
+            loadedEditTransactions.push(item);
           }
         });
 
-        if (statusEl) statusEl.textContent = `✅ 全庫檢索完成：找到 ${newItems.length} 筆相符記錄 (新增緩存 ${addedCount} 筆)`;
+        if (statusEl) statusEl.textContent = `✅ 全庫檢索完成：找到 ${newItems.length} 筆相符記錄`;
+        renderEditTxResults(newItems, q, true, 'server');
       } else {
         if (statusEl) statusEl.textContent = `⚠️ 全庫檢索回應: ${res.status}`;
+        if (dropdown) {
+          dropdown.innerHTML = `<div class="combobox-empty">⚠️ 檢索伺服器回傳狀態 ${res.status}，請稍後重試</div>`;
+          dropdown.style.display = 'block';
+        }
       }
     } catch (err) {
+      if (seq !== editTxSearchSeq) return;
       console.warn("searchServerTransactions notice:", err);
       if (statusEl) statusEl.textContent = `全庫檢索提示: ${err.message}`;
-    } finally {
-      isServerSearching = false;
-      filterEditTransactions(q, true);
+      if (dropdown) {
+        dropdown.innerHTML = `<div class="combobox-empty">檢索失敗：${escapeHtml(err.message)}</div>`;
+        dropdown.style.display = 'block';
+      }
     }
   }
 
-  function filterEditTransactions(query, isServerResult = false) {
-    const q = (query || '').trim().toLowerCase();
+  function renderEditTxResults(items, query, isServerResult = false, mode = 'server') {
+    const q = (query || '').trim();
     const dropdown = document.getElementById('edit-tx-dropdown');
     if (!dropdown) return;
     dropdown.innerHTML = '';
     editTxSelectedIndex = -1;
-
-    if (!q) {
-      filteredEditTransactions = [...loadedEditTransactions];
-    } else {
-      filteredEditTransactions = loadedEditTransactions.filter(tx => {
-        return (tx.Title && tx.Title.toLowerCase().includes(q)) ||
-               (tx.cheque && tx.cheque.toLowerCase().includes(q)) ||
-               (tx.payee && tx.payee.toLowerCase().includes(q)) ||
-               (tx.bank && tx.bank.toLowerCase().includes(q)) ||
-               (tx.projName && tx.projName.toLowerCase().includes(q)) ||
-               (tx.subitem && tx.subitem.toLowerCase().includes(q)) ||
-               String(tx.amount).includes(q);
-      });
-    }
+    filteredEditTransactions = items || [];
 
     const isExp = (currentEditType === 'expense');
     const frag = document.createDocumentFragment();
@@ -6559,16 +6604,8 @@
     if (filteredEditTransactions.length === 0) {
       const emptyDiv = document.createElement('div');
       emptyDiv.className = 'combobox-empty';
-      emptyDiv.innerHTML = isServerResult ? `全庫無相符的交易記錄` : `快取中無相符記錄，正在全庫搜尋中...`;
+      emptyDiv.innerHTML = (mode === 'server') ? `全庫無相符的交易記錄 (已檢索 10,000+ 筆)` : `尚無相符記錄`;
       frag.appendChild(emptyDiv);
-
-      // Automatic server search trigger after 400ms if no local matches
-      if (q.length >= 2 && !isServerResult && !isServerSearching) {
-        clearTimeout(serverSearchTimer);
-        serverSearchTimer = setTimeout(() => {
-          searchServerTransactions(q);
-        }, 400);
-      }
     } else {
       filteredEditTransactions.slice(0, 50).forEach(tx => {
         const div = document.createElement('div');
@@ -6610,43 +6647,32 @@
 
         frag.appendChild(div);
       });
-    }
 
-    // Always offer a server search button if query is entered (so user can search entire 10,000+ db anytime)
-    if (q.length >= 2 && !isServerSearching) {
-      const serverSearchBtn = document.createElement('div');
-      serverSearchBtn.style.padding = '10px 14px';
-      serverSearchBtn.style.fontSize = '12px';
-      serverSearchBtn.style.color = '#0284c7';
-      serverSearchBtn.style.backgroundColor = '#f8fafc';
-      serverSearchBtn.style.borderTop = '1px solid #e2e8f0';
-      serverSearchBtn.style.cursor = 'pointer';
-      serverSearchBtn.style.display = 'flex';
-      serverSearchBtn.style.alignItems = 'center';
-      serverSearchBtn.style.justifyContent = 'space-between';
-      serverSearchBtn.innerHTML = `
-        <span>🔍 在 SharePoint 全庫 (10,000+ 筆) 中穿透搜尋 "<strong>${escapeHtml(q)}</strong>"...</span>
-        <span style="font-size:11px; background:#e0f2fe; color:#0369a1; padding:2px 8px; border-radius:4px; font-weight:600;">點擊全庫搜尋</span>
-      `;
-      serverSearchBtn.addEventListener('mousedown', (e) => {
-        e.preventDefault();
-        searchServerTransactions(q);
-      });
-      frag.appendChild(serverSearchBtn);
-    }
-
-    if (filteredEditTransactions.length > 50) {
-      const moreDiv = document.createElement('div');
-      moreDiv.style.padding = '8px 12px';
-      moreDiv.style.fontSize = '12px';
-      moreDiv.style.color = 'var(--text-muted)';
-      moreDiv.style.textAlign = 'center';
-      moreDiv.textContent = `(已顯示前 50 筆，請輸入更具體的編號或文字縮小搜尋範圍)`;
-      frag.appendChild(moreDiv);
+      const summaryDiv = document.createElement('div');
+      summaryDiv.style.padding = '8px 12px';
+      summaryDiv.style.fontSize = '11.5px';
+      summaryDiv.style.textAlign = 'center';
+      if (mode === 'server') {
+        summaryDiv.style.color = '#0369a1';
+        summaryDiv.style.backgroundColor = '#f0f9ff';
+        summaryDiv.style.borderTop = '1px solid #e0f2fe';
+        summaryDiv.textContent = `✅ 已由全庫檢索，共找到 ${filteredEditTransactions.length} 筆相符記錄${filteredEditTransactions.length > 50 ? ' (顯示前 50 筆)' : ''}`;
+      } else {
+        summaryDiv.style.color = 'var(--text-muted)';
+        summaryDiv.style.backgroundColor = '#f8fafc';
+        summaryDiv.style.borderTop = '1px solid #f1f5f9';
+        summaryDiv.textContent = `💡 顯示最新 ${filteredEditTransactions.length} 筆記錄，輸入關鍵字即可全庫檢索`;
+      }
+      frag.appendChild(summaryDiv);
     }
 
     dropdown.appendChild(frag);
     dropdown.style.display = 'block';
+  }
+
+  // Alias filterEditTransactions for backward compatibility
+  function filterEditTransactions(query, isServerResult = false) {
+    handleEditTxSearchInput(query);
   }
 
   async function loadRecentTransactions(type, force = false) {
@@ -6659,8 +6685,8 @@
 
     try {
       await getDigest();
-      // Scheme 3: Load top 500 records by default for rapid local browsing
-      const camlXml = "<View><Query><OrderBy><FieldRef Name='ID' Ascending='FALSE' /></OrderBy></Query><RowLimit>500</RowLimit></View>";
+      // Load top 50 records by default for instant display when search is empty
+      const camlXml = "<View><Query><OrderBy><FieldRef Name='ID' Ascending='FALSE' /></OrderBy></Query><RowLimit>50</RowLimit></View>";
       const postPayload = JSON.stringify({ parameters: { RenderOptions: 2, ViewXml: camlXml } });
 
       const res = await spFetch(`${SITE_URL}/_api/web/lists(guid'${guid}')/RenderListDataAsStream`, {
@@ -6682,8 +6708,8 @@
 
       loadedEditTransactions = rows.map(r => parseRowToTx(r, isExp));
 
-      if (badgeEl) badgeEl.textContent = `已快取最新 ${loadedEditTransactions.length} 筆 (支援全庫搜尋)`;
-      if (statusEl) statusEl.textContent = '已就緒';
+      if (badgeEl) badgeEl.textContent = `全庫即時搜尋模式 (支援 10,000+ 筆)`;
+      if (statusEl) statusEl.textContent = '已就緒 (輸入關鍵字即可全庫檢索)';
 
     } catch (err) {
       console.error("loadRecentTransactions error:", err);
@@ -6879,8 +6905,8 @@
     if (!tx && txTitle) {
       const searchInp = document.getElementById('edit-tx-search');
       if (searchInp) searchInp.value = txTitle;
-      await filterEditTransactions(txTitle);
-      tx = filteredEditTransactions.find(t => t.Title === txTitle);
+      await searchServerTransactions(txTitle);
+      tx = filteredEditTransactions.find(t => t.Title === txTitle) || loadedEditTransactions.find(t => t.Title === txTitle);
     }
 
     if (tx) {
