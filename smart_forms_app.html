@@ -2308,6 +2308,7 @@
       text-decoration: none;
       transition: all 0.15s ease;
       white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .btn-quick-update-pay:hover {
@@ -2315,6 +2316,32 @@
       color: #78350f;
       border-color: #d97706;
       box-shadow: 0 1px 3px rgba(217, 119, 6, 0.2);
+      transform: translateY(-1px);
+    }
+
+    .btn-quick-edit {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 2px 7px;
+      background: #f8fafc;
+      color: #475569;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .btn-quick-edit:hover {
+      background: #f1f5f9;
+      color: #1e293b;
+      border-color: #94a3b8;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
       transform: translateY(-1px);
     }
 
@@ -3852,7 +3879,7 @@
                   <col style="width: auto;">
                   <col style="width: auto;">
                   <col style="width: auto;">
-                  <col style="width: 140px;">
+                  <col style="width: 175px;">
                 </colgroup>
                 <thead>
                   <tr>
@@ -3863,7 +3890,7 @@
                     <th>小類</th>
                     <th>收款人</th>
                     <th>備註</th>
-                    <th>收據文件</th>
+                    <th>收據 / 操作</th>
                   </tr>
                 </thead>
                 <tbody id="period-tx-tbody">
@@ -4026,7 +4053,7 @@
                   <col style="width: auto;">
                   <col style="width: auto;">
                   <col style="width: auto;">
-                  <col style="width: 140px;">
+                  <col style="width: 175px;">
                 </colgroup>
                 <thead>
                   <tr>
@@ -4036,7 +4063,7 @@
                     <th>小類</th>
                     <th>收款人</th>
                     <th>備註</th>
-                    <th>收據文件</th>
+                    <th>收據 / 操作</th>
                   </tr>
                 </thead>
                 <tbody id="proj-tx-tbody">
@@ -7753,20 +7780,23 @@
       return chain.length > 0 ? chain : [tx];
     }
 
-    async function goToEditTx(txTitle, txId) {
+    async function goToEditTx(txTitle, txId, txType = 'expense') {
+      const normType = (txType === 'income' || txType === '收入') ? 'income' : 'expense';
       switchTab('edit-tx');
-      await setEditTxType('expense');
+      await setEditTxType(normType);
 
       if (!loadedEditTransactions || loadedEditTransactions.length === 0) {
-        await loadRecentTransactions('expense');
+        await loadRecentTransactions(normType);
       }
 
       let tx = loadedEditTransactions.find(t => (txId && t.Id === txId) || (txTitle && t.Title === txTitle));
-      if (!tx && txTitle) {
+      if (!tx && (txTitle || txId)) {
+        const queryTerm = txTitle || String(txId);
         const searchInp = document.getElementById('edit-tx-search');
-        if (searchInp) searchInp.value = txTitle;
-        await searchServerTransactions(txTitle);
-        tx = filteredEditTransactions.find(t => t.Title === txTitle) || loadedEditTransactions.find(t => t.Title === txTitle);
+        if (searchInp) searchInp.value = queryTerm;
+        await searchServerTransactions(queryTerm);
+        tx = filteredEditTransactions.find(t => (txId && t.Id === txId) || (txTitle && t.Title === txTitle))
+          || loadedEditTransactions.find(t => (txId && t.Id === txId) || (txTitle && t.Title === txTitle));
       }
 
       if (tx) {
@@ -9869,6 +9899,41 @@
       renderPeriodTxTable();
     }
 
+    function renderTxReceiptAndActionCell(item, origin) {
+      const isExp = (item.type !== 'income');
+      const isUnpaid = isExp && (item.paymentStatus === '未付');
+      const txType = isExp ? 'expense' : 'income';
+      const titleSafe = escapeHtml(item.title || '');
+      const idSafe = item.id || 0;
+
+      const editBtn = isUnpaid
+        ? `<button type="button" class="btn-quick-update-pay" onclick="event.stopPropagation(); goToEditTx('${titleSafe}', ${idSafe}, '${txType}')" title="編輯此記錄 (未付)">✏️ 編輯</button>`
+        : `<button type="button" class="btn-quick-edit" onclick="event.stopPropagation(); goToEditTx('${titleSafe}', ${idSafe}, '${txType}')" title="編輯此記錄">✏️ 編輯</button>`;
+
+      let contentHtml = '';
+      if (isUnpaid) {
+        const unpaidTagHtml = `<span class="proj-tx-status unpaid" style="font-size:11px; margin-left:0; flex-shrink:0;">未付</span>`;
+        if (item.receipt) {
+          const fullUrl = item.receipt.startsWith('/') ? origin + item.receipt : item.receipt;
+          const descText = item.receiptDesc || '查看憑證';
+          contentHtml = `${unpaidTagHtml} <a href="${encodeURI(fullUrl)}" target="_blank" rel="noopener" class="proj-tx-receipt-link" title="${escapeHtml(descText)}">📄 憑證 ↗</a> ${editBtn}`;
+        } else {
+          contentHtml = `${unpaidTagHtml} ${editBtn}`;
+        }
+      } else if (item.receipt) {
+        const fullUrl = item.receipt.startsWith('/') ? origin + item.receipt : item.receipt;
+        const descText = item.receiptDesc || '查看憑證';
+        contentHtml = `<a href="${encodeURI(fullUrl)}" target="_blank" rel="noopener" class="proj-tx-receipt-link" title="${escapeHtml(descText)}">📄 憑證 ↗</a> ${editBtn}`;
+      } else if (isExp && item.cheque && item.cheque.trim()) {
+        const chqText = escapeHtml(item.cheque.trim());
+        contentHtml = `<span style="color:#475569; font-weight:500; font-size:11.5px; flex-shrink:0;" title="支票號碼: ${chqText}">${chqText}</span> ${editBtn}`;
+      } else {
+        contentHtml = `<span class="proj-tx-no-receipt" style="flex-shrink:0;">無收據</span> ${editBtn}`;
+      }
+
+      return `<div style="display:flex; align-items:center; gap:5px; flex-wrap:nowrap;">${contentHtml}</div>`;
+    }
+
     function renderPeriodTxTable() {
       const items = currentPeriodTxItems || [];
       const totalCount = items.length;
@@ -10080,29 +10145,7 @@
               remarksHtml = `<span class="proj-tx-remarks" title="${escapeHtml(remarksText)}">${escapeHtml(remarksText)}</span>`;
             }
 
-            let receiptHtml = '';
-            if (isItemUnpaid) {
-              const payBtnHtml = `<button type="button" class="btn-quick-update-pay" onclick="event.stopPropagation(); goToEditTx('${escapeHtml(item.title || '')}', ${item.id || 0})" title="立即前往登記支票與付款狀態">✏️ 登記付款</button>`;
-              const unpaidTagHtml = `<span class="proj-tx-status unpaid" style="font-size:11px; margin-left:0;">未付</span>`;
-              if (item.receipt) {
-                let fullUrl = item.receipt.startsWith('/') ? origin + item.receipt : item.receipt;
-                const descText = item.receiptDesc || '查看憑證';
-                receiptHtml = `<div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">${unpaidTagHtml} <a href="${encodeURI(fullUrl)}" target="_blank" rel="noopener" class="proj-tx-receipt-link" title="${escapeHtml(descText)}">📄 憑證 ↗</a> ${payBtnHtml}</div>`;
-              } else {
-                receiptHtml = `<div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">${unpaidTagHtml} ${payBtnHtml}</div>`;
-              }
-            } else if (item.receipt) {
-              let fullUrl = item.receipt;
-              if (fullUrl.startsWith('/')) {
-                fullUrl = origin + fullUrl;
-              }
-              const descText = item.receiptDesc || '查看憑證';
-              receiptHtml = `<a href="${encodeURI(fullUrl)}" target="_blank" rel="noopener" class="proj-tx-receipt-link" title="${escapeHtml(descText)}">📄 ${escapeHtml(descText)} ↗</a>`;
-            } else if (item.cheque && item.cheque.trim()) {
-              receiptHtml = `<span style="color:#475569; font-weight:500; font-size:12px;" title="支票號碼: ${escapeHtml(item.cheque.trim())}">${escapeHtml(item.cheque.trim())}</span>`;
-            } else {
-              receiptHtml = `<span class="proj-tx-status unpaid" style="font-size:11px; margin-left:0;">未付</span>`;
-            }
+            const receiptHtml = renderTxReceiptAndActionCell(item, origin);
 
             const childRowClass = `proj-tx-group-child period-group-child-${groupId} ${isItemUnpaid ? 'proj-tx-row-unpaid' : ''} ${isExpanded ? '' : 'is-hidden'}`;
 
@@ -10182,31 +10225,7 @@
           remarksHtml = `<span class="proj-tx-remarks" title="${escapeHtml(remarksText)}">${escapeHtml(remarksText)}</span>`;
         }
 
-        let receiptHtml = '';
-        if (isUnpaid) {
-          const payBtnHtml = `<button type="button" class="btn-quick-update-pay" onclick="event.stopPropagation(); goToEditTx('${escapeHtml(item.title || '')}', ${item.id || 0})" title="立即前往登記支票與付款狀態">✏️ 登記付款</button>`;
-          const unpaidTagHtml = `<span class="proj-tx-status unpaid" style="font-size:11px; margin-left:0;">未付</span>`;
-          if (item.receipt) {
-            let fullUrl = item.receipt.startsWith('/') ? origin + item.receipt : item.receipt;
-            const descText = item.receiptDesc || '查看憑證';
-            receiptHtml = `<div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">${unpaidTagHtml} <a href="${encodeURI(fullUrl)}" target="_blank" rel="noopener" class="proj-tx-receipt-link" title="${escapeHtml(descText)}">📄 憑證 ↗</a> ${payBtnHtml}</div>`;
-          } else {
-            receiptHtml = `<div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">${unpaidTagHtml} ${payBtnHtml}</div>`;
-          }
-        } else if (item.receipt) {
-          let fullUrl = item.receipt;
-          if (fullUrl.startsWith('/')) {
-            fullUrl = origin + fullUrl;
-          }
-          const descText = item.receiptDesc || '查看憑證';
-          receiptHtml = `<a href="${encodeURI(fullUrl)}" target="_blank" rel="noopener" class="proj-tx-receipt-link" title="${escapeHtml(descText)}">📄 ${escapeHtml(descText)} ↗</a>`;
-        } else if (item.cheque && item.cheque.trim()) {
-          receiptHtml = `<span style="color:#475569; font-weight:500; font-size:12px;" title="支票號碼: ${escapeHtml(item.cheque.trim())}">${escapeHtml(item.cheque.trim())}</span>`;
-        } else if (isExp) {
-          receiptHtml = `<span class="proj-tx-status unpaid" style="font-size:11px; margin-left:0;">未付</span>`;
-        } else {
-          receiptHtml = '<span class="proj-tx-no-receipt">無收據</span>';
-        }
+        const receiptHtml = renderTxReceiptAndActionCell(item, origin);
 
         return `
         <tr class="${isUnpaid ? 'proj-tx-row-unpaid' : ''}">
@@ -11465,29 +11484,7 @@
               remarksHtml = `<span class="proj-tx-remarks" title="${escapeHtml(remarksText)}">${escapeHtml(remarksText)}</span>`;
             }
 
-            let receiptHtml = '';
-            if (isItemUnpaid) {
-              const payBtnHtml = `<button type="button" class="btn-quick-update-pay" onclick="event.stopPropagation(); goToEditTx('${escapeHtml(item.title || '')}', ${item.id || 0})" title="立即前往登記支票與付款狀態">✏️ 登記付款</button>`;
-              const unpaidTagHtml = `<span class="proj-tx-status unpaid" style="font-size:11px; margin-left:0;">未付</span>`;
-              if (item.receipt) {
-                let fullUrl = item.receipt.startsWith('/') ? origin + item.receipt : item.receipt;
-                const descText = item.receiptDesc || '查看憑證';
-                receiptHtml = `<div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">${unpaidTagHtml} <a href="${encodeURI(fullUrl)}" target="_blank" rel="noopener" class="proj-tx-receipt-link" title="${escapeHtml(descText)}">📄 憑證 ↗</a> ${payBtnHtml}</div>`;
-              } else {
-                receiptHtml = `<div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">${unpaidTagHtml} ${payBtnHtml}</div>`;
-              }
-            } else if (item.receipt) {
-              let fullUrl = item.receipt;
-              if (fullUrl.startsWith('/')) {
-                fullUrl = origin + fullUrl;
-              }
-              const descText = item.receiptDesc || '查看憑證';
-              receiptHtml = `<a href="${encodeURI(fullUrl)}" target="_blank" rel="noopener" class="proj-tx-receipt-link" title="${escapeHtml(descText)}">📄 ${escapeHtml(descText)} ↗</a>`;
-            } else if (item.cheque && item.cheque.trim()) {
-              receiptHtml = `<span style="color:#475569; font-weight:500; font-size:12px;" title="支票號碼: ${escapeHtml(item.cheque.trim())}">${escapeHtml(item.cheque.trim())}</span>`;
-            } else {
-              receiptHtml = '<span class="proj-tx-no-receipt">無收據</span>';
-            }
+            const receiptHtml = renderTxReceiptAndActionCell(item, origin);
 
             const childRowClass = `proj-tx-group-child group-child-${groupId} ${isItemUnpaid ? 'proj-tx-row-unpaid' : ''} ${isExpanded ? '' : 'is-hidden'}`;
 
@@ -11563,31 +11560,7 @@
           remarksHtml = `<span class="proj-tx-remarks" title="${escapeHtml(remarksText)}">${escapeHtml(remarksText)}</span>`;
         }
 
-        let receiptHtml = '';
-        if (isUnpaid) {
-          const payBtnHtml = `<button type="button" class="btn-quick-update-pay" onclick="event.stopPropagation(); goToEditTx('${escapeHtml(item.title || '')}', ${item.id || 0})" title="立即前往登記支票與付款狀態">✏️ 登記付款</button>`;
-          const unpaidTagHtml = `<span class="proj-tx-status unpaid" style="font-size:11px; margin-left:0;">未付</span>`;
-          if (item.receipt) {
-            let fullUrl = item.receipt.startsWith('/') ? origin + item.receipt : item.receipt;
-            const descText = item.receiptDesc || '查看憑證';
-            receiptHtml = `<div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">${unpaidTagHtml} <a href="${encodeURI(fullUrl)}" target="_blank" rel="noopener" class="proj-tx-receipt-link" title="${escapeHtml(descText)}">📄 憑證 ↗</a> ${payBtnHtml}</div>`;
-          } else {
-            receiptHtml = `<div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">${unpaidTagHtml} ${payBtnHtml}</div>`;
-          }
-        } else if (item.receipt) {
-          let fullUrl = item.receipt;
-          if (fullUrl.startsWith('/')) {
-            fullUrl = origin + fullUrl;
-          }
-          const descText = item.receiptDesc || '查看憑證';
-          receiptHtml = `<a href="${encodeURI(fullUrl)}" target="_blank" rel="noopener" class="proj-tx-receipt-link" title="${escapeHtml(descText)}">📄 ${escapeHtml(descText)} ↗</a>`;
-        } else if (item.cheque && item.cheque.trim()) {
-          receiptHtml = `<span style="color:#475569; font-weight:500; font-size:12px;" title="支票號碼: ${escapeHtml(item.cheque.trim())}">${escapeHtml(item.cheque.trim())}</span>`;
-        } else if (item.type === 'expense') {
-          receiptHtml = `<span class="proj-tx-status unpaid" style="font-size:11px; margin-left:0;">未付</span>`;
-        } else {
-          receiptHtml = '<span class="proj-tx-no-receipt">無收據</span>';
-        }
+        const receiptHtml = renderTxReceiptAndActionCell(item, origin);
 
         return `
         <tr class="${isUnpaid ? 'proj-tx-row-unpaid' : ''}">
