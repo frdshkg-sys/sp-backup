@@ -35,6 +35,8 @@ desktop.ini
 # Logs
 *.log
 
-~$*.xslx
+# Excel Files
+*.xslx
 
+# Scratch Files
 scratch/*
