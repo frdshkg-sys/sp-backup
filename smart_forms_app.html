@@ -8837,6 +8837,7 @@
         const firstTitle = selectedEditBatch[0].Title;
         const lastTitle = selectedEditBatch[selectedEditBatch.length - 1].Title;
         const isMulti = (selectedEditBatch.length > 1);
+        const rangeText = (firstTitle !== lastTitle) ? `${firstTitle} ～ ${lastTitle}` : firstTitle;
         const dispIdEl = document.getElementById('edit-display-id');
         if (dispIdEl) dispIdEl.textContent = isMulti ? `${rangeText} (共 ${selectedEditBatch.length} 筆)` : (tx.Title || `ID: ${tx.Id}`);
         const dispTypeEl = document.getElementById('edit-display-type');
