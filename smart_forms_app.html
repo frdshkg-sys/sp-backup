@@ -3512,7 +3512,7 @@
       <!-- Edit Form Container -->
       <div id="edit-tx-form-container" style="display:none; margin-top:20px;">
         <form id="form-edit-tx" onsubmit="event.preventDefault(); submitEditTransaction(event); return false;">
-          <div class="edit-header-info">
+          <div class="edit-header-info" style="display:none !important;">
             <div class="tx-badge-group">
               <span class="badge-tx-id" id="edit-display-id">EXP-00000</span>
               <span class="badge-type" id="edit-display-type">💸 支出記錄</span>
@@ -8837,10 +8837,12 @@
         const firstTitle = selectedEditBatch[0].Title;
         const lastTitle = selectedEditBatch[selectedEditBatch.length - 1].Title;
         const isMulti = (selectedEditBatch.length > 1);
-        const rangeText = (firstTitle !== lastTitle) ? `${firstTitle} ～ ${lastTitle}` : firstTitle;
-        document.getElementById('edit-display-id').textContent = isMulti ? `${rangeText} (共 ${selectedEditBatch.length} 筆)` : (tx.Title || `ID: ${tx.Id}`);
-        document.getElementById('edit-display-type').textContent = tx.cheque ? `📑 多項目分攤支出 (${tx.cheque})` : '📑 多項目分攤支出';
-        document.getElementById('edit-display-modified').textContent = tx.modifiedDisplay ? `最後修改: ${tx.modifiedDisplay}` : '';
+        const dispIdEl = document.getElementById('edit-display-id');
+        if (dispIdEl) dispIdEl.textContent = isMulti ? `${rangeText} (共 ${selectedEditBatch.length} 筆)` : (tx.Title || `ID: ${tx.Id}`);
+        const dispTypeEl = document.getElementById('edit-display-type');
+        if (dispTypeEl) dispTypeEl.textContent = tx.cheque ? `📑 多項目分攤支出 (${tx.cheque})` : '📑 多項目分攤支出';
+        const dispModEl = document.getElementById('edit-display-modified');
+        if (dispModEl) dispModEl.textContent = tx.modifiedDisplay ? `最後修改: ${tx.modifiedDisplay}` : '';
 
         renderEditBatchTable();
 
@@ -8882,9 +8884,12 @@
           if (subGroup) subGroup.style.display = 'none';
         }
 
-        document.getElementById('edit-display-id').textContent = tx.Title || `ID: ${tx.Id}`;
-        document.getElementById('edit-display-type').textContent = '💰 收入記錄';
-        document.getElementById('edit-display-modified').textContent = tx.modifiedDisplay ? `最後修改: ${tx.modifiedDisplay}` : '';
+        const dispIdEl = document.getElementById('edit-display-id');
+        if (dispIdEl) dispIdEl.textContent = tx.Title || `ID: ${tx.Id}`;
+        const dispTypeEl = document.getElementById('edit-display-type');
+        if (dispTypeEl) dispTypeEl.textContent = '💰 收入記錄';
+        const dispModEl = document.getElementById('edit-display-modified');
+        if (dispModEl) dispModEl.textContent = tx.modifiedDisplay ? `最後修改: ${tx.modifiedDisplay}` : '';
       }
 
       document.getElementById('edit-status').value = tx.status || '有效';
