@@ -34,3 +34,7 @@ desktop.ini
 
 # Logs
 *.log
+
+~$*.xslx
+
+scratch/*

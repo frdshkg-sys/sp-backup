@@ -2341,6 +2341,17 @@
       white-space: nowrap;
     }
 
+    .proj-tx-remarks {
+      display: inline-block;
+      font-size: 11.5px;
+      color: #64748b;
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+
     .proj-tx-subitem {
       display: inline-flex;
       align-items: center;
@@ -2841,6 +2852,11 @@
             <input type="text" id="exp-payee" placeholder="格式：{中文全名} {英文全名}">
           </div>
 
+          <div class="form-group col-full">
+            <label>備註 (Remarks) <span class="badge-auto" style="background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd;">自動套用至本批次所有項目</span></label>
+            <input type="text" id="exp-remarks" placeholder="請輸入備註說明 (選填，將自動套用至本批次所有分攤項目)..." autocomplete="off">
+          </div>
+
           <!-- File Upload -->
           <div class="form-group col-full">
             <label>收據/支票檔案上傳 (PDF / JPG / PNG) <span class="badge-auto" id="exp-file-badge">自動以支票號碼命名並存檔</span></label>
@@ -2897,10 +2913,10 @@
           <table class="exp-entries-table">
             <thead>
               <tr>
-                <th style="width: 38px; text-align: center;">#</th>
+                <th style="width: 36px; text-align: center;">#</th>
                 <th style="width: 44%;">所屬項目 <span class="req">*</span></th>
                 <th style="width: 25%;">小類</th>
-                <th style="width: 23%; text-align: right;">金額 (HKD) <span class="req">*</span></th>
+                <th style="width: 22%; text-align: right;">金額 (HKD) <span class="req">*</span></th>
                 <th style="width: 65px; text-align: center;">操作</th>
               </tr>
             </thead>
@@ -2981,6 +2997,11 @@
           </div>
         </div>
 
+        <div class="form-group col-full">
+          <label>備註 (Remarks)</label>
+          <input type="text" id="inc-remarks" placeholder="輸入收入備註說明 (選填)..." autocomplete="off">
+        </div>
+
         <!-- File Upload -->
         <div class="form-group col-full">
           <label>收據/水單檔案上傳 (PDF / JPG / PNG) <span class="badge-auto" id="inc-file-badge">自動以單號命名並存放至 DocLib/收入</span></label>
@@ -3021,7 +3042,7 @@
 
         <div class="form-group">
           <label>2. 項目編號</label>
-          <input type="text" id="proj-code" placeholder="例如：CK-2026-001">
+          <input type="text" id="proj-code" placeholder="例如：CK-2026-001" style="text-transform:uppercase;" oninput="this.value = this.value.toUpperCase()">
         </div>
 
         <div class="form-group">
@@ -3099,8 +3120,9 @@
             <span id="card-proj-name" class="project-card-val" style="padding:6px 0; font-size:14px;">-</span>
           </div>
           <div class="project-card-item">
-            <span class="project-card-label">項目編號 (唯讀)</span>
-            <span id="card-proj-code" class="project-card-val" style="padding:6px 0; font-size:14px;">-</span>
+            <label class="project-card-label" for="edit-proj-code" style="font-weight:600; color:#334155;">項目編號 ✏️</label>
+            <input type="text" id="edit-proj-code" placeholder="例如：CK-2026-001 (可留空)" style="background:#ffffff; font-size:13px; font-weight:600; padding:8px 10px; border-radius:6px; border:1px solid #cbd5e1; margin-top:2px; text-transform:uppercase;" oninput="onEditProjCodeInput(this)" autocomplete="off">
+            <div id="edit-proj-code-dup-msg" style="display:none; font-size:11px; color:#ef4444; font-weight:600; margin-top:4px;">⚠️ 此編號已被其他項目使用</div>
           </div>
           <div class="project-card-item">
             <label class="project-card-label" for="edit-proj-manager" style="font-weight:600; color:#334155;">負責人 ✏️</label>
@@ -3332,12 +3354,17 @@
             <input type="text" id="edit-subitem" placeholder="例如：材料款、工程尾款、運輸費">
           </div>
 
-          <div class="form-group edit-expense-field">
+          <div class="form-group edit-expense-field" id="edit-payment-status-group">
             <label>付款狀態</label>
             <select id="edit-payment-status" onchange="onEditPaymentStatusChange()">
               <option value="已付">已付</option>
               <option value="未付">未付</option>
             </select>
+          </div>
+
+          <div class="form-group" id="edit-remarks-group">
+            <label>備註 (Remarks)</label>
+            <input type="text" id="edit-remarks" placeholder="請輸入備註說明 (選填)..." autocomplete="off">
           </div>
 
           <!-- Income Specific Fields -->
@@ -3517,7 +3544,7 @@
                 <span class="proj-tx-count-badge" id="period-tx-total-badge">0 筆</span>
               </div>
               <div class="proj-tx-search-box">
-                <input type="text" id="period-tx-search-input" placeholder="🔍 搜尋項目、日期、支票..." oninput="onPeriodTxSearch(this.value)">
+                <input type="text" id="period-tx-search-input" placeholder="🔍 搜尋項目、日期、金額、小類、收款人..." oninput="onPeriodTxSearch(this.value)">
               </div>
             </div>
             <div class="proj-tx-controls">
@@ -3548,21 +3575,25 @@
           <div class="proj-tx-table-container">
             <table class="proj-tx-table">
               <colgroup>
-                <col style="width: 55px;">
+                <col style="width: 58px;">
                 <col style="width: 82px;">
-                <col style="width: auto;">
                 <col style="width: 98px;">
-                <col style="width: 85px;">
+                <col style="width: auto;">
+                <col style="width: auto;">
+                <col style="width: auto;">
+                <col style="width: auto;">
                 <col style="width: 140px;">
               </colgroup>
               <thead>
                 <tr>
                   <th style="text-align: center;">類別</th>
                   <th>交易日期</th>
-                  <th>所屬項目</th>
                   <th style="text-align: right;">金額</th>
-                  <th>支票編號</th>
-                  <th>憑證/收據</th>
+                  <th>所屬項目</th>
+                  <th>小類</th>
+                  <th>收款人</th>
+                  <th>備註</th>
+                  <th>收據文件</th>
                 </tr>
               </thead>
               <tbody id="period-tx-tbody">
@@ -3711,6 +3742,7 @@
                 <col style="width: 98px;">
                 <col style="width: auto;">
                 <col style="width: auto;">
+                <col style="width: auto;">
                 <col style="width: 140px;">
               </colgroup>
               <thead>
@@ -3720,6 +3752,7 @@
                   <th style="text-align: right;">金額</th>
                   <th>小類</th>
                   <th>收款人</th>
+                  <th>備註</th>
                   <th>收據文件</th>
                 </tr>
               </thead>
@@ -5394,6 +5427,8 @@
 
         btn.innerHTML = `<span>⏳</span> 正在儲存第 ${i + 1} / ${count} 筆 (${escapeHtml(r.projName || '項目')})...`;
 
+        const commonRemarks = (document.getElementById('exp-remarks')?.value || '').trim();
+
         const payload = {
           "__metadata": { "type": "SP.Data.TransactionsListItem" },
           "Title": expTitle,
@@ -5405,7 +5440,8 @@
           "OData__x6536__x6b3e__x4eba_": payee,
           "OData__x5b50__x9805__x76ee_": r.subitem ? r.subitem.trim() : '其他',
           "RecordStatus": recordStatus,
-          "OData__x4ed8__x6b3e__x72c0__x614b_": paymentStatus
+          "OData__x4ed8__x6b3e__x72c0__x614b_": paymentStatus,
+          "Remarks": commonRemarks
         };
 
         if (fileUrl) {
@@ -5474,6 +5510,8 @@
 
       // Reset form
       removeFile('expense');
+      const commonRemarksInput = document.getElementById('exp-remarks');
+      if (commonRemarksInput) commonRemarksInput.value = '';
       expenseRowList = [{ id: 1, projId: '', projName: '', subitem: '', amount: '' }];
       nextExpenseRowId = 2;
       renderExpenseEntriesTable();
@@ -5548,7 +5586,8 @@
         "OData__x4ea4__x6613__x6642__x9593_": new Date(dateVal).toISOString(),
         "OData__x91d1__x984d_": amount,
         "OData__x6536__x9805__x9280__x884c_": bank,
-        "RecordStatus": status
+        "RecordStatus": status,
+        "Remarks": (document.getElementById('inc-remarks')?.value || '').trim()
       };
 
       if (projId) {
@@ -5604,6 +5643,8 @@
       if (incBankWrap) incBankWrap.style.display = 'none';
       const incBankCustom = document.getElementById('inc-bank-custom');
       if (incBankCustom) incBankCustom.value = '';
+      const incRemarksInp = document.getElementById('inc-remarks');
+      if (incRemarksInp) incRemarksInp.value = '';
       generateIncomeDefaults();
 
     } catch (err) {
@@ -5638,13 +5679,27 @@
       await getDigest();
 
       const title = document.getElementById('proj-title').value;
-      const code = document.getElementById('proj-code').value;
+      const code = document.getElementById('proj-code').value.trim().toUpperCase();
       const cat = document.getElementById('proj-cat').value;
       const manager = document.getElementById('proj-manager').value;
       const amountVal = document.getElementById('proj-amount').value;
       const startDate = document.getElementById('proj-start-date').value;
       const endDate = document.getElementById('proj-end-date').value;
       const remarks = document.getElementById('proj-remarks').value.trim();
+
+      if (code) {
+        const dup = (allProjects || []).find(p => (p.code || '').trim().toUpperCase() === code);
+        if (dup) {
+          toast.className = 'toast error';
+          toast.innerHTML = `❌ <strong>項目編號重複！</strong> 編號「${escapeHtml(code)}」已被項目「${escapeHtml(dup.Title || '其他項目')}」使用，請更換編號！`;
+          toast.style.display = 'block';
+          document.getElementById('proj-code').focus();
+          isSubmittingProject = false;
+          btn.disabled = false;
+          btn.innerHTML = '<span>💾</span> 建立新項目';
+          return;
+        }
+      }
 
       const payload = {
         "__metadata": { "type": "SP.Data.ProjectsListItem" },
@@ -5747,6 +5802,42 @@
     }
   }
 
+  function onEditProjCodeInput(el) {
+    if (!el) return;
+    const start = el.selectionStart;
+    const end = el.selectionEnd;
+    el.value = el.value.toUpperCase();
+    if (start !== null && end !== null) {
+      try { el.setSelectionRange(start, end); } catch (_) {}
+    }
+    checkProjCodeDuplicateRealtime();
+  }
+
+  function checkProjCodeDuplicateRealtime() {
+    const codeInp = document.getElementById('edit-proj-code');
+    const msgEl = document.getElementById('edit-proj-code-dup-msg');
+    const projId = document.getElementById('remarks-project-select')?.value;
+    if (!codeInp || !msgEl) return;
+
+    const val = codeInp.value.trim().toUpperCase();
+    if (!val) {
+      msgEl.style.display = 'none';
+      codeInp.style.borderColor = '#cbd5e1';
+      return;
+    }
+
+    const currentId = projId ? parseInt(projId, 10) : null;
+    const dup = (allProjects || []).find(p => p.Id !== currentId && (p.code || '').trim().toUpperCase() === val);
+    if (dup) {
+      msgEl.style.display = 'block';
+      msgEl.innerHTML = `⚠️ 此編號已被項目「${escapeHtml(dup.Title || '')}」使用`;
+      codeInp.style.borderColor = '#ef4444';
+    } else {
+      msgEl.style.display = 'none';
+      codeInp.style.borderColor = '#cbd5e1';
+    }
+  }
+
   function onProjectSelectForRemarks() {
     const projId = document.getElementById('remarks-project-select').value;
     const formContainer = document.getElementById('remarks-form-container');
@@ -5754,6 +5845,8 @@
     const card = document.getElementById('selected-project-card');
     const voSection = document.getElementById('selected-project-vo-section');
     const textarea = document.getElementById('proj-remarks-text');
+    const codeInput = document.getElementById('edit-proj-code');
+    const codeDupMsg = document.getElementById('edit-proj-code-dup-msg');
     const managerInput = document.getElementById('edit-proj-manager');
     const amountInput = document.getElementById('edit-proj-amount');
 
@@ -5763,6 +5856,11 @@
       if (card) card.style.display = 'none';
       if (voSection) voSection.style.display = 'none';
       textarea.value = '';
+      if (codeInput) {
+        codeInput.value = '';
+        codeInput.style.borderColor = '#cbd5e1';
+      }
+      if (codeDupMsg) codeDupMsg.style.display = 'none';
       if (managerInput) managerInput.value = '';
       if (amountInput) amountInput.value = '';
       currentProjectVOs = [];
@@ -5776,13 +5874,20 @@
     const p = allProjects.find(item => item.Id === parseInt(projId));
     if (!p) return;
 
-    const code = p.code || p.OData__x9805__x76ee__x7de8__x865f_ || p._x9805__x76ee__x7de8__x865f_ || '-';
+    const rawCode = p.code || p.OData__x9805__x76ee__x7de8__x865f_ || p._x9805__x76ee__x7de8__x865f_ || '';
     const manager = p.mgr || p.OData__x8ca0__x8cac__x4eba_ || p._x8ca0__x8cac__x4eba_ || '';
     const amount = p.amt !== undefined && p.amt !== null ? p.amt : (p.OData__x5408__x7d04__x50f9__x9322_ || p._x5408__x7d04__x50f9__x9322_);
     const remarks = p.rem || p.OData__x5099__x8a3b_ || p._x5099__x8a3b_ || '';
 
     document.getElementById('card-proj-name').textContent = p.Title || '-';
-    document.getElementById('card-proj-code').textContent = code;
+    if (codeInput) {
+      codeInput.value = rawCode;
+      codeInput.style.borderColor = '#cbd5e1';
+    } else {
+      const codeSpan = document.getElementById('card-proj-code');
+      if (codeSpan) codeSpan.textContent = rawCode || '-';
+    }
+    if (codeDupMsg) codeDupMsg.style.display = 'none';
     if (managerInput) managerInput.value = manager;
     if (amountInput) amountInput.value = (amount !== null && amount !== undefined && !isNaN(amount)) ? amount : '';
 
@@ -6287,14 +6392,41 @@
 
     try {
       await getDigest();
+      const codeInp = document.getElementById('edit-proj-code');
+      const codeVal = codeInp ? codeInp.value.trim().toUpperCase() : '';
       const remarksVal = document.getElementById('proj-remarks-text').value;
       const managerVal = document.getElementById('edit-proj-manager') ? document.getElementById('edit-proj-manager').value.trim() : '';
       const amountRaw = document.getElementById('edit-proj-amount') ? document.getElementById('edit-proj-amount').value.trim() : '';
+
+      // Duplicate check (if non-blank)
+      if (codeVal) {
+        const currentIdNum = parseInt(projId, 10);
+        const dup = (allProjects || []).find(p => p.Id !== currentIdNum && (p.code || '').trim().toUpperCase() === codeVal);
+        if (dup) {
+          toast.className = 'toast error';
+          toast.innerHTML = `❌ <strong>項目編號重複！</strong> 編號「${escapeHtml(codeVal)}」已被項目「${escapeHtml(dup.Title || '其他項目')}」使用，請更換編號！`;
+          toast.style.display = 'block';
+          if (codeInp) {
+            codeInp.focus();
+            codeInp.style.borderColor = '#ef4444';
+          }
+          const dupMsgEl = document.getElementById('edit-proj-code-dup-msg');
+          if (dupMsgEl) {
+            dupMsgEl.style.display = 'block';
+            dupMsgEl.innerHTML = `⚠️ 此編號已被項目「${escapeHtml(dup.Title || '')}」使用，無法儲存`;
+          }
+          isSubmittingRemarks = false;
+          btn.disabled = false;
+          btn.innerHTML = '<span>💾</span> 儲存並更新項目資訊';
+          return;
+        }
+      }
 
       const voJson = JSON.stringify(currentProjectVOs);
 
       const payload = {
         "__metadata": { "type": "SP.Data.ProjectsListItem" },
+        "OData__x9805__x76ee__x7de8__x865f_": codeVal,
         "OData__x5099__x8a3b_": remarksVal,
         "OData__x8ca0__x8cac__x4eba_": managerVal,
         "VariationOrders": voJson
@@ -6326,12 +6458,15 @@
       const voTotal = currentProjectVOs.reduce((sum, v) => sum + (parseFloat(v.amount) || 0), 0);
       const voNotice = currentProjectVOs.length > 0 ? `，共 ${currentProjectVOs.length} 筆後加工程 (${fmtVOMoney(voTotal, true)})` : '';
       toast.className = 'toast success';
-      toast.innerHTML = `✅ <strong>項目資訊與後加工程已成功更新！</strong> (負責人、合約金額${voNotice}與備註已同步存入 SharePoint)`;
+      toast.innerHTML = `✅ <strong>項目資訊與後加工程已成功更新！</strong> (項目編號、負責人、合約金額${voNotice}與備註已同步存入 SharePoint)`;
       toast.style.display = 'block';
 
       // Update local cache
       const p = allProjects.find(item => item.Id === parseInt(projId));
       if (p) {
+        p.code = codeVal;
+        p.OData__x9805__x76ee__x7de8__x865f_ = codeVal;
+        p._x9805__x76ee__x7de8__x865f_ = codeVal;
         p._x5099__x8a3b_ = remarksVal;
         p.rem = remarksVal;
         p._x8ca0__x8cac__x4eba_ = managerVal;
@@ -6344,7 +6479,8 @@
         p.voTotal = voTotal;
       }
 
-      // Sync background projects
+      // Sync background projects & dropdowns
+      renderProjectDropdowns();
       loadProjects();
 
     } catch (err) {
@@ -6432,6 +6568,10 @@
       const origPayStatus = selectedEditTx.paymentStatus || (selectedEditTx.cheque ? '已付' : '未付');
       if (currentPayStatus !== origPayStatus) return false;
 
+      const currentRemarks = (document.getElementById('edit-remarks')?.value || '').trim();
+      const origRemarks = (selectedEditBatch[0]?._orig?.remarks || selectedEditTx.remarks || '').trim();
+      if (currentRemarks !== origRemarks) return false;
+
       // Check each row in the batch
       for (const item of selectedEditBatch) {
         const orig = item._orig || item;
@@ -6462,6 +6602,10 @@
     if (!statusMatch || !amountMatch || !projMatch || !dateMatch || !fileMatch) {
       return false;
     }
+
+    const currentRemarks = (document.getElementById('edit-remarks')?.value || '').trim();
+    const origRemarks = (selectedEditTx.remarks || '').trim();
+    if (currentRemarks !== origRemarks) return false;
 
     if (isExp) {
       if (currentCheque !== (selectedEditTx.cheque || '').trim()) return false;
@@ -6648,6 +6792,8 @@
       receiptUrl = `${origin}${receiptUrl}`;
     }
 
+    const remarks = r.Remarks || r.OData_Remarks || r.remarks || '';
+
     return {
       Id: id,
       Title: title,
@@ -6664,7 +6810,8 @@
       subitem: subitem,
       receiptUrl: receiptUrl,
       receiptDesc: receiptDesc,
-      paymentStatus: paymentStatus
+      paymentStatus: paymentStatus,
+      remarks: remarks
     };
   }
 
@@ -6742,13 +6889,63 @@
       } else {
         const escapedQ = q.replace(/[<>&'"]/g, '').trim();
         if (isExp) {
-          camlWhere = `<Or><Contains><FieldRef Name='Title' /><Value Type='Text'>${escapedQ}</Value></Contains><Or><Contains><FieldRef Name='_x652f__x7968__x7de8__x865f_' /><Value Type='Text'>${escapedQ}</Value></Contains><Or><Contains><FieldRef Name='_x6536__x6b3e__x4eba_' /><Value Type='Text'>${escapedQ}</Value></Contains><Or><Contains><FieldRef Name='_x6240__x5c6c__x9805__x76ee_' /><Value Type='Lookup'>${escapedQ}</Value></Contains><Contains><FieldRef Name='_x5b50__x9805__x76ee_' /><Value Type='Text'>${escapedQ}</Value></Contains></Or></Or></Or></Or>`;
+          // Check cheque pattern (e.g. CHQ4305 -> CHQ004305, CK609 -> CK0609)
+          const chqMatch = escapedQ.match(/^(CHQ|CK|WS|DBS|TEST)\s*(\d+)$/i);
+          let paddedChq = null;
+          if (chqMatch) {
+            const pfx = chqMatch[1].toUpperCase();
+            const num = parseInt(chqMatch[2], 10);
+            paddedChq = (pfx === 'CHQ') ? `${pfx}${String(num).padStart(6, '0')}` : `${pfx}${String(num).padStart(4, '0')}`;
+          }
+
+          // Check transaction number pattern (e.g. EXP-8202 -> EXP-0008202 / EXP-08202)
+          const txMatch = escapedQ.match(/^(EXP|INC)[-\s]*(\d+)$/i);
+          let paddedTx7 = null;
+          let paddedTx5 = null;
+          if (txMatch) {
+            const pfx = txMatch[1].toUpperCase();
+            const num = parseInt(txMatch[2], 10);
+            paddedTx7 = `${pfx}-${String(num).padStart(7, '0')}`;
+            paddedTx5 = `${pfx}-${String(num).padStart(5, '0')}`;
+          }
+
+          let titleClause = `<Contains><FieldRef Name='Title' /><Value Type='Text'>${escapedQ}</Value></Contains>`;
+          if (paddedTx7) {
+            titleClause = `<Or>${titleClause}<Or><Contains><FieldRef Name='Title' /><Value Type='Text'>${paddedTx7}</Value></Contains><Contains><FieldRef Name='Title' /><Value Type='Text'>${paddedTx5}</Value></Contains></Or></Or>`;
+          }
+
+          let chequeClause = `<Contains><FieldRef Name='_x652f__x7968__x7de8__x865f_' /><Value Type='Text'>${escapedQ}</Value></Contains>`;
+          if (paddedChq && paddedChq !== escapedQ) {
+            chequeClause = `<Or>${chequeClause}<Contains><FieldRef Name='_x652f__x7968__x7de8__x865f_' /><Value Type='Text'>${paddedChq}</Value></Contains></Or>`;
+          }
+
+          const payeeClause = `<Contains><FieldRef Name='_x6536__x6b3e__x4eba_' /><Value Type='Text'>${escapedQ}</Value></Contains>`;
+          const projClause = `<Contains><FieldRef Name='_x6240__x5c6c__x9805__x76ee_' /><Value Type='Lookup'>${escapedQ}</Value></Contains>`;
+          const subitemClause = `<Contains><FieldRef Name='_x5b50__x9805__x76ee_' /><Value Type='Text'>${escapedQ}</Value></Contains>`;
+          const remarksClause = `<Contains><FieldRef Name='Remarks' /><Value Type='Note'>${escapedQ}</Value></Contains>`;
+
+          camlWhere = `<Or>${titleClause}<Or>${chequeClause}<Or>${payeeClause}<Or>${projClause}<Or>${subitemClause}${remarksClause}</Or></Or></Or></Or></Or>`;
         } else {
-          camlWhere = `<Or><Contains><FieldRef Name='Title' /><Value Type='Text'>${escapedQ}</Value></Contains><Contains><FieldRef Name='_x6240__x5c6c__x9805__x76ee_' /><Value Type='Lookup'>${escapedQ}</Value></Contains></Or>`;
+          const txMatch = escapedQ.match(/^(INC|EXP)[-\s]*(\d+)$/i);
+          let paddedTx = null;
+          if (txMatch) {
+            const pfx = txMatch[1].toUpperCase();
+            const num = parseInt(txMatch[2], 10);
+            paddedTx = `${pfx}-${String(num).padStart(7, '0')}`;
+          }
+          let titleClause = `<Contains><FieldRef Name='Title' /><Value Type='Text'>${escapedQ}</Value></Contains>`;
+          if (paddedTx) {
+            titleClause = `<Or>${titleClause}<Contains><FieldRef Name='Title' /><Value Type='Text'>${paddedTx}</Value></Contains></Or>`;
+          }
+          const projClause = `<Contains><FieldRef Name='_x6240__x5c6c__x9805__x76ee_' /><Value Type='Lookup'>${escapedQ}</Value></Contains>`;
+          const remarksClause = `<Contains><FieldRef Name='Remarks' /><Value Type='Note'>${escapedQ}</Value></Contains>`;
+          camlWhere = `<Or>${titleClause}<Or>${projClause}${remarksClause}</Or></Or>`;
         }
       }
 
-      const camlXml = `<View><Query><Where>${camlWhere}</Where></Query><RowLimit>100</RowLimit></View>`;
+      // Crucial: Must specify OrderBy ID DESC so SharePoint evaluates from latest IDs downward,
+      // preventing the 5,000 List View Threshold table-scan cutoff from missing newer records
+      const camlXml = `<View><Query><Where>${camlWhere}</Where><OrderBy><FieldRef Name='ID' Ascending='FALSE' /></OrderBy></Query><RowLimit>100</RowLimit></View>`;
       const postPayload = JSON.stringify({ parameters: { RenderOptions: 2, ViewXml: camlXml } });
 
       const res = await spFetch(`${SITE_URL}/_api/web/lists(guid'${guid}')/RenderListDataAsStream`, {
@@ -6833,7 +7030,14 @@
 
         const isVoid = (tx.status === '作廢');
         const amtStr = `$${Number(tx.amount || 0).toLocaleString()}`;
-        const chqBadge = tx.cheque ? `<span class="badge-chq">${escapeHtml(tx.cheque)}</span>` : '';
+        let chqDisplay = escapeHtml(tx.cheque || '');
+        if (q && chqDisplay) {
+          try {
+            const regex = new RegExp(`(${escapeRegex(q)})`, 'gi');
+            chqDisplay = chqDisplay.replace(regex, '<mark>$1</mark>');
+          } catch (_) {}
+        }
+        const chqBadge = tx.cheque ? `<span class="badge-chq">${chqDisplay}</span>` : '';
         const statusBadge = `<span class="badge-status ${isVoid ? 'void' : 'valid'}">${escapeHtml(tx.status || '有效')}</span>`;
 
         div.innerHTML = `
@@ -6845,6 +7049,7 @@
             📅 ${escapeHtml(tx.dateDisplay || '')} &nbsp;|&nbsp; 項目: ${escapeHtml(tx.projName || '無')} &nbsp;|&nbsp; ${statusBadge}
             ${tx.payee ? ` &nbsp;|&nbsp; 收款: ${escapeHtml(tx.payee)}` : ''}
             ${tx.bank ? ` &nbsp;|&nbsp; 銀行: ${escapeHtml(tx.bank)}` : ''}
+            ${tx.remarks ? ` &nbsp;|&nbsp; 📝 備註: ${escapeHtml(tx.remarks)}` : ''}
           </div>
         `;
 
@@ -7114,7 +7319,7 @@
         await getDigest();
         const escapedPayee = tx.payee.replace(/[<>&'"]/g, '').trim();
         const camlWhere = `<And><Eq><FieldRef Name='_x4ed8__x6b3e__x72c0__x614b_' /><Value Type='Text'>未付</Value></Eq><Eq><FieldRef Name='_x6536__x6b3e__x4eba_' /><Value Type='Text'>${escapedPayee}</Value></Eq></And>`;
-        const camlXml = `<View><Query><Where>${camlWhere}</Where></Query><RowLimit>100</RowLimit></View>`;
+        const camlXml = `<View><Query><Where>${camlWhere}</Where><OrderBy><FieldRef Name='ID' Ascending='FALSE' /></OrderBy></Query><RowLimit>100</RowLimit></View>`;
         const postPayload = JSON.stringify({ parameters: { RenderOptions: 2, ViewXml: camlXml } });
         const res = await spFetch(`${SITE_URL}/_api/web/lists(guid'${GUID_EXPENSE}')/RenderListDataAsStream`, {
           method: 'POST',
@@ -7346,7 +7551,7 @@
           <table class="exp-entries-table">
             <thead>
               <tr>
-                <th style="width: 38px; text-align: center;">#</th>
+                <th style="width: 36px; text-align: center;">#</th>
                 <th style="width: 48%;">所屬項目 <span class="req">*</span></th>
                 <th style="width: 26%;">小類</th>
                 <th style="width: 26%; text-align: right;">分攤金額 (HKD) <span class="req">*</span></th>
@@ -7556,6 +7761,7 @@
     const singleProjGroup = document.getElementById('edit-project-combobox')?.closest('.form-group');
     const singleAmtInput = document.getElementById('edit-amount');
     const singleSubitemInput = document.getElementById('edit-subitem');
+    const singleRemarksGroup = document.getElementById('edit-remarks-group');
 
     document.getElementById('edit-tx-id').value = tx.Id;
     document.getElementById('edit-tx-search').value = `${tx.Title} ${tx.cheque ? `(${tx.cheque})` : ''} - $${tx.amount.toLocaleString()}`;
@@ -7573,6 +7779,7 @@
           projId: item.projId,
           projName: item.projName,
           subitem: item.subitem,
+          remarks: item.remarks || '',
           amount: item.amount,
           status: item.status,
           paymentStatus: item.paymentStatus
@@ -7590,6 +7797,12 @@
       renderEditBatchTable();
 
       if (singleProjGroup) singleProjGroup.style.display = 'none';
+      if (singleRemarksGroup) singleRemarksGroup.style.display = 'flex';
+      const singleRemarksInput = document.getElementById('edit-remarks');
+      if (singleRemarksInput) {
+        const batchRemark = (selectedEditBatch.find(x => x.remarks && x.remarks.trim())?.remarks || tx.remarks || '').trim();
+        singleRemarksInput.value = batchRemark;
+      }
       if (singleAmtInput) {
         singleAmtInput.value = totalBatchAmt;
         singleAmtInput.readOnly = true;
@@ -7607,6 +7820,9 @@
         batchContainer.innerHTML = '';
       }
       if (singleProjGroup) singleProjGroup.style.display = 'flex';
+      if (singleRemarksGroup) singleRemarksGroup.style.display = 'flex';
+      const singleRemarksInput = document.getElementById('edit-remarks');
+      if (singleRemarksInput) singleRemarksInput.value = tx.remarks || '';
       if (singleAmtInput) {
         singleAmtInput.value = (tx.amount !== undefined && tx.amount !== null && tx.amount !== '') ? tx.amount : '';
         singleAmtInput.readOnly = false;
@@ -7638,13 +7854,14 @@
     document.querySelectorAll('.edit-expense-field').forEach(el => el.style.display = isExp ? 'flex' : 'none');
     document.querySelectorAll('.edit-income-field').forEach(el => el.style.display = isExp ? 'none' : 'flex');
 
-    // In batch edit mode, ensure single project and single subitem inputs remain hidden
+    // In batch edit mode, ensure single project and subitem inputs remain hidden, but remarks stays visible
     if (selectedEditBatch && selectedEditBatch.length > 1) {
       if (singleProjGroup) singleProjGroup.style.display = 'none';
       if (singleSubitemInput) {
         const subGroup = singleSubitemInput.closest('.form-group');
         if (subGroup) subGroup.style.display = 'none';
       }
+      if (singleRemarksGroup) singleRemarksGroup.style.display = 'flex';
     }
 
     if (isExp) {
@@ -7734,6 +7951,10 @@
     }
     const singleProjGroup = document.getElementById('edit-project-combobox')?.closest('.form-group');
     if (singleProjGroup) singleProjGroup.style.display = 'flex';
+    const singleRemarksGroup = document.getElementById('edit-remarks-group');
+    if (singleRemarksGroup) singleRemarksGroup.style.display = 'flex';
+    const singleRemarksInput = document.getElementById('edit-remarks');
+    if (singleRemarksInput) singleRemarksInput.value = '';
     const singleAmtInput = document.getElementById('edit-amount');
     if (singleAmtInput) {
       singleAmtInput.readOnly = false;
@@ -7873,6 +8094,7 @@
         const bankVal = getBankValue('edit-exp');
         const payeeVal = (document.getElementById('edit-payee')?.value || '').trim();
         const editPayStatus = document.getElementById('edit-payment-status')?.value || '已付';
+        const batchRemarks = (document.getElementById('edit-remarks')?.value || '').trim();
 
         // Upload receipt once if selected (only if paid)
         let newFileUrl = null;
@@ -7916,6 +8138,7 @@
           const orig = item._orig || item;
           const rowProjId = item.projId ? parseInt(item.projId, 10) : null;
           const rowSubitem = (item.subitem || '').trim() || '其他';
+          const rowRemarks = batchRemarks;
           const rowAmount = parseAmount(item.amount);
 
           if (submitBtn) {
@@ -7932,6 +8155,7 @@
             "OData__x4ed8__x6b3e__x72c0__x614b_": editPayStatus,
             "OData__x6240__x5c6c__x9805__x76ee_Id": rowProjId,
             "OData__x5b50__x9805__x76ee_": rowSubitem,
+            "Remarks": rowRemarks,
             "OData__x91d1__x984d_": rowAmount
           };
 
@@ -7985,11 +8209,13 @@
           item.dateIso = newDateVal;
           item.projId = rowProjId;
           item.subitem = rowSubitem;
+          item.remarks = rowRemarks;
           item.amount = rowAmount;
           item._orig = {
             projId: rowProjId,
             projName: item.projName,
             subitem: rowSubitem,
+            remarks: rowRemarks,
             amount: rowAmount,
             status: newStatus,
             paymentStatus: editPayStatus
@@ -8011,6 +8237,7 @@
               pTx.cheque = chqNum;
               pTx.amount = rowAmount;
               pTx.subitem = rowSubitem;
+              pTx.remarks = rowRemarks;
               if (newFileUrl) {
                 pTx.receipt = newFileUrl;
                 pTx.receiptDesc = newFileName;
@@ -8087,6 +8314,7 @@
 
       const newStatus = document.getElementById('edit-status').value;
       const newDateVal = document.getElementById('edit-date').value;
+      const newRemarks = (document.getElementById('edit-remarks')?.value || '').trim();
       const newAmount = parseAmount(document.getElementById('edit-amount').value);
       if (!newAmount || newAmount <= 0) {
         toast.className = 'toast error';
@@ -8128,7 +8356,8 @@
         "__metadata": { "type": isExp ? "SP.Data.TransactionsListItem" : "SP.Data.ListListItem" },
         "OData__x4ea4__x6613__x6642__x9593_": new Date(newDateVal).toISOString(),
         "OData__x91d1__x984d_": newAmount,
-        "RecordStatus": newStatus
+        "RecordStatus": newStatus,
+        "Remarks": newRemarks
       };
 
       if (isExp) {
@@ -8191,6 +8420,7 @@
       selectedEditTx.status = newStatus;
       selectedEditTx.projId = newProjId;
       selectedEditTx.dateIso = newDateVal;
+      selectedEditTx.remarks = newRemarks;
       const matchedP = allProjects.find(p => p.Id === newProjId);
       selectedEditTx.projName = matchedP ? matchedP.Title : '';
 
@@ -8232,6 +8462,7 @@
         if (pTx) {
           pTx.amt = newAmount;
           pTx.paymentStatus = editPayStatus;
+          pTx.remarks = newRemarks;
           if (isExp) pTx.cheque = selectedEditTx.cheque;
           if (newFileUrl) {
             pTx.receipt = newFileUrl;
@@ -8571,6 +8802,7 @@
         (x.amt && String(x.amt).includes(currentPeriodTxSearch)) ||
         (x.subitem && x.subitem.toLowerCase().includes(currentPeriodTxSearch)) ||
         (x.payee && x.payee.toLowerCase().includes(currentPeriodTxSearch)) ||
+        (x.remarks && x.remarks.toLowerCase().includes(currentPeriodTxSearch)) ||
         (x.paymentStatus && x.paymentStatus.toLowerCase().includes(currentPeriodTxSearch)) ||
         (x.receiptDesc && x.receiptDesc.toLowerCase().includes(currentPeriodTxSearch))
       );
@@ -8714,7 +8946,7 @@
 
         html += `
           <tr class="${headerClass}" data-group-id="${groupId}" onclick="togglePeriodTxGroup('${groupId}')" title="點擊展開 / 收起明細">
-            <td colspan="6">
+            <td colspan="8">
               <div class="proj-tx-group-bar">
                 <div class="proj-tx-group-left">
                   <span class="proj-tx-group-arrow" id="period-group-arrow-${groupId}">${isExpanded ? '▼' : '▶'}</span>
@@ -8736,9 +8968,19 @@
           const projName = item.project || '未指定項目';
           const projHtml = `<span class="period-tx-proj" title="點擊切換查看此項目: ${escapeHtml(projName)}" onclick="selectProjectFromPeriodTx('${escapeHtml(projName).replace(/'/g, "\\'")}')" style="cursor:pointer;">${escapeHtml(projName)}</span>`;
 
-          let chqHtml = '<span style="color:#94a3b8;">-</span>';
-          if (item.cheque) {
-            chqHtml = `<span class="proj-tx-cheque">${escapeHtml(item.cheque)}</span>`;
+          const subitemText = item.subitem || '其他';
+          const subitemHtml = `<span class="proj-tx-subitem" title="${escapeHtml(subitemText)}">${escapeHtml(subitemText)}</span>`;
+
+          let payeeHtml = '<span style="color:#94a3b8;">-</span>';
+          const payeeText = (item.payee && item.payee.trim()) ? item.payee.trim() : (item.cheque && item.cheque.trim() ? item.cheque.trim() : '');
+          if (payeeText) {
+            payeeHtml = `<span class="proj-tx-payee" title="${escapeHtml(payeeText)}">${escapeHtml(payeeText)}</span>`;
+          }
+
+          let remarksHtml = '<span style="color:#94a3b8;">-</span>';
+          const remarksText = (item.remarks && item.remarks.trim()) ? item.remarks.trim() : '';
+          if (remarksText) {
+            remarksHtml = `<span class="proj-tx-remarks" title="${escapeHtml(remarksText)}">${escapeHtml(remarksText)}</span>`;
           }
 
           let receiptHtml = '';
@@ -8770,11 +9012,13 @@
           html += `
             <tr class="${childRowClass}">
               <td style="text-align: center;"><span class="proj-tx-tag exp">💸 支出</span></td>
-              <td style="color:#475569; font-weight:500;">${item.date || '-'}</td>
-              <td>${projHtml}</td>
-              <td style="text-align: right;"><span class="proj-tx-amt exp">-${fmtMoney(item.amt)}</span></td>
-              <td>${chqHtml}</td>
-              <td>${receiptHtml}</td>
+              <td style="color:#475569; font-weight:500; white-space: nowrap;">${item.date || '-'}</td>
+              <td style="text-align: right; white-space: nowrap;"><span class="proj-tx-amt exp">-${fmtMoney(item.amt)}</span></td>
+              <td style="white-space: nowrap;">${projHtml}</td>
+              <td style="white-space: nowrap;">${subitemHtml}</td>
+              <td style="white-space: nowrap;">${payeeHtml}</td>
+              <td style="white-space: nowrap;">${remarksHtml}</td>
+              <td style="white-space: nowrap;">${receiptHtml}</td>
             </tr>
           `;
         });
@@ -8818,17 +9062,28 @@
       const amtClass = isExp ? 'exp' : 'inc';
       const amtHtml = `<span class="proj-tx-amt ${amtClass}">${amtSign}${fmtMoney(item.amt)}</span>`;
 
-      let chqHtml = '<span style="color:#94a3b8;">-</span>';
-      if (item.cheque) {
+      const projName = item.project || '未指定項目';
+      const projHtml = `<span class="period-tx-proj" title="點擊切換查看此項目: ${escapeHtml(projName)}" onclick="selectProjectFromPeriodTx('${escapeHtml(projName).replace(/'/g, "\\'")}')" style="cursor:pointer;">${escapeHtml(projName)}</span>`;
+
+      const subitemText = item.subitem || (isExp ? '其他' : '工程款');
+      const subitemClass = isExp ? '' : 'inc';
+      const subitemHtml = `<span class="proj-tx-subitem ${subitemClass}" title="${escapeHtml(subitemText)}">${escapeHtml(subitemText)}</span>`;
+
+      let payeeHtml = '<span style="color:#94a3b8;">-</span>';
+      const payeeText = (item.payee && item.payee.trim()) ? item.payee.trim() : (item.cheque && item.cheque.trim() ? item.cheque.trim() : '');
+      if (payeeText) {
         if (isExp) {
-          chqHtml = `<span class="proj-tx-cheque">${escapeHtml(item.cheque)}</span>`;
+          payeeHtml = `<span class="proj-tx-payee" title="${escapeHtml(payeeText)}">${escapeHtml(payeeText)}</span>`;
         } else {
-          chqHtml = `<span style="font-family:monospace; font-size:11px; color:#64748b;">${escapeHtml(item.cheque)}</span>`;
+          payeeHtml = `<span style="color:#059669; font-size:11px; font-weight:500;" title="${escapeHtml(payeeText)}">${escapeHtml(payeeText)}</span>`;
         }
       }
 
-      const projName = item.project || '未指定項目';
-      const projHtml = `<span class="period-tx-proj" title="點擊切換查看此項目: ${escapeHtml(projName)}" onclick="selectProjectFromPeriodTx('${escapeHtml(projName).replace(/'/g, "\\'")}')" style="cursor:pointer;">${escapeHtml(projName)}</span>`;
+      let remarksHtml = '<span style="color:#94a3b8;">-</span>';
+      const remarksText = (item.remarks && item.remarks.trim()) ? item.remarks.trim() : '';
+      if (remarksText) {
+        remarksHtml = `<span class="proj-tx-remarks" title="${escapeHtml(remarksText)}">${escapeHtml(remarksText)}</span>`;
+      }
 
       let receiptHtml = '';
       if (isUnpaid) {
@@ -8859,11 +9114,13 @@
       return `
         <tr class="${isUnpaid ? 'proj-tx-row-unpaid' : ''}">
           <td style="text-align: center;">${tagHtml}</td>
-          <td style="color:#475569; font-weight:500;">${item.date || '-'}</td>
-          <td>${projHtml}</td>
-          <td style="text-align: right;">${amtHtml}</td>
-          <td>${chqHtml}</td>
-          <td>${receiptHtml}</td>
+          <td style="color:#475569; font-weight:500; white-space: nowrap;">${item.date || '-'}</td>
+          <td style="text-align: right; white-space: nowrap;">${amtHtml}</td>
+          <td style="white-space: nowrap;">${projHtml}</td>
+          <td style="white-space: nowrap;">${subitemHtml}</td>
+          <td style="white-space: nowrap;">${payeeHtml}</td>
+          <td style="white-space: nowrap;">${remarksHtml}</td>
+          <td style="white-space: nowrap;">${receiptHtml}</td>
         </tr>
       `;
     }).join('');
@@ -9003,7 +9260,8 @@
           cheque: chqVal,
           paymentStatus: payStatus,
           receipt: rcpt.url,
-          receiptDesc: rcpt.desc
+          receiptDesc: rcpt.desc,
+          remarks: r.Remarks || r.OData_Remarks || r.remarks || ''
         });
       }
 
@@ -9026,7 +9284,8 @@
           cheque: r['Title'] || '',
           paymentStatus: '已付',
           receipt: rcpt.url,
-          receiptDesc: rcpt.desc
+          receiptDesc: rcpt.desc,
+          remarks: r.Remarks || r.OData_Remarks || r.remarks || ''
         });
       }
 
@@ -9737,7 +9996,8 @@
           cheque: chqVal,
           paymentStatus: payStatus,
           receipt: rcpt.url,
-          receiptDesc: rcpt.desc
+          receiptDesc: rcpt.desc,
+          remarks: r.Remarks || r.OData_Remarks || r.remarks || ''
         });
       });
 
@@ -9757,7 +10017,8 @@
           cheque: r['Title'] || '',
           paymentStatus: '已付',
           receipt: rcpt.url,
-          receiptDesc: rcpt.desc
+          receiptDesc: rcpt.desc,
+          remarks: r.Remarks || r.OData_Remarks || r.remarks || ''
         });
       });
 
@@ -9925,6 +10186,7 @@
         (x.payee && x.payee.toLowerCase().includes(currentProjTxSearch)) ||
         (x.cheque && x.cheque.toLowerCase().includes(currentProjTxSearch)) ||
         (x.amt && String(x.amt).includes(currentProjTxSearch)) ||
+        (x.remarks && x.remarks.toLowerCase().includes(currentProjTxSearch)) ||
         (x.receiptDesc && x.receiptDesc.toLowerCase().includes(currentProjTxSearch)) ||
         (x.paymentStatus && x.paymentStatus.toLowerCase().includes(currentProjTxSearch))
       );
@@ -10072,7 +10334,7 @@
 
         html += `
           <tr class="${headerClass}" data-group-id="${groupId}" onclick="toggleProjTxGroup('${groupId}')" title="點擊展開 / 收起明細">
-            <td colspan="6">
+            <td colspan="7">
               <div class="proj-tx-group-bar">
                 <div class="proj-tx-group-left">
                   <span class="proj-tx-group-arrow" id="group-arrow-${groupId}">${isExpanded ? '▼' : '▶'}</span>
@@ -10098,6 +10360,12 @@
           const payeeText = item.payee || item.cheque || '';
           if (payeeText) {
             payeeHtml = `<span class="proj-tx-payee" title="${escapeHtml(payeeText)}">${escapeHtml(payeeText)}</span>`;
+          }
+
+          let remarksHtml = '<span style="color:#94a3b8;">-</span>';
+          const remarksText = (item.remarks && item.remarks.trim()) ? item.remarks.trim() : '';
+          if (remarksText) {
+            remarksHtml = `<span class="proj-tx-remarks" title="${escapeHtml(remarksText)}">${escapeHtml(remarksText)}</span>`;
           }
 
           let receiptHtml = '';
@@ -10133,6 +10401,7 @@
               <td style="text-align: right; white-space: nowrap;"><span class="proj-tx-amt exp">-${fmtMoney(item.amt)}</span></td>
               <td style="white-space: nowrap;">${subitemHtml}</td>
               <td style="white-space: nowrap;">${payeeHtml}</td>
+              <td style="white-space: nowrap;">${remarksHtml}</td>
               <td style="white-space: nowrap;">${receiptHtml}</td>
             </tr>
           `;
@@ -10191,6 +10460,12 @@
         }
       }
 
+      let remarksHtml = '<span style="color:#94a3b8;">-</span>';
+      const remarksText = (item.remarks && item.remarks.trim()) ? item.remarks.trim() : '';
+      if (remarksText) {
+        remarksHtml = `<span class="proj-tx-remarks" title="${escapeHtml(remarksText)}">${escapeHtml(remarksText)}</span>`;
+      }
+
       let receiptHtml = '';
       if (isUnpaid) {
         const payBtnHtml = `<button type="button" class="btn-quick-update-pay" onclick="event.stopPropagation(); goToEditTx('${escapeHtml(item.title || '')}', ${item.id || 0})" title="立即前往登記支票與付款狀態">✏️ 登記付款</button>`;
@@ -10224,6 +10499,7 @@
           <td style="text-align: right; white-space: nowrap;">${amtHtml}</td>
           <td style="white-space: nowrap;">${subitemHtml}</td>
           <td style="white-space: nowrap;">${payeeHtml}</td>
+          <td style="white-space: nowrap;">${remarksHtml}</td>
           <td style="white-space: nowrap;">${receiptHtml}</td>
         </tr>
       `;
