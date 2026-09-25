@@ -52,8 +52,7 @@ mitigation/
 ├── smart_forms_app.html            # 核心單頁應用程式 (表單中心 + 財務看板)
 ├── server.py                       # 本地開發代理伺服器 (反向代理 SharePoint REST API)
 ├── start_app.bat                   # 本地一鍵啟動腳本
-├── deploy_app_to_sharepoint.py     # 表單中心自動化 SharePoint 部署腳本
-├── deploy_dashboard_to_sharepoint.py # 看板自動化部署腳本
+├── deploy_app_to_sharepoint.py     # 全系統自動化 SharePoint 部署腳本 (包含表單中心與看板)
 ├── sharepoint-bridge.user.js       # Tampermonkey 自動通信與路由橋樑腳本
 ├── cookies.json                    # SharePoint 認證 Cookies (本機連線憑證)
 ├── chrome-extension/               # Chrome 擴充功能 (SharePoint Forms Auto-Bridge)
@@ -105,16 +104,20 @@ python deploy_app_to_sharepoint.py
 
 ### 2. 部署流程
 1. 自動讀取 `cookies.json` 並向 SharePoint 請求最新 `FormDigestValue`（包含 429 速率限制重試機制）。
-2. 將 `smart_forms_app.html` 上傳並覆蓋至：
-   * `/sites/CHUNKING/SiteAssets/forms/app.html`
-   * `/sites/CHUNKING/SiteAssets/forms/smart_forms_app.html`
+2. 將 `smart_forms_app.html` 同步上傳至雙重路徑（兼具現有連結相容性與 SharePoint 介面視覺可見性）：
+   * **視覺可見目錄（SharePoint 網站資產介面直接瀏覽）**：
+     * `/sites/CHUNKING/SiteAssets/app/smart_forms_app.html`
+     * `/sites/CHUNKING/SiteAssets/app/app.html`
+   * **現有系統目錄（確保既有 Web Part 連結不受影響）**：
+     * `/sites/CHUNKING/SiteAssets/forms/app.html`
+     * `/sites/CHUNKING/SiteAssets/forms/smart_forms_app.html`
 3. 執行二進位大小驗證，確保線上檔案與本機完全一致。
 
 ### 3. SharePoint 線上正式入口
-* **主要表單入口**：  
+* **網站資產介面可見入口**：  
+  `https://k35n.sharepoint.com/sites/CHUNKING/SiteAssets/app/smart_forms_app.html` (或 `.../app.html`)
+* **既有相容入口**：  
   `https://k35n.sharepoint.com/sites/CHUNKING/SiteAssets/forms/app.html`
-* **完整備份位址**：  
-  `https://k35n.sharepoint.com/sites/CHUNKING/SiteAssets/forms/smart_forms_app.html`
 
 ---
 

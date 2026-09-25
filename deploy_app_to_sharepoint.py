@@ -45,7 +45,16 @@ if not digest:
     print("❌ Could not obtain digest after retries.")
     sys.exit(1)
 
-# 2. Upload smart_forms_app.html to /sites/CHUNKING/SiteAssets/forms/app.html and smart_forms_app.html
+# 2. Ensure /sites/CHUNKING/SiteAssets/app folder exists
+try:
+    session.post(
+        f"{SITE_URL}/_api/web/GetFolderByServerRelativeUrl('/sites/CHUNKING/SiteAssets')/Folders/add(url='app')",
+        headers={'Accept': 'application/json;odata=verbose', 'X-RequestDigest': digest, 'Content-Type': 'application/json;odata=verbose'}
+    )
+except Exception:
+    pass
+
+# 3. Upload smart_forms_app.html to both /SiteAssets/forms and /SiteAssets/app
 with open(HTML_PATH, 'rb') as f:
     html_content = f.read()
 
@@ -54,34 +63,39 @@ headers = {
     'X-RequestDigest': digest
 }
 
+target_folders = ['/sites/CHUNKING/SiteAssets/forms', '/sites/CHUNKING/SiteAssets/app']
 target_files = ['app.html', 'smart_forms_app.html']
-for filename in target_files:
-    upload_url = f"{SITE_URL}/_api/web/GetFolderByServerRelativeUrl('/sites/CHUNKING/SiteAssets/forms')/Files/add(url='{filename}',overwrite=true)"
-    uploaded = False
-    for attempt in range(6):
-        upload_res = session.post(upload_url, headers=headers, data=html_content)
-        if upload_res.status_code in [200, 201]:
-            print(f"🎉 Successfully uploaded {filename} to SharePoint! Status: {upload_res.status_code}")
-            print(f"   Target: /sites/CHUNKING/SiteAssets/forms/{filename} (Size: {len(html_content)} bytes)")
-            uploaded = True
-            break
-        elif upload_res.status_code == 429:
-            wait_s = (attempt + 1) * 5
-            print(f"⚠️ 429 Rate limited uploading {filename} (attempt {attempt+1}), waiting {wait_s}s...")
-            time.sleep(wait_s)
-        else:
-            print(f"❌ Upload failed for {filename}: {upload_res.status_code} {upload_res.text}")
-            sys.exit(1)
-    if not uploaded:
-        print(f"❌ Failed to upload {filename} after all retries.")
-        sys.exit(1)
 
-# 3. Verify deployed files
-for filename in target_files:
-    verify_res = session.get(f"{SITE_URL}/SiteAssets/forms/{filename}")
-    print(f"🔍 Verification fetch ({filename}) status: {verify_res.status_code}, length: {len(verify_res.content)} bytes")
-    if len(verify_res.content) == len(html_content):
-        print(f"✅ Verified: SharePoint deployed {filename} size matches local file size exactly!")
-    else:
-        print(f"⚠️ Size difference detected during verification for {filename}.")
+for folder in target_folders:
+    for filename in target_files:
+        upload_url = f"{SITE_URL}/_api/web/GetFolderByServerRelativeUrl('{folder}')/Files/add(url='{filename}',overwrite=true)"
+        uploaded = False
+        for attempt in range(6):
+            upload_res = session.post(upload_url, headers=headers, data=html_content)
+            if upload_res.status_code in [200, 201]:
+                print(f"🎉 Successfully uploaded {filename} to {folder}! Status: {upload_res.status_code}")
+                uploaded = True
+                break
+            elif upload_res.status_code == 429:
+                wait_s = (attempt + 1) * 5
+                print(f"⚠️ 429 Rate limited uploading {filename} (attempt {attempt+1}), waiting {wait_s}s...")
+                time.sleep(wait_s)
+            else:
+                print(f"❌ Upload failed for {filename} in {folder}: {upload_res.status_code} {upload_res.text}")
+                sys.exit(1)
+        if not uploaded:
+            print(f"❌ Failed to upload {filename} to {folder} after all retries.")
+            sys.exit(1)
+
+# 4. Verify deployed files
+for folder in target_folders:
+    for filename in target_files:
+        subpath = folder.replace('/sites/CHUNKING', '')
+        verify_res = session.get(f"{SITE_URL}{subpath}/{filename}")
+        print(f"🔍 Verification fetch ({folder}/{filename}) status: {verify_res.status_code}, length: {len(verify_res.content)} bytes")
+        if len(verify_res.content) == len(html_content):
+            print(f"✅ Verified: {folder}/{filename} size matches local file size exactly!")
+        else:
+            print(f"⚠️ Size difference detected during verification for {folder}/{filename}.")
+
 
