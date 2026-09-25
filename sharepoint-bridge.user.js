@@ -9,7 +9,7 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(function() {
+(function () {
     'use strict';
 
     if (window.__SP_BRIDGE_INSTALLED__) return;
@@ -21,12 +21,12 @@
         if (!win) return;
         try {
             win.postMessage(data, '*');
-        } catch (e1) {}
+        } catch (e1) { }
         try {
             for (var i = 0; i < win.frames.length; i++) {
                 broadcastToAllFrames(win.frames[i], data);
             }
-        } catch (e2) {}
+        } catch (e2) { }
     }
 
     function getTopTab() {
@@ -36,7 +36,7 @@
             var params = new URLSearchParams(window.location.search);
             var t = params.get('tab');
             if (t && ['income', 'project', 'remarks', 'expense', 'edit-tx', 'dashboard'].includes(t)) return t;
-        } catch (e) {}
+        } catch (e) { }
         return '';
     }
 
@@ -60,7 +60,7 @@
     window.addEventListener('popstate', syncTabToFrames);
 
     // 監聽來自子表單的請求
-    window.addEventListener('message', async function(e) {
+    window.addEventListener('message', async function (e) {
         if (!e.data) return;
 
         // 1. 回應子表單詢問當前頂層視窗的頁籤
@@ -69,7 +69,7 @@
             if (tab && e.source && e.source !== window) {
                 try {
                     e.source.postMessage({ type: 'SP_SET_TAB', tab: tab }, '*');
-                } catch (tabErr) {}
+                } catch (tabErr) { }
             }
             return;
         }
@@ -88,7 +88,7 @@
             var json = null;
             try {
                 json = JSON.parse(text);
-            } catch (jsonErr) {}
+            } catch (jsonErr) { }
 
             var responseData = {
                 type: 'SP_FETCH_RESPONSE',
@@ -105,7 +105,7 @@
             if (e.source && e.source !== window) {
                 try {
                     e.source.postMessage(responseData, '*');
-                } catch (sendErr) {}
+                } catch (sendErr) { }
             }
         } catch (err) {
             console.error("❌ [SP-Bridge] 請求發生錯誤:", err);
@@ -120,7 +120,7 @@
             if (e.source && e.source !== window) {
                 try {
                     e.source.postMessage(errData, '*');
-                } catch (sendErr2) {}
+                } catch (sendErr2) { }
             }
         }
     });
