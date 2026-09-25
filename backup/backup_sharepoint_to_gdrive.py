@@ -381,6 +381,9 @@ def run_backup_pipeline(lists_only: bool = False, max_media_files: Optional[int]
                         if os.path.exists(local_target):
                             os.remove(local_target)
 
+                    if (new_downloads_count + skipped_count) % 25 == 0:
+                        print(f"   ⏳ [Income] Progress: ({new_downloads_count} new uploaded, {skipped_count} skipped, {new_bytes_transferred / (1024*1024):.1f} MB)...")
+
     print(f"✅ Incremental Media Sync Completed:")
     print(f"   ⏩ Skipped (already backed up): {skipped_count} files")
     print(f"   📥 Newly synced files: {new_downloads_count} files ({new_bytes_transferred / (1024*1024):.2f} MB)")
