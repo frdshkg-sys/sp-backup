@@ -98,6 +98,7 @@ SharePoint 在儲存非英文字元（如繁體中文、全形符號）的自訂
 | **收款銀行** | `OData__x6536__x6b3e__x9280__x884c_` | `_x6536__x6b3e__x9280__x884c_` | Text (單行文字) | 否 | 收款人開戶銀行名稱 |
 | **戶口** | `OData__x6236__x53e3_` | `_x6236__x53e3_` | Text (單行文字) | 否 | 收款人銀行戶口號碼 |
 | **收據 (URL)** | `OData__x6536__x64da__x9023__x7d50_` | `_x6536__x64da__x9023__x7d50_` | URL (超連結) | 否 | 支票圖檔或付款憑證在 SharePoint 之檔案連結 |
+| **Invoice No.** | `Invoice_x0020_No_x002e_` | `Invoice_x0020_No_x002e_` | Text (單行文字) | 否 | 發票單號 / 帳單編號 (對應 Excel 之 `Invoice No.`) |
 | **RecordStatus** | `RecordStatus` | `RecordStatus` | Choice (下拉單選) | 否 | 記錄狀態：`有效`、`作廢` |
 | **IsIndependent** | `IsIndependent` | `IsIndependent` | Boolean (布林值) | 否 | 是否為獨立款項 (`true`/`false`) |
 | **BatchId** | `BatchId` | `BatchId` | Text (單行文字) | 否 | 批次開票對帳批號代碼 |
