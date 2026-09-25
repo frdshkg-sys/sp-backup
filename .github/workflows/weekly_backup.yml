@@ -1,6 +1,9 @@
 name: Weekly SharePoint to Google Drive Backup
 
 on:
+  push:
+    branches:
+      - main
   schedule:
     # Runs every Sunday at 03:00 HKT (Saturday 19:00 UTC) during off-peak hours
     - cron: '0 19 * * 6'
