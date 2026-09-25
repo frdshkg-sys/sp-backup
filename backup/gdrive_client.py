@@ -8,8 +8,14 @@ Supports both:
 import os
 import sys
 import json
+import time
+import socket
+import random
 import mimetypes
 from typing import Optional, Dict, Any, List
+
+# Set socket timeout to 120s to prevent premature socket read timeouts during large chunked uploads
+socket.setdefaulttimeout(120.0)
 
 try:
     from google.oauth2 import service_account
@@ -156,11 +162,12 @@ class GoogleDriveClient:
         local_file_path: str,
         destination_folder_id: Optional[str] = None,
         remote_file_name: Optional[str] = None,
-        overwrite: bool = True
+        overwrite: bool = True,
+        max_retries: int = 4
     ) -> Optional[str]:
         """
         Uploads a local file to Google Drive using resumable chunked upload.
-        Includes supportsAllDrives=True for Shared Drives compatibility.
+        Includes supportsAllDrives=True for Shared Drives compatibility and exponential backoff retry.
         """
         if not self.is_connected:
             raise RuntimeError("Google Drive client is not connected.")
@@ -173,41 +180,54 @@ class GoogleDriveClient:
 
         existing_file_id = None
         if target_parent:
-            q = f"name = '{fname}' and '{target_parent}' in parents and trashed = false"
-            res = self.service.files().list(
-                q=q,
-                spaces="drive",
-                fields="files(id, name)",
-                supportsAllDrives=True,
-                includeItemsFromAllDrives=True
-            ).execute()
-            files = res.get("files", [])
-            if files:
-                existing_file_id = files[0]["id"]
+            try:
+                q = f"name = '{fname}' and '{target_parent}' in parents and trashed = false"
+                res = self.service.files().list(
+                    q=q,
+                    spaces="drive",
+                    fields="files(id, name)",
+                    supportsAllDrives=True,
+                    includeItemsFromAllDrives=True
+                ).execute()
+                files = res.get("files", [])
+                if files:
+                    existing_file_id = files[0]["id"]
+            except Exception as e:
+                print(f"⚠️ Warning checking existing file {fname} in Google Drive: {e}")
 
-        media = MediaFileUpload(local_file_path, mimetype=mime_type, resumable=True)
+        for attempt in range(max_retries):
+            try:
+                media = MediaFileUpload(local_file_path, mimetype=mime_type, resumable=True)
 
-        if existing_file_id and overwrite:
-            # Update existing file in-place
-            updated = self.service.files().update(
-                fileId=existing_file_id,
-                media_body=media,
-                fields="id",
-                supportsAllDrives=True
-            ).execute()
-            return updated.get("id")
-        else:
-            # Create new file
-            metadata = {"name": fname}
-            if target_parent:
-                metadata["parents"] = [target_parent]
-            created = self.service.files().create(
-                body=metadata,
-                media_body=media,
-                fields="id",
-                supportsAllDrives=True
-            ).execute()
-            return created.get("id")
+                if existing_file_id and overwrite:
+                    # Update existing file in-place
+                    updated = self.service.files().update(
+                        fileId=existing_file_id,
+                        media_body=media,
+                        fields="id",
+                        supportsAllDrives=True
+                    ).execute()
+                    return updated.get("id")
+                else:
+                    # Create new file
+                    metadata = {"name": fname}
+                    if target_parent:
+                        metadata["parents"] = [target_parent]
+                    created = self.service.files().create(
+                        body=metadata,
+                        media_body=media,
+                        fields="id",
+                        supportsAllDrives=True
+                    ).execute()
+                    return created.get("id")
+
+            except Exception as err:
+                wait_sec = min(30, (2 ** attempt) + random.uniform(1.0, 3.0))
+                print(f"⚠️ [Google Drive Upload Retry {attempt+1}/{max_retries}] {fname} failed ({err.__class__.__name__}: {err}). Retrying in {wait_sec:.1f}s...")
+                time.sleep(wait_sec)
+
+        print(f"❌ Failed to upload {fname} to Google Drive after {max_retries} attempts.")
+        return None
 
     def fetch_manifest(self) -> Dict[str, Any]:
         """Downloads the remote manifest.json from the root backup folder on Google Drive."""

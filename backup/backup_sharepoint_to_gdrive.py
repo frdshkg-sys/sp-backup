@@ -337,17 +337,21 @@ def run_backup_pipeline(lists_only: bool = False, max_media_files: Optional[int]
                 new_bytes_transferred += byte_size
 
                 # Upload to Google Drive if connected
+                uploaded_id = None
                 if gdrive.is_connected:
-                    gdrive.upload_file(local_target, destination_folder_id=gdrive_receipts_chq_id, remote_file_name=name, overwrite=True)
+                    uploaded_id = gdrive.upload_file(local_target, destination_folder_id=gdrive_receipts_chq_id, remote_file_name=name, overwrite=True)
 
-                # Update manifest
-                manifest_files[rel_url] = {
-                    "name": name,
-                    "size": byte_size,
-                    "sha256": file_hash,
-                    "category": "CHQ",
-                    "last_backed_up": today_str
-                }
+                if gdrive.is_connected and not uploaded_id:
+                    print(f"⚠️ Failed to upload {name} to Google Drive; skipping manifest update so it will be retried next time.")
+                else:
+                    # Update manifest
+                    manifest_files[rel_url] = {
+                        "name": name,
+                        "size": byte_size,
+                        "sha256": file_hash,
+                        "category": "CHQ",
+                        "last_backed_up": today_str
+                    }
 
                 # Remove temp file to conserve runner disk space
                 if os.path.exists(local_target):
@@ -405,16 +409,21 @@ def run_backup_pipeline(lists_only: bool = False, max_media_files: Optional[int]
                     if success:
                         new_downloads_count += 1
                         new_bytes_transferred += byte_size
+                        uploaded_id = None
                         if gdrive.is_connected:
-                            gdrive.upload_file(local_target, destination_folder_id=target_gdrive_sub_id, remote_file_name=name, overwrite=True)
+                            uploaded_id = gdrive.upload_file(local_target, destination_folder_id=target_gdrive_sub_id, remote_file_name=name, overwrite=True)
 
-                        manifest_files[rel_url] = {
-                            "name": name,
-                            "size": byte_size,
-                            "sha256": file_hash,
-                            "category": f"Income/{sub_name}",
-                            "last_backed_up": today_str
-                        }
+                        if gdrive.is_connected and not uploaded_id:
+                            print(f"⚠️ Failed to upload {name} to Google Drive; skipping manifest update so it will be retried next time.")
+                        else:
+                            manifest_files[rel_url] = {
+                                "name": name,
+                                "size": byte_size,
+                                "sha256": file_hash,
+                                "category": f"Income/{sub_name}",
+                                "last_backed_up": today_str
+                            }
+
                         if os.path.exists(local_target):
                             os.remove(local_target)
 
