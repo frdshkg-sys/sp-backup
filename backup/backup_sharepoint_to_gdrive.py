@@ -334,6 +334,9 @@ def run_backup_pipeline(lists_only: bool = False, max_media_files: Optional[int]
                 if os.path.exists(local_target):
                     os.remove(local_target)
 
+            if (new_downloads_count + skipped_count) % 25 == 0 or (new_downloads_count + skipped_count) == len(chq_files):
+                print(f"   ⏳ Progress: [{new_downloads_count + skipped_count}/{len(chq_files)}] ({new_downloads_count} new uploaded, {skipped_count} skipped, {new_bytes_transferred / (1024*1024):.1f} MB)...")
+
         # 4.2 Check files in /sites/CHUNKING/DocLib/收入 subfolders
         if not (max_media_files and new_downloads_count >= max_media_files):
             print("⏳ Scanning SharePoint /sites/CHUNKING/DocLib/收入 subfolders...")
