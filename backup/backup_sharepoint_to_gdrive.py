@@ -246,7 +246,7 @@ def run_backup_pipeline(lists_only: bool = False, max_media_files: Optional[int]
     )
     build_excel_sheet(
         wb, "支出明細", clean_expenses,
-        ["Id", "交易時間", "金額", "支票編號", "轉帳銀行", "所屬項目", "所屬項目 (ID)", "子項目", "收款人", "付款狀態", "收據連結", "RecordStatus", "IsIndependent", "BatchId"]
+        ["Id", "交易時間", "金額", "支票編號", "Invoice No.", "轉帳銀行", "所屬項目", "所屬項目 (ID)", "子項目", "收款人", "付款狀態", "收據連結", "RecordStatus", "IsIndependent", "BatchId"]
     )
     build_excel_sheet(
         wb, "收入記錄", clean_incomes,

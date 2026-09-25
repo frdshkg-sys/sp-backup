@@ -3091,6 +3091,11 @@
             </div>
 
             <div class="form-group col-full">
+              <label>發票 / 單號 (Invoice No.)</label>
+              <input type="text" id="exp-invoice-no" placeholder="請輸入發票號碼 (選填，例如：BLE 113332102850401 INSTL 10)..." autocomplete="off">
+            </div>
+
+            <div class="form-group col-full">
               <label>備註 (Remarks) <span class="badge-auto"
                   style="background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd;">自動套用至本批次所有項目</span></label>
               <input type="text" id="exp-remarks" placeholder="請輸入備註說明 (選填，將自動套用至本批次所有分攤項目)..." autocomplete="off">
@@ -3619,6 +3624,11 @@
             <div class="form-group edit-expense-field">
               <label>收款人 / 廠商</label>
               <input type="text" id="edit-payee" placeholder="輸入收款公司或個人">
+            </div>
+
+            <div class="form-group edit-expense-field">
+              <label>發票 / 單號 (Invoice No.)</label>
+              <input type="text" id="edit-invoice-no" placeholder="例如：BLE 113332102850401 INSTL 10" autocomplete="off">
             </div>
 
             <div class="form-group edit-expense-field">
@@ -5776,6 +5786,7 @@
       const prefix = document.getElementById('exp-chq-prefix')?.value || 'CK';
       const bank = getBankValue('exp');
       const payee = (document.getElementById('exp-payee')?.value || '').trim();
+      const invoiceNo = (document.getElementById('exp-invoice-no')?.value || '').trim();
       const recordStatus = document.getElementById('exp-status')?.value || '有效';
 
       // 2. Validate Row Entries
@@ -5860,6 +5871,7 @@
             "OData__x4ea4__x6613__x6642__x9593_": new Date(dateVal).toISOString(),
             "OData__x91d1__x984d_": rowAmt,
             "OData__x652f__x7968__x7de8__x865f_": chqNum,
+            "Invoice_x0020_No_x002e_": invoiceNo,
             "OData__x8f49__x5e33__x9280__x884c_": bank,
             "OData__x6240__x5c6c__x9805__x76ee_Id": pid,
             "OData__x6536__x6b3e__x4eba_": payee,
@@ -5941,6 +5953,7 @@
         nextExpenseRowId = 2;
         renderExpenseEntriesTable();
         document.getElementById('exp-payee').value = '';
+        if (document.getElementById('exp-invoice-no')) document.getElementById('exp-invoice-no').value = '';
         if (document.getElementById('exp-payment-status')) {
           document.getElementById('exp-payment-status').value = '已付';
           onExpPaymentStatusChange();
@@ -7229,6 +7242,7 @@
         r['IsIndependent.value'] === 'true'
       );
       const batchId = (r.BatchId || r['BatchId.'] || r.OData_BatchId || '').trim();
+      const invoiceNo = (r.Invoice_x0020_No_x002e_ || r.InvoiceNo || r['Invoice No.'] || r.OData_Invoice_x0020_No_x002e_ || '').trim();
 
       return {
         Id: id,
@@ -7241,6 +7255,7 @@
         status: status,
         modifiedDisplay: modifiedDisplay,
         cheque: cheque,
+        invoiceNo: invoiceNo,
         bank: bank,
         payee: payee,
         subitem: subitem,
@@ -7412,6 +7427,8 @@
             if (isExp) {
               const payeeWhere = `<Contains><FieldRef Name='_x6536__x6b3e__x4eba_' /><Value Type='Text'>${escapedQ}</Value></Contains>`;
               queries.push(queryCaml(payeeWhere, 50));
+              const invWhere = `<Contains><FieldRef Name='Invoice_x0020_No_x002e_' /><Value Type='Text'>${escapedQ}</Value></Contains>`;
+              queries.push(queryCaml(invWhere, 50));
             }
 
             const queryResults = await Promise.all(queries);
@@ -7513,6 +7530,7 @@
           <div class="combobox-item-meta" style="margin-top:3px;">
             📅 ${escapeHtml(tx.dateDisplay || '')} &nbsp;|&nbsp; 項目: ${escapeHtml(tx.projName || '無')} &nbsp;|&nbsp; ${statusBadge}
             ${tx.payee ? ` &nbsp;|&nbsp; 收款: ${escapeHtml(tx.payee)}` : ''}
+            ${tx.invoiceNo ? ` &nbsp;|&nbsp; 🧾 發票: ${escapeHtml(tx.invoiceNo)}` : ''}
             ${tx.bank ? ` &nbsp;|&nbsp; 銀行: ${escapeHtml(tx.bank)}` : ''}
             ${tx.remarks ? ` &nbsp;|&nbsp; 📝 備註: ${escapeHtml(tx.remarks)}` : ''}
           </div>
@@ -9045,7 +9063,8 @@
             remarks: item.remarks || '',
             amount: item.amount,
             status: item.status,
-            paymentStatus: item.paymentStatus
+            paymentStatus: item.paymentStatus,
+            invoiceNo: item.invoiceNo || ''
           };
         });
 
@@ -9069,6 +9088,11 @@
         if (singleRemarksInput) {
           const batchRemark = (selectedEditBatch.find(x => x.remarks && x.remarks.trim())?.remarks || tx.remarks || '').trim();
           singleRemarksInput.value = batchRemark;
+        }
+        const editInvoiceInput = document.getElementById('edit-invoice-no');
+        if (editInvoiceInput) {
+          const batchInvoice = (selectedEditBatch.find(x => x.invoiceNo && x.invoiceNo.trim())?.invoiceNo || tx.invoiceNo || '').trim();
+          editInvoiceInput.value = batchInvoice;
         }
         if (singleAmtInput) {
           singleAmtInput.value = totalBatchAmt;
@@ -9177,6 +9201,9 @@
         setBankSelectValue('edit-exp', tx.bank || '東亞銀行');
         document.getElementById('edit-payee').value = tx.payee || '';
         document.getElementById('edit-subitem').value = tx.subitem || '';
+        if (document.getElementById('edit-invoice-no')) {
+          document.getElementById('edit-invoice-no').value = tx.invoiceNo || '';
+        }
       } else {
         setBankSelectValue('edit-inc', tx.bank || '東亞銀行');
       }
@@ -9416,6 +9443,7 @@
 
           const syncResults = [];
           const submitBtn = document.getElementById('edit-submit-btn');
+          const invoiceNoVal = (document.getElementById('edit-invoice-no')?.value || '').trim();
 
           for (let i = 0; i < count; i++) {
             const item = selectedEditBatch[i];
@@ -9434,6 +9462,7 @@
               "OData__x4ea4__x6613__x6642__x9593_": new Date(newDateVal).toISOString(),
               "RecordStatus": newStatus,
               "OData__x652f__x7968__x7de8__x865f_": chqNum,
+              "Invoice_x0020_No_x002e_": invoiceNoVal,
               "OData__x8f49__x5e33__x9280__x884c_": bankVal,
               "OData__x6536__x6b3e__x4eba_": payeeVal,
               "OData__x4ed8__x6b3e__x72c0__x614b_": editPayStatus,
@@ -9520,6 +9549,7 @@
             item.projId = rowProjId;
             item.subitem = rowSubitem;
             item.remarks = rowRemarks;
+            item.invoiceNo = invoiceNoVal;
             item.amount = rowAmount;
             item.batchId = payload["BatchId"];
             item.isIndependent = payload["IsIndependent"];
@@ -9681,6 +9711,7 @@
 
         if (isExp) {
           payload["OData__x652f__x7968__x7de8__x865f_"] = document.getElementById('edit-cheque').value;
+          payload["Invoice_x0020_No_x002e_"] = (document.getElementById('edit-invoice-no')?.value || '').trim();
           payload["OData__x8f49__x5e33__x9280__x884c_"] = getBankValue('edit-exp');
           payload["OData__x6240__x5c6c__x9805__x76ee_Id"] = newProjId;
           payload["OData__x6536__x6b3e__x4eba_"] = document.getElementById('edit-payee').value;
@@ -9745,6 +9776,7 @@
 
         if (isExp) {
           selectedEditTx.cheque = document.getElementById('edit-cheque').value;
+          selectedEditTx.invoiceNo = (document.getElementById('edit-invoice-no')?.value || '').trim();
           selectedEditTx.bank = getBankValue('edit-exp');
           selectedEditTx.payee = document.getElementById('edit-payee').value;
           selectedEditTx.subitem = document.getElementById('edit-subitem').value;
