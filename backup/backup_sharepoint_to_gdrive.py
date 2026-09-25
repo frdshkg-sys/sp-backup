@@ -198,14 +198,17 @@ def run_backup_pipeline(lists_only: bool = False, max_media_files: Optional[int]
 
     # Target folders on Google Drive
     gdrive_weekly_folder_id = None
-    gdrive_receipts_chq_id = None
+    gdrive_expense_folder_ids = {}
     gdrive_receipts_inc_id = None
+    expense_subdirs = ["CHQ", "CK", "DBS", "WS"]
+
     if gdrive.is_connected:
         snapshots_root_id = gdrive.find_or_create_folder("Weekly_Snapshots")
         gdrive_weekly_folder_id = gdrive.find_or_create_folder(today_str, parent_id=snapshots_root_id)
         
         mirror_root_id = gdrive.find_or_create_folder("Receipts_Live_Mirror")
-        gdrive_receipts_chq_id = gdrive.find_or_create_folder("CHQ", parent_id=mirror_root_id)
+        for sub_name in expense_subdirs:
+            gdrive_expense_folder_ids[sub_name] = gdrive.find_or_create_folder(sub_name, parent_id=mirror_root_id)
         gdrive_receipts_inc_id = gdrive.find_or_create_folder("Income", parent_id=mirror_root_id)
 
     # =========================================================================
@@ -290,94 +293,135 @@ def run_backup_pipeline(lists_only: bool = False, max_media_files: Optional[int]
     if lists_only:
         print("⏩ Skipping media synchronization (--lists-only flag is set).")
     else:
-        # Pre-scan Google Drive's CHQ folder in case previous run was cancelled before saving manifest
-        existing_chq_drive = {}
-        if gdrive.is_connected and gdrive_receipts_chq_id:
-            print("🔍 Pre-scanning existing files in Google Drive CHQ folder...")
-            existing_chq_drive = gdrive.list_files_in_folder(gdrive_receipts_chq_id)
-            print(f"   Found {len(existing_chq_drive)} files already present in Google Drive CHQ folder.")
-
-        # 4.1 Check files in /sites/CHUNKING/DocLib/CHQ
-        print("⏳ Scanning SharePoint /sites/CHUNKING/DocLib/CHQ...")
-        chq_files = sp.fetch_folder_files_metadata("/sites/CHUNKING/DocLib/CHQ")
-        print(f"   Found {len(chq_files)} total files in CHQ document library.")
-
-        for file_meta in chq_files:
+        # 4.1 Sync Expense Cheque Receipt Folders (CHQ, CK, DBS, WS)
+        for folder_name in expense_subdirs:
             if max_media_files and new_downloads_count >= max_media_files:
                 print(f"⏸️ Reached maximum media files limit ({max_media_files}). Stopping media sync.")
                 break
 
-            name = file_meta.get("Name", "")
-            rel_url = file_meta.get("ServerRelativeUrl", "")
-            file_len = int(file_meta.get("Length", 0))
+            sp_folder_path = f"/sites/CHUNKING/DocLib/{folder_name}"
+            target_gdrive_folder_id = gdrive_expense_folder_ids.get(folder_name)
 
-            # Check 1: Manifest check
-            manifest_entry = manifest_files.get(rel_url)
-            if manifest_entry and manifest_entry.get("size") == file_len:
-                skipped_count += 1
-                continue
+            # Pre-scan Google Drive's folder in case previous run was cancelled before saving manifest
+            existing_drive_files = {}
+            if gdrive.is_connected and target_gdrive_folder_id:
+                print(f"\n🔍 Pre-scanning existing files in Google Drive {folder_name} folder...")
+                existing_drive_files = gdrive.list_files_in_folder(target_gdrive_folder_id)
+                print(f"   Found {len(existing_drive_files)} files already present in Google Drive {folder_name} folder.")
 
-            # Check 2: Direct Google Drive check (handles previously cancelled or interrupted runs)
-            if name in existing_chq_drive and existing_chq_drive[name] == file_len:
-                manifest_files[rel_url] = {
-                    "name": name,
-                    "size": file_len,
-                    "sha256": "pre-existing",
-                    "category": "CHQ",
-                    "last_backed_up": today_str
-                }
-                skipped_count += 1
-                continue
+            print(f"⏳ Scanning SharePoint {sp_folder_path}...")
+            folder_files = sp.fetch_folder_files_metadata(sp_folder_path)
+            print(f"   Found {len(folder_files)} total files in {folder_name} document library.")
 
-            # Download newly added / modified file
-            local_target = os.path.join(temp_receipts_dir, name)
-            success, file_hash, byte_size = sp.download_file(rel_url, local_target)
-            if success:
-                new_downloads_count += 1
-                new_bytes_transferred += byte_size
+            folder_new_count = 0
+            folder_skipped_count = 0
 
-                # Upload to Google Drive if connected
-                uploaded_id = None
-                if gdrive.is_connected:
-                    uploaded_id = gdrive.upload_file(local_target, destination_folder_id=gdrive_receipts_chq_id, remote_file_name=name, overwrite=True)
+            for file_meta in folder_files:
+                if max_media_files and new_downloads_count >= max_media_files:
+                    print(f"⏸️ Reached maximum media files limit ({max_media_files}). Stopping media sync.")
+                    break
 
-                if gdrive.is_connected and not uploaded_id:
-                    print(f"⚠️ Failed to upload {name} to Google Drive; skipping manifest update so it will be retried next time.")
-                else:
-                    # Update manifest
+                name = file_meta.get("Name", "")
+                rel_url = file_meta.get("ServerRelativeUrl", "")
+                file_len = int(file_meta.get("Length", 0))
+
+                # Check 1: Manifest check
+                manifest_entry = manifest_files.get(rel_url)
+                if manifest_entry and manifest_entry.get("size") == file_len:
+                    skipped_count += 1
+                    folder_skipped_count += 1
+                    continue
+
+                # Check 2: Direct Google Drive check (handles previously cancelled or interrupted runs)
+                if name in existing_drive_files and existing_drive_files[name] == file_len:
                     manifest_files[rel_url] = {
                         "name": name,
-                        "size": byte_size,
-                        "sha256": file_hash,
-                        "category": "CHQ",
+                        "size": file_len,
+                        "sha256": "pre-existing",
+                        "category": folder_name,
                         "last_backed_up": today_str
                     }
+                    skipped_count += 1
+                    folder_skipped_count += 1
+                    continue
 
-                # Remove temp file to conserve runner disk space
-                if os.path.exists(local_target):
-                    os.remove(local_target)
+                # Download newly added / modified file
+                local_target = os.path.join(temp_receipts_dir, name)
+                success, file_hash, byte_size = sp.download_file(rel_url, local_target)
+                if success:
+                    new_downloads_count += 1
+                    folder_new_count += 1
+                    new_bytes_transferred += byte_size
 
-                # Periodic manifest checkpoint save every 50 files
-                if gdrive.is_connected and new_downloads_count % 50 == 0:
-                    gdrive.save_manifest(manifest)
+                    # Upload to Google Drive if connected
+                    uploaded_id = None
+                    if gdrive.is_connected and target_gdrive_folder_id:
+                        uploaded_id = gdrive.upload_file(local_target, destination_folder_id=target_gdrive_folder_id, remote_file_name=name, overwrite=True)
 
-            if (new_downloads_count + skipped_count) % 25 == 0 or (new_downloads_count + skipped_count) == len(chq_files):
-                print(f"   ⏳ Progress: [{new_downloads_count + skipped_count}/{len(chq_files)}] ({new_downloads_count} new uploaded, {skipped_count} skipped, {new_bytes_transferred / (1024*1024):.1f} MB)...")
+                    if gdrive.is_connected and not uploaded_id:
+                        print(f"⚠️ Failed to upload {name} to Google Drive; skipping manifest update so it will be retried next time.")
+                    else:
+                        # Update manifest
+                        manifest_files[rel_url] = {
+                            "name": name,
+                            "size": byte_size,
+                            "sha256": file_hash,
+                            "category": folder_name,
+                            "last_backed_up": today_str
+                        }
 
-        # 4.2 Check files in /sites/CHUNKING/DocLib/收入 subfolders
+                    # Remove temp file to conserve runner disk space
+                    if os.path.exists(local_target):
+                        os.remove(local_target)
+
+                    # Periodic manifest checkpoint save every 50 files
+                    if gdrive.is_connected and new_downloads_count % 50 == 0:
+                        gdrive.save_manifest(manifest)
+
+                total_in_folder = folder_new_count + folder_skipped_count
+                if total_in_folder % 25 == 0 or total_in_folder == len(folder_files):
+                    print(f"   ⏳ [{folder_name}] Progress: [{total_in_folder}/{len(folder_files)}] ({folder_new_count} new uploaded, {folder_skipped_count} skipped, {new_bytes_transferred / (1024*1024):.1f} MB total)...")
+
+        # 4.2 Sync Income Folders (including bank and project nested subdirectories)
         if not (max_media_files and new_downloads_count >= max_media_files):
-            print("⏳ Scanning SharePoint /sites/CHUNKING/DocLib/收入 subfolders...")
-            income_subfolders = sp.fetch_subfolders("/sites/CHUNKING/DocLib/收入")
-            for sub in income_subfolders:
+            print("\n⏳ Scanning SharePoint /sites/CHUNKING/DocLib/收入 folders...")
+
+            # Helper to recursively discover subfolders with files under a given root
+            def scan_income_folders(base_sp_path: str, current_rel_path: str = ""):
+                folders_to_visit = [(base_sp_path, current_rel_path)]
+                while folders_to_visit:
+                    sp_path, rel_path = folders_to_visit.pop(0)
+                    files = sp.fetch_folder_files_metadata(sp_path)
+                    if files:
+                        yield sp_path, rel_path, files
+                    subdirs = sp.fetch_subfolders(sp_path)
+                    for s in subdirs:
+                        sub_name = os.path.basename(s.rstrip("/"))
+                        next_rel = f"{rel_path}/{sub_name}".strip("/") if rel_path else sub_name
+                        folders_to_visit.append((s, next_rel))
+
+            gdrive_inc_folder_cache = {}
+
+            def get_or_create_gdrive_path(rel_path: str, base_parent_id: str) -> str:
+                if not rel_path:
+                    return base_parent_id
+                if rel_path in gdrive_inc_folder_cache:
+                    return gdrive_inc_folder_cache[rel_path]
+                parts = rel_path.split("/")
+                curr = base_parent_id
+                for part in parts:
+                    curr = gdrive.find_or_create_folder(part, parent_id=curr)
+                gdrive_inc_folder_cache[rel_path] = curr
+                return curr
+
+            for sp_folder_path, rel_path, sub_files in scan_income_folders("/sites/CHUNKING/DocLib/收入"):
                 if max_media_files and new_downloads_count >= max_media_files:
                     break
-                sub_name = os.path.basename(sub.rstrip("/"))
-                sub_files = sp.fetch_folder_files_metadata(sub)
-                
+
                 target_gdrive_sub_id = None
                 existing_inc_drive = {}
-                if gdrive.is_connected:
-                    target_gdrive_sub_id = gdrive.find_or_create_folder(sub_name, parent_id=gdrive_receipts_inc_id)
+                if gdrive.is_connected and gdrive_receipts_inc_id:
+                    target_gdrive_sub_id = get_or_create_gdrive_path(rel_path, gdrive_receipts_inc_id)
                     existing_inc_drive = gdrive.list_files_in_folder(target_gdrive_sub_id)
 
                 for file_meta in sub_files:
@@ -398,7 +442,7 @@ def run_backup_pipeline(lists_only: bool = False, max_media_files: Optional[int]
                             "name": name,
                             "size": file_len,
                             "sha256": "pre-existing",
-                            "category": f"Income/{sub_name}",
+                            "category": f"Income/{rel_path}" if rel_path else "Income",
                             "last_backed_up": today_str
                         }
                         skipped_count += 1
@@ -410,7 +454,7 @@ def run_backup_pipeline(lists_only: bool = False, max_media_files: Optional[int]
                         new_downloads_count += 1
                         new_bytes_transferred += byte_size
                         uploaded_id = None
-                        if gdrive.is_connected:
+                        if gdrive.is_connected and target_gdrive_sub_id:
                             uploaded_id = gdrive.upload_file(local_target, destination_folder_id=target_gdrive_sub_id, remote_file_name=name, overwrite=True)
 
                         if gdrive.is_connected and not uploaded_id:
@@ -420,15 +464,20 @@ def run_backup_pipeline(lists_only: bool = False, max_media_files: Optional[int]
                                 "name": name,
                                 "size": byte_size,
                                 "sha256": file_hash,
-                                "category": f"Income/{sub_name}",
+                                "category": f"Income/{rel_path}" if rel_path else "Income",
                                 "last_backed_up": today_str
                             }
 
                         if os.path.exists(local_target):
                             os.remove(local_target)
 
+                        # Periodic manifest checkpoint save every 50 files
+                        if gdrive.is_connected and new_downloads_count % 50 == 0:
+                            gdrive.save_manifest(manifest)
+
                     if (new_downloads_count + skipped_count) % 25 == 0:
-                        print(f"   ⏳ [Income] Progress: ({new_downloads_count} new uploaded, {skipped_count} skipped, {new_bytes_transferred / (1024*1024):.1f} MB)...")
+                        disp_name = f"Income/{rel_path}" if rel_path else "Income"
+                        print(f"   ⏳ [{disp_name}] Progress: ({new_downloads_count} new uploaded, {skipped_count} skipped, {new_bytes_transferred / (1024*1024):.1f} MB total)...")
 
     print(f"✅ Incremental Media Sync Completed:")
     print(f"   ⏩ Skipped (already backed up): {skipped_count} files")

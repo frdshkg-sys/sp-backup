@@ -27,8 +27,22 @@
       "sha256": "544c58bd190e96a24fc7515bafb12585aae19b7c4be49912e6e09702c83c141b",
       "category": "CHQ",
       "last_backed_up": "2026-09-25"
+    },
+    "/sites/CHUNKING/DocLib/CHQ/CHQ003164.pdf": {
+      "name": "CHQ003164.pdf",
+      "size": 316219,
+      "sha256": "c6d2f543994ef73e9dcddc2df54d4bccda70beb8e6e83f6bec21c3b7845316f6",
+      "category": "CHQ",
+      "last_backed_up": "2026-09-25"
+    },
+    "/sites/CHUNKING/DocLib/CHQ/CHQ003850.pdf": {
+      "name": "CHQ003850.pdf",
+      "size": 1671823,
+      "sha256": "49d5b38fb0d171f8e597731e7345ca9293a6398f8d544867fac7191a7130f432",
+      "category": "CHQ",
+      "last_backed_up": "2026-09-25"
     }
   },
   "last_sync_date": "2026-09-25",
-  "total_tracked_files": 4
+  "total_tracked_files": 6
 }

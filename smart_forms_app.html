@@ -4409,10 +4409,25 @@
     function bridgeFetch(url, options = {}) {
       return new Promise((resolve, reject) => {
         const reqId = 'sp_req_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+
+        // Dynamic timeout calculation:
+        // Regular JSON/CRUD: 30 seconds (up from 10s)
+        // File/Blob uploads: Minimum 180 seconds (3 min) + generous scaling for large files (up to 10 min)
+        let timeoutMs = options.timeout;
+        if (!timeoutMs) {
+          if (options.body instanceof Blob || options.body instanceof File) {
+            const sizeBytes = options.body.size || 0;
+            // Floor of 180s, plus 30s per 10MB, capped at 10 minutes (600s)
+            timeoutMs = Math.min(600000, Math.max(180000, Math.ceil(sizeBytes / (10 * 1024 * 1024)) * 30000 + 60000));
+          } else {
+            timeoutMs = 30000;
+          }
+        }
+
         const timeout = setTimeout(() => {
           window.removeEventListener('message', onBridgeMsg);
-          reject(new Error("SharePoint 請求超時 (Bridge Timeout)。請確認父頁面通信橋樑運作中。"));
-        }, 10000);
+          reject(new Error(`SharePoint 請求超時 (Bridge Timeout, 已等待 ${Math.round(timeoutMs / 1000)} 秒)。若為較大檔案請確認網路連線正常。`));
+        }, timeoutMs);
 
         function onBridgeMsg(ev) {
           if (ev.data && ev.data.type === 'SP_FETCH_RESPONSE' && ev.data.id === reqId) {
@@ -5125,6 +5140,13 @@
       if (!files || files.length === 0) return;
       const file = files[0];
 
+      // File size validation: hard ceiling at 200 MB (SharePoint REST Files/add limit is 250 MB)
+      if (file.size > 200 * 1024 * 1024) {
+        alert(`❌ 檔案過大 (${(file.size / (1024 * 1024)).toFixed(1)} MB)。SharePoint 直傳限制為 200 MB 以內，請壓縮 PDF 或降低掃描解析度後再上傳。`);
+        removeFile(type);
+        return;
+      }
+
       // Unpaid restriction check
       if (type === 'expense') {
         const payStatus = document.getElementById('exp-payment-status')?.value || '已付';
@@ -5163,8 +5185,19 @@
       const targetName = resolveTargetReceiptFileName(type, file.name);
       file.targetFileName = targetName;
 
+      const sizeMB = file.size / (1024 * 1024);
+      const sizeStr = sizeMB >= 1 ? `${sizeMB.toFixed(1)} MB` : `${(file.size / 1024).toFixed(1)} KB`;
+
       if (targetSpan) targetSpan.textContent = targetName;
-      if (origSpan) origSpan.textContent = `(原始檔名: ${file.name}, ${(file.size / 1024).toFixed(1)} KB)`;
+      if (origSpan) {
+        origSpan.textContent = `(原始檔名: ${file.name}, ${sizeStr})`;
+        if (sizeMB > 20) {
+          const warnSpan = document.createElement('span');
+          warnSpan.style.cssText = 'color:#b45309; font-weight:600; margin-left:6px;';
+          warnSpan.textContent = '(⚠️ 較大檔案，送出時上傳約需 30~60 秒)';
+          origSpan.appendChild(warnSpan);
+        }
+      }
       if (preview) preview.style.display = 'flex';
     }
 
@@ -5240,13 +5273,18 @@
       const cleanName = (customFileName || file.targetFileName || file.name).replace(/#/g, '').replace(/%/g, '');
       const uploadUrl = `${SITE_URL}/_api/web/GetFolderByServerRelativeUrl('${folderPath}')/Files/add(url='${encodeURIComponent(cleanName)}',overwrite=true)`;
 
+      // Dynamic timeout based on file size (floor 180s = 3 min, + 30s per 10MB, up to 10 min)
+      const sizeBytes = file.size || 0;
+      const uploadTimeoutMs = Math.min(600000, Math.max(180000, Math.ceil(sizeBytes / (10 * 1024 * 1024)) * 30000 + 60000));
+
       const res = await spFetch(uploadUrl, {
         method: 'POST',
         headers: {
           'Accept': 'application/json;odata=verbose',
           'X-RequestDigest': digestValue
         },
-        body: file
+        body: file,
+        timeout: uploadTimeoutMs
       });
 
       if (!res.ok) {
@@ -5783,7 +5821,8 @@
 
         // Upload receipt file once if attached (only if paid)
         if (currentUploadedFiles.expense && paymentStatus !== '未付') {
-          btn.innerHTML = '<span>⏳</span> 正在上傳收據/支票檔案...';
+          const fSizeMB = (currentUploadedFiles.expense.size / (1024 * 1024)).toFixed(1);
+          btn.innerHTML = `<span>⏳</span> 正在上傳收據/支票檔案 (${fSizeMB} MB，較大檔案請稍候)...`;
           let folder = '/sites/CHUNKING/DocLib';
           if (prefix === 'CK') folder += '/CK';
           else if (prefix === 'WS') folder += '/WS';
@@ -5960,6 +5999,8 @@
         let fileName = null;
 
         if (currentUploadedFiles.income) {
+          const fSizeMB = (currentUploadedFiles.income.size / (1024 * 1024)).toFixed(1);
+          btn.innerHTML = `<span>⏳</span> 正在上傳收據檔案 (${fSizeMB} MB，較大檔案請稍候)...`;
           const folder = `/sites/CHUNKING/DocLib/收入/${bank}`;
           const targetName = resolveTargetReceiptFileName('income', currentUploadedFiles.income.name);
           fileName = targetName;
@@ -9328,6 +9369,9 @@
           let newFileUrl = null;
           let newFileName = null;
           if (currentUploadedFiles.edit && editPayStatus !== '未付') {
+            const fSizeMB = (currentUploadedFiles.edit.size / (1024 * 1024)).toFixed(1);
+            const btn = document.getElementById('edit-submit-btn');
+            if (btn) btn.innerHTML = `<span>⏳</span> 正在上傳收據檔案 (${fSizeMB} MB，較大檔案請稍候)...`;
             let folder = '/sites/CHUNKING/DocLib';
             let prefix = 'CK';
             if (chqNum.startsWith('WS')) prefix = 'WS';
@@ -9606,6 +9650,9 @@
         let newFileUrl = null;
         let newFileName = null;
         if (currentUploadedFiles.edit && (!isExp || editPayStatus !== '未付')) {
+          const fSizeMB = (currentUploadedFiles.edit.size / (1024 * 1024)).toFixed(1);
+          const btn = document.getElementById('edit-submit-btn');
+          if (btn) btn.innerHTML = `<span>⏳</span> 正在上傳收據檔案 (${fSizeMB} MB，較大檔案請稍候)...`;
           let folder = '/sites/CHUNKING/DocLib';
           if (isExp) {
             const chq = (document.getElementById('edit-cheque')?.value || '').trim();

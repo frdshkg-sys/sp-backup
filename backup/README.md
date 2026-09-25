@@ -62,7 +62,7 @@ backup/
 3. 點擊右側的 **Run workflow** 按鈕進行手動測試。
 4. 執行完成後，您可以在 Google Drive 的 `CHUN_KING_Backups` 資料夾中看見：
    - `Weekly_Snapshots/YYYY-MM-DD/`（包含繁體中文版 `CHUN_KING_Financial_Master_YYYY-MM-DD.xlsx` 與 JSON）
-   - `Receipts_Live_Mirror/`（包含自動歸檔之支票收據與各銀行收入單據）
+   - `Receipts_Live_Mirror/`（包含支出支票收據 `CHQ/`、`CK/`、`DBS/`、`WS/` 與各銀行收入單據 `Income/{銀行}/{項目}/`）
    - `manifest.json`（檔案雜湊與同步狀態）
 
 ---
