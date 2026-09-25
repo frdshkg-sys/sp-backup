@@ -1,0 +1,20 @@
+{
+  "status": "SUCCESS",
+  "timestamp": "2026-09-25 10:31:29 HKT",
+  "duration_seconds": 63.17,
+  "records": {
+    "projects": 252,
+    "expenses": 8213,
+    "incomes": 1185
+  },
+  "media_sync": {
+    "new_files_transferred": 0,
+    "new_megabytes_transferred": 0.0,
+    "skipped_already_synced": 0,
+    "total_tracked_receipts": 0
+  },
+  "throttling_metrics": {
+    "total_429_or_503_events": 0,
+    "circuit_breaker_tripped": false
+  }
+}

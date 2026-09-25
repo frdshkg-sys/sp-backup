@@ -1,0 +1,34 @@
+{
+  "files": {
+    "/sites/CHUNKING/DocLib/CHQ/CHQ001435 Formica1.pdf": {
+      "name": "CHQ001435 Formica1.pdf",
+      "size": 1244313,
+      "sha256": "afdbc85ad8aa480c7f17ca1d201407e15545771a0762f4d8d339ed0f0bae743c",
+      "category": "CHQ",
+      "last_backed_up": "2026-09-25"
+    },
+    "/sites/CHUNKING/DocLib/CHQ/CHQ002572.pdf": {
+      "name": "CHQ002572.pdf",
+      "size": 7324220,
+      "sha256": "b1b57501089f3dbaaf671d263959c8e8769cbc7f4dbc66c753158670ab9f02ba",
+      "category": "CHQ",
+      "last_backed_up": "2026-09-25"
+    },
+    "/sites/CHUNKING/DocLib/CHQ/CHQ003272.pdf": {
+      "name": "CHQ003272.pdf",
+      "size": 3515150,
+      "sha256": "3c8164ea5a3cd70d262e5111fe57efcecdfc69317d2da4842411465e6689ac6c",
+      "category": "CHQ",
+      "last_backed_up": "2026-09-25"
+    },
+    "/sites/CHUNKING/DocLib/CHQ/CHQ002691.pdf": {
+      "name": "CHQ002691.pdf",
+      "size": 7795220,
+      "sha256": "544c58bd190e96a24fc7515bafb12585aae19b7c4be49912e6e09702c83c141b",
+      "category": "CHQ",
+      "last_backed_up": "2026-09-25"
+    }
+  },
+  "last_sync_date": "2026-09-25",
+  "total_tracked_files": 4
+}

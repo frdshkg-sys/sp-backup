@@ -6,6 +6,10 @@ _archive/
 # Sensitive Authentication & Session Credentials
 cookies.json
 *.session
+*service_account*.json
+*oauth_token*.json
+*client_secret*.json
+backup/staging/
 
 # Python Bytecode & Cache
 __pycache__/
@@ -45,3 +49,5 @@ cheque-new.xslx
 
 # Scratch Files
 scratch/*
+
+temp.txt
