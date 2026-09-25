@@ -290,6 +290,13 @@ def run_backup_pipeline(lists_only: bool = False, max_media_files: Optional[int]
     if lists_only:
         print("⏩ Skipping media synchronization (--lists-only flag is set).")
     else:
+        # Pre-scan Google Drive's CHQ folder in case previous run was cancelled before saving manifest
+        existing_chq_drive = {}
+        if gdrive.is_connected and gdrive_receipts_chq_id:
+            print("🔍 Pre-scanning existing files in Google Drive CHQ folder...")
+            existing_chq_drive = gdrive.list_files_in_folder(gdrive_receipts_chq_id)
+            print(f"   Found {len(existing_chq_drive)} files already present in Google Drive CHQ folder.")
+
         # 4.1 Check files in /sites/CHUNKING/DocLib/CHQ
         print("⏳ Scanning SharePoint /sites/CHUNKING/DocLib/CHQ...")
         chq_files = sp.fetch_folder_files_metadata("/sites/CHUNKING/DocLib/CHQ")
@@ -304,9 +311,21 @@ def run_backup_pipeline(lists_only: bool = False, max_media_files: Optional[int]
             rel_url = file_meta.get("ServerRelativeUrl", "")
             file_len = int(file_meta.get("Length", 0))
 
-            # Check if already in manifest with matching size
+            # Check 1: Manifest check
             manifest_entry = manifest_files.get(rel_url)
             if manifest_entry and manifest_entry.get("size") == file_len:
+                skipped_count += 1
+                continue
+
+            # Check 2: Direct Google Drive check (handles previously cancelled or interrupted runs)
+            if name in existing_chq_drive and existing_chq_drive[name] == file_len:
+                manifest_files[rel_url] = {
+                    "name": name,
+                    "size": file_len,
+                    "sha256": "pre-existing",
+                    "category": "CHQ",
+                    "last_backed_up": today_str
+                }
                 skipped_count += 1
                 continue
 
@@ -334,6 +353,10 @@ def run_backup_pipeline(lists_only: bool = False, max_media_files: Optional[int]
                 if os.path.exists(local_target):
                     os.remove(local_target)
 
+                # Periodic manifest checkpoint save every 50 files
+                if gdrive.is_connected and new_downloads_count % 50 == 0:
+                    gdrive.save_manifest(manifest)
+
             if (new_downloads_count + skipped_count) % 25 == 0 or (new_downloads_count + skipped_count) == len(chq_files):
                 print(f"   ⏳ Progress: [{new_downloads_count + skipped_count}/{len(chq_files)}] ({new_downloads_count} new uploaded, {skipped_count} skipped, {new_bytes_transferred / (1024*1024):.1f} MB)...")
 
@@ -348,8 +371,10 @@ def run_backup_pipeline(lists_only: bool = False, max_media_files: Optional[int]
                 sub_files = sp.fetch_folder_files_metadata(sub)
                 
                 target_gdrive_sub_id = None
+                existing_inc_drive = {}
                 if gdrive.is_connected:
                     target_gdrive_sub_id = gdrive.find_or_create_folder(sub_name, parent_id=gdrive_receipts_inc_id)
+                    existing_inc_drive = gdrive.list_files_in_folder(target_gdrive_sub_id)
 
                 for file_meta in sub_files:
                     if max_media_files and new_downloads_count >= max_media_files:
@@ -360,6 +385,18 @@ def run_backup_pipeline(lists_only: bool = False, max_media_files: Optional[int]
 
                     manifest_entry = manifest_files.get(rel_url)
                     if manifest_entry and manifest_entry.get("size") == file_len:
+                        skipped_count += 1
+                        continue
+
+                    # Direct check against Google Drive
+                    if name in existing_inc_drive and existing_inc_drive[name] == file_len:
+                        manifest_files[rel_url] = {
+                            "name": name,
+                            "size": file_len,
+                            "sha256": "pre-existing",
+                            "category": f"Income/{sub_name}",
+                            "last_backed_up": today_str
+                        }
                         skipped_count += 1
                         continue
 

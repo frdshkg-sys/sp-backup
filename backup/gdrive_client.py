@@ -252,3 +252,38 @@ class GoogleDriveClient:
         finally:
             if os.path.exists(temp_manifest_path):
                 os.remove(temp_manifest_path)
+
+    def list_files_in_folder(self, folder_id: str) -> Dict[str, int]:
+        """
+        Enumerates all files in a Google Drive folder and returns a dict mapping {filename: size_in_bytes}.
+        Supports large folders via pageToken.
+        """
+        if not self.is_connected or not folder_id:
+            return {}
+
+        results = {}
+        page_token = None
+        while True:
+            try:
+                q = f"'{folder_id}' in parents and trashed = false and mimeType != 'application/vnd.google-apps.folder'"
+                res = self.service.files().list(
+                    q=q,
+                    spaces="drive",
+                    fields="nextPageToken, files(id, name, size)",
+                    pageSize=1000,
+                    pageToken=page_token,
+                    supportsAllDrives=True,
+                    includeItemsFromAllDrives=True
+                ).execute()
+                for f in res.get("files", []):
+                    name = f.get("name")
+                    size = int(f.get("size", 0)) if f.get("size") else 0
+                    if name:
+                        results[name] = size
+                page_token = res.get("nextPageToken")
+                if not page_token:
+                    break
+            except Exception as e:
+                print(f"⚠️ Error listing files in Google Drive folder {folder_id}: {e}")
+                break
+        return results
