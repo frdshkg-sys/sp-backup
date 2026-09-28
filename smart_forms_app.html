@@ -7055,9 +7055,10 @@
       const currentSubitem = isExp ? (document.getElementById('edit-subitem').value || '').trim() : '';
       const currentCheque = isExp ? (document.getElementById('edit-cheque').value || '').trim() : '';
       const currentBank = isExp ? getBankValue('edit-exp') : getBankValue('edit-inc');
+      const currentInvoiceNo = cleanInvoiceNoStr(document.getElementById('edit-invoice-no')?.value || '').trim();
 
-      // If in Batch Edit Mode:
-      if (selectedEditBatch && selectedEditBatch.length > 1) {
+      // If in Expense Unified/Batch Edit Mode:
+      if (isExp && selectedEditBatch && selectedEditBatch.length >= 1) {
         if (newStatus !== (selectedEditTx.status || '有效')) return false;
         if (newDateVal !== (selectedEditTx.dateIso || '')) return false;
         if (!fileMatch) return false;
@@ -7071,6 +7072,13 @@
         const currentRemarks = (document.getElementById('edit-remarks')?.value || '').trim();
         const origRemarks = (selectedEditBatch[0]?._orig?.remarks || selectedEditTx.remarks || '').trim();
         if (currentRemarks !== origRemarks) return false;
+
+        const origInvoiceNo = cleanInvoiceNoStr(
+          selectedEditBatch.find(x => x.invoiceNo && x.invoiceNo.trim())?.invoiceNo ||
+          selectedEditBatch[0]?._orig?.invoiceNo ||
+          selectedEditTx.invoiceNo || ''
+        ).trim();
+        if (currentInvoiceNo !== origInvoiceNo) return false;
 
         // Check each row in the batch
         for (const item of selectedEditBatch) {
@@ -7106,6 +7114,9 @@
       const currentRemarks = (document.getElementById('edit-remarks')?.value || '').trim();
       const origRemarks = (selectedEditTx.remarks || '').trim();
       if (currentRemarks !== origRemarks) return false;
+
+      const origInvoiceNo = cleanInvoiceNoStr(selectedEditTx.invoiceNo || '').trim();
+      if (currentInvoiceNo !== origInvoiceNo) return false;
 
       if (isExp) {
         if (currentCheque !== (selectedEditTx.cheque || '').trim()) return false;
@@ -9620,7 +9631,8 @@
               remarks: rowRemarks,
               amount: rowAmount,
               status: newStatus,
-              paymentStatus: editPayStatus
+              paymentStatus: editPayStatus,
+              invoiceNo: invoiceNoVal
             };
 
             const inMem = loadedEditTransactions.find(t => t.Id === item.Id);
@@ -9640,6 +9652,7 @@
                 pTx.amount = rowAmount;
                 pTx.subitem = rowSubitem;
                 pTx.remarks = rowRemarks;
+                pTx.invoiceNo = invoiceNoVal;
                 if (newFileUrl) {
                   pTx.receipt = newFileUrl;
                   pTx.receiptDesc = newFileName;
@@ -9874,6 +9887,7 @@
             pTx.amt = newAmount;
             pTx.paymentStatus = editPayStatus;
             pTx.remarks = newRemarks;
+            pTx.invoiceNo = selectedEditTx.invoiceNo;
             if (isExp) pTx.cheque = selectedEditTx.cheque;
             if (newFileUrl) {
               pTx.receipt = newFileUrl;
