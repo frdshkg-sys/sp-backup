@@ -1,0 +1,2172 @@
+[
+  {
+    "Id": 27172,
+    "Title": "EXP-00003-364691.47",
+    "CurrentInvoice": "BLE 113332102850401 INSTL 12",
+    "TargetInvoice": "BLE 113332102850401 INSTL 9",
+    "Matched": true
+  },
+  {
+    "Id": 27332,
+    "Title": "EXP-00165-CK0072",
+    "CurrentInvoice": "華成9月租金",
+    "TargetInvoice": "華成8月租金",
+    "Matched": true
+  },
+  {
+    "Id": 27334,
+    "Title": "EXP-00168-CK0144",
+    "CurrentInvoice": "華成12月租金",
+    "TargetInvoice": "華成11月租金",
+    "Matched": true
+  },
+  {
+    "Id": 27335,
+    "Title": "EXP-00164-CK0072",
+    "CurrentInvoice": "華成8月租金",
+    "TargetInvoice": "華成9月租金",
+    "Matched": true
+  },
+  {
+    "Id": 27336,
+    "Title": "EXP-00167-CK0144",
+    "CurrentInvoice": "華成11月租金",
+    "TargetInvoice": "華成12月租金",
+    "Matched": true
+  },
+  {
+    "Id": 27640,
+    "Title": "EXP-00469-CK0336",
+    "CurrentInvoice": "邦20260515雜資",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 27667,
+    "Title": "EXP-00500-CK0184",
+    "CurrentInvoice": "1月雜資_PONG",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 28008,
+    "Title": "EXP-00841-CK0581",
+    "CurrentInvoice": "Salary (8月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 28102,
+    "Title": "EXP-00935-CK0522",
+    "CurrentInvoice": "Salary (7月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 28199,
+    "Title": "EXP-01034-CK0477",
+    "CurrentInvoice": "Invoice No.: I2026-176",
+    "TargetInvoice": "Invoice No.: I2026-177",
+    "Matched": true
+  },
+  {
+    "Id": 28200,
+    "Title": "EXP-01033-CK0477",
+    "CurrentInvoice": "Invoice No.: I2026-177",
+    "TargetInvoice": "Invoice No.: I2026-176",
+    "Matched": true
+  },
+  {
+    "Id": 28232,
+    "Title": "EXP-01064-CK0469",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 28352,
+    "Title": "EXP-01186-CK0403",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 28462,
+    "Title": "EXP-01297-CK0330",
+    "CurrentInvoice": "Invoice No. DINV-2026000120\nFPS ID: 110736360\n26.05.14 邦說先給一半",
+    "TargetInvoice": "Invoice No. DINV-2026000120\nFPS ID: 110736360\n26.05.14",
+    "Matched": true
+  },
+  {
+    "Id": 28464,
+    "Title": "EXP-01295",
+    "CurrentInvoice": "Invoice No. DINV-2026000120\nFPS ID: 110736360\n26.05.14",
+    "TargetInvoice": "Invoice No. DINV-2026000120\nFPS ID: 110736360\n26.05.14 邦說先給一半",
+    "Matched": true
+  },
+  {
+    "Id": 28562,
+    "Title": "EXP-01397-CK0293",
+    "CurrentInvoice": "Invoice No. :I202602904",
+    "TargetInvoice": "Invoice No. :I202602911",
+    "Matched": true
+  },
+  {
+    "Id": 28565,
+    "Title": "EXP-01396-CK0293",
+    "CurrentInvoice": "Invoice No. :I202602911",
+    "TargetInvoice": "Invoice No. :I202602904",
+    "Matched": true
+  },
+  {
+    "Id": 28594,
+    "Title": "EXP-01430-CK0332",
+    "CurrentInvoice": "26年4月租金",
+    "TargetInvoice": "26年5月租金",
+    "Matched": true
+  },
+  {
+    "Id": 28595,
+    "Title": "EXP-01428-CK0332",
+    "CurrentInvoice": "26年5月租金",
+    "TargetInvoice": "26年9月租金",
+    "Matched": true
+  },
+  {
+    "Id": 28663,
+    "Title": "EXP-01497-CHQ004110",
+    "CurrentInvoice": "Salary (3月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 28664,
+    "Title": "EXP-01496-CHQ004110",
+    "CurrentInvoice": "Salary (3月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 28665,
+    "Title": "EXP-01495-CHQ004110",
+    "CurrentInvoice": "Salary (3月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 28666,
+    "Title": "EXP-01498-CHQ004110",
+    "CurrentInvoice": "Salary (3月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 28747,
+    "Title": "EXP-01578-CK0236",
+    "CurrentInvoice": "No.322134",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 28751,
+    "Title": "EXP-01584-CK0335",
+    "CurrentInvoice": "GINV202512L048",
+    "TargetInvoice": "GINV202512L047",
+    "Matched": true
+  },
+  {
+    "Id": 28753,
+    "Title": "EXP-01583-CK0335",
+    "CurrentInvoice": "GINV202512L047",
+    "TargetInvoice": "GINV202512L048",
+    "Matched": true
+  },
+  {
+    "Id": 28830,
+    "Title": "EXP-01662-CK0213",
+    "CurrentInvoice": "Salary (2月) M806953(6)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29045,
+    "Title": "EXP-01879-DBS0018",
+    "CurrentInvoice": "No.314598",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29046,
+    "Title": "EXP-01878-DBS0018",
+    "CurrentInvoice": "No.315374",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29048,
+    "Title": "EXP-01877-DBS0018",
+    "CurrentInvoice": "No.315313",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29080,
+    "Title": "EXP-01911-CK0152",
+    "CurrentInvoice": "Salary (10月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29187,
+    "Title": "EXP-02024-WS2008",
+    "CurrentInvoice": "No.265892",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29191,
+    "Title": "EXP-02023-WS2008",
+    "CurrentInvoice": "No.263751",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29197,
+    "Title": "EXP-02025-WS2008",
+    "CurrentInvoice": "No.262313",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29220,
+    "Title": "EXP-02056-WS1994",
+    "CurrentInvoice": "No.264976",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29221,
+    "Title": "EXP-02054-WS1993",
+    "CurrentInvoice": "I25KT1-03976",
+    "TargetInvoice": "I25KT1-03848",
+    "Matched": true
+  },
+  {
+    "Id": 29223,
+    "Title": "EXP-02053-WS1993",
+    "CurrentInvoice": "I25KT1-03848",
+    "TargetInvoice": "I25KT1-03976",
+    "Matched": true
+  },
+  {
+    "Id": 29225,
+    "Title": "EXP-02059-WS1994",
+    "CurrentInvoice": "No.308903",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29226,
+    "Title": "EXP-02060-WS1994",
+    "CurrentInvoice": "No.260734",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29227,
+    "Title": "EXP-02062-WS1994",
+    "CurrentInvoice": "No.310819",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29228,
+    "Title": "EXP-02058-WS1994",
+    "CurrentInvoice": "No.303128",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29229,
+    "Title": "EXP-02061-WS1994",
+    "CurrentInvoice": "No.311449",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29230,
+    "Title": "EXP-02057-WS1994",
+    "CurrentInvoice": "No.309485",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29233,
+    "Title": "EXP-02064-WS1994",
+    "CurrentInvoice": "No.305190",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29235,
+    "Title": "EXP-02063-WS1994",
+    "CurrentInvoice": "No.304555",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29453,
+    "Title": "EXP-02286-CK0109",
+    "CurrentInvoice": "恩10月claim",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29472,
+    "Title": "EXP-02306-CHQ003700",
+    "CurrentInvoice": "Salary (10月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29514,
+    "Title": "EXP-02343-CHQ003696",
+    "CurrentInvoice": "Salary (10月) CHQ003696彈票",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29585,
+    "Title": "EXP-02414-WS1931",
+    "CurrentInvoice": "No.310660",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29631,
+    "Title": "EXP-02468-CHQ003649",
+    "CurrentInvoice": "Salary (9月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29689,
+    "Title": "EXP-02521-CHQ003653",
+    "CurrentInvoice": "8月份沒有扣雄榮數",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29719,
+    "Title": "EXP-02552-WS1913",
+    "CurrentInvoice": "No 305592",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29720,
+    "Title": "EXP-02555-WS1912",
+    "CurrentInvoice": "No 303433",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29722,
+    "Title": "EXP-02553-WS1912",
+    "CurrentInvoice": "No 306944",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29723,
+    "Title": "EXP-02554-WS1912",
+    "CurrentInvoice": "No 306629",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29724,
+    "Title": "EXP-02556-WS1912",
+    "CurrentInvoice": "No 306186",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29737,
+    "Title": "EXP-02573-WS1903",
+    "CurrentInvoice": "No. 260708",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29740,
+    "Title": "EXP-02572-WS1903",
+    "CurrentInvoice": "No 303608",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29741,
+    "Title": "EXP-02574-WS1903",
+    "CurrentInvoice": "No 306614",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29751,
+    "Title": "EXP-02584-WS1897",
+    "CurrentInvoice": "No 304130",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29753,
+    "Title": "EXP-02583-WS1897",
+    "CurrentInvoice": "No 303285",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29803,
+    "Title": "EXP-02635-CHQ003616",
+    "CurrentInvoice": "Salary (8月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29855,
+    "Title": "EXP-02687-CHQ003625",
+    "CurrentInvoice": "Salary (8月)\n下個月扣返",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29857,
+    "Title": "EXP-02692-CHQ003626",
+    "CurrentInvoice": "Salary (8月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29862,
+    "Title": "EXP-02694-CHQ003627",
+    "CurrentInvoice": "Salary (8月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29864,
+    "Title": "EXP-02693-CHQ003626",
+    "CurrentInvoice": "Salary (8月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29866,
+    "Title": "EXP-02695-CHQ003627",
+    "CurrentInvoice": "Salary (8月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29896,
+    "Title": "EXP-02730-WS1878",
+    "CurrentInvoice": "No 260865",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29900,
+    "Title": "EXP-02731-WS1878",
+    "CurrentInvoice": "No 259772",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29902,
+    "Title": "EXP-02733-WS1878",
+    "CurrentInvoice": "No 259925",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29903,
+    "Title": "EXP-02732-WS1878",
+    "CurrentInvoice": "No 259815",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29911,
+    "Title": "EXP-02743-WS1871",
+    "CurrentInvoice": "No 260908",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29914,
+    "Title": "EXP-02744-WS1871",
+    "CurrentInvoice": "No 261438",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29943,
+    "Title": "EXP-02779-ws1867",
+    "CurrentInvoice": "No 258046",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29946,
+    "Title": "EXP-02778-ws1867",
+    "CurrentInvoice": "No 257203",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29993,
+    "Title": "EXP-02830-CHQ003383",
+    "CurrentInvoice": "Salary (7月)打理費另加$6000",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 29995,
+    "Title": "EXP-02825-WS1852",
+    "CurrentInvoice": "Salary (7月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30000,
+    "Title": "EXP-02836-CHQ003383",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30001,
+    "Title": "EXP-02832-CHQ003383",
+    "CurrentInvoice": "20250723 HKD4200 雲景洗冷氣 達代收",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30002,
+    "Title": "EXP-02831-CHQ003383",
+    "CurrentInvoice": "20250717 HKD1800 Avery medical limited",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30003,
+    "Title": "EXP-02833-CHQ003383",
+    "CurrentInvoice": "20250728 HKD4800 雲景洗冷氣 達代收",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30005,
+    "Title": "EXP-02841-CHQ003383",
+    "CurrentInvoice": "Salary (4月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30006,
+    "Title": "EXP-02838-CHQ003383",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30007,
+    "Title": "EXP-02839-CHQ003383",
+    "CurrentInvoice": "AP POWER 3/F301室收現金$600",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30008,
+    "Title": "EXP-02842-CHQ003383",
+    "CurrentInvoice": "維港頌收現金$6600",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30015,
+    "Title": "EXP-02845-CHQ003385",
+    "CurrentInvoice": "Salary (7月)",
+    "TargetInvoice": "Salary (5月)",
+    "Matched": true
+  },
+  {
+    "Id": 30031,
+    "Title": "EXP-02866-CHQ003386",
+    "CurrentInvoice": "Salary (7月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30050,
+    "Title": "EXP-02885-CHQ003388",
+    "CurrentInvoice": "Salary (7月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30054,
+    "Title": "EXP-02886-CHQ003388",
+    "CurrentInvoice": "Salary (7月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30078,
+    "Title": "EXP-02911-CHQ003607",
+    "CurrentInvoice": "-2811",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30093,
+    "Title": "EXP-02928-CHQ003606",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30096,
+    "Title": "EXP-02925-CHQ003606",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30099,
+    "Title": "EXP-02931-CHQ003606",
+    "CurrentInvoice": "Salary (4月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30119,
+    "Title": "EXP-02951-CHQ003605",
+    "CurrentInvoice": "Salary (7月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30124,
+    "Title": "EXP-02956-CHQ003399",
+    "CurrentInvoice": "Salary (7月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30131,
+    "Title": "EXP-02968-WS1857",
+    "CurrentInvoice": "No 257363",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30138,
+    "Title": "EXP-02969-WS1857",
+    "CurrentInvoice": "No 259269",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30142,
+    "Title": "EXP-02970-WS1857",
+    "CurrentInvoice": "No 257477",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30170,
+    "Title": "EXP-03006-WS1823",
+    "CurrentInvoice": "HAE-020725",
+    "TargetInvoice": "HAE-150725",
+    "Matched": true
+  },
+  {
+    "Id": 30172,
+    "Title": "EXP-03005-WS1823",
+    "CurrentInvoice": "HAE-150725",
+    "TargetInvoice": "HAE-020725",
+    "Matched": true
+  },
+  {
+    "Id": 30194,
+    "Title": "EXP-03026-WS1816",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30311,
+    "Title": "EXP-03144-WS1848",
+    "CurrentInvoice": "No 258361",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30312,
+    "Title": "EXP-03145-WS1848",
+    "CurrentInvoice": "No 258592",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30313,
+    "Title": "EXP-03146-WS1848",
+    "CurrentInvoice": "No 258364",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30343,
+    "Title": "EXP-03179-WS1776",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30348,
+    "Title": "EXP-03180-WS1776",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30410,
+    "Title": "EXP-03240-CHQ003367",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30411,
+    "Title": "EXP-03247-CHQ003355",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30418,
+    "Title": "EXP-03249-CHQ003355",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30425,
+    "Title": "EXP-03259-CHQ003368",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30426,
+    "Title": "EXP-03260-CHQ003368",
+    "CurrentInvoice": "Salary (5月出多)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30445,
+    "Title": "EXP-03276-CHQ003369",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30446,
+    "Title": "EXP-03278-CHQ003369",
+    "CurrentInvoice": "Salary (4月出多)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30447,
+    "Title": "EXP-03277-CHQ003369",
+    "CurrentInvoice": "Salary (5月出多)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30456,
+    "Title": "EXP-03290-CHQ003356",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30463,
+    "Title": "EXP-03293-CHQ003347",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30466,
+    "Title": "EXP-03295-CHQ003347",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30471,
+    "Title": "EXP-03301-CHQ003358",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30472,
+    "Title": "EXP-03305-CHQ003370",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30475,
+    "Title": "EXP-03311-CHQ003371",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30477,
+    "Title": "EXP-03307-CHQ003371",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30479,
+    "Title": "EXP-03309-CHQ003371",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30482,
+    "Title": "EXP-03315-CHQ003372",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30487,
+    "Title": "EXP-03320-CHQ003366",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30489,
+    "Title": "EXP-03324-CHQ003373",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30491,
+    "Title": "EXP-03322-CHQ003366",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30502,
+    "Title": "EXP-03334-CHQ003323",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30508,
+    "Title": "EXP-03341-CHQ003324",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30510,
+    "Title": "EXP-03339-CHQ003324",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30515,
+    "Title": "EXP-03348-CHQ003324",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30518,
+    "Title": "EXP-03349-CHQ003324",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30542,
+    "Title": "EXP-03371-CHQ003310",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30545,
+    "Title": "EXP-03376-CHQ003325",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30547,
+    "Title": "EXP-03378-CHQ003326",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "Salary (2月)",
+    "Matched": true
+  },
+  {
+    "Id": 30548,
+    "Title": "EXP-03375-CHQ003325",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30549,
+    "Title": "EXP-03386-CHQ003312",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30550,
+    "Title": "EXP-03382-CHQ003326",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30556,
+    "Title": "EXP-03389",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30559,
+    "Title": "EXP-03392",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30564,
+    "Title": "EXP-03394",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30571,
+    "Title": "EXP-03406-CHQ003327",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30573,
+    "Title": "EXP-03404-CHQ003314",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30574,
+    "Title": "EXP-03402-CHQ003314",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30575,
+    "Title": "EXP-03408-CHQ003327",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30576,
+    "Title": "EXP-03412-CHQ003328",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30579,
+    "Title": "EXP-03411-CHQ003328",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30580,
+    "Title": "EXP-03410-CHQ003328",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30582,
+    "Title": "EXP-03416-CHQ003329",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30583,
+    "Title": "EXP-03414-CHQ003328",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30587,
+    "Title": "EXP-03424",
+    "CurrentInvoice": "Salary (5月)K361934(6)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30588,
+    "Title": "EXP-03420-CHQ003330",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30589,
+    "Title": "EXP-03422-CHQ003331",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30593,
+    "Title": "EXP-03428-CHQ003333",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30595,
+    "Title": "EXP-03430-CHQ003333",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30597,
+    "Title": "EXP-03426-CHQ003332",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30601,
+    "Title": "EXP-03434-CHQ003335",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30602,
+    "Title": "EXP-03432-CHQ003333",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30606,
+    "Title": "EXP-03442-CHQ003317",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30607,
+    "Title": "EXP-03437-CHQ003308",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30612,
+    "Title": "EXP-03448-CHQ003334",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30613,
+    "Title": "EXP-03446-CHQ003334",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30614,
+    "Title": "EXP-03444-CHQ003334",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30617,
+    "Title": "EXP-03450-CHQ003334",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30623,
+    "Title": "EXP-03452-CHQ003318",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30634,
+    "Title": "EXP-03463-CHQ003275",
+    "CurrentInvoice": "Salary (4月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30635,
+    "Title": "EXP-03468-CHQ003276",
+    "CurrentInvoice": "Salary (4月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30637,
+    "Title": "EXP-03472-CHQ003277",
+    "CurrentInvoice": "Salary (4月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30644,
+    "Title": "EXP-03475-CHQ003279",
+    "CurrentInvoice": "Salary (4月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30653,
+    "Title": "EXP-03486-CHQ003281",
+    "CurrentInvoice": "Salary (4月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30660,
+    "Title": "EXP-03491-CHQ003285",
+    "CurrentInvoice": "Salary (4月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30661,
+    "Title": "EXP-03498-CHQ003287",
+    "CurrentInvoice": "Salary (4月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30665,
+    "Title": "EXP-03496-CHQ003287",
+    "CurrentInvoice": "Salary (4月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30667,
+    "Title": "EXP-03500-CHQ003287",
+    "CurrentInvoice": "Salary (4月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30672,
+    "Title": "EXP-03502-CHQ003287",
+    "CurrentInvoice": "Salary (4月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30673,
+    "Title": "EXP-03504-CHQ003287",
+    "CurrentInvoice": "Salary (4月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30682,
+    "Title": "EXP-03515-CHQ003304",
+    "CurrentInvoice": "Salary (4月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30685,
+    "Title": "EXP-03513-CHQ003292",
+    "CurrentInvoice": "Salary (4月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30686,
+    "Title": "EXP-03517-CHQ003303",
+    "CurrentInvoice": "Salary (4月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30687,
+    "Title": "EXP-03519-CHQ003303",
+    "CurrentInvoice": "Salary (4月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30689,
+    "Title": "EXP-03521-CHQ003234",
+    "CurrentInvoice": "Salary (4月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30692,
+    "Title": "EXP-03523-CHQ003234",
+    "CurrentInvoice": "Salary (4月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30693,
+    "Title": "EXP-03525-CHQ003234",
+    "CurrentInvoice": "Salary (4月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30694,
+    "Title": "EXP-03529-CHQ003301",
+    "CurrentInvoice": "Salary (4月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30697,
+    "Title": "EXP-03527-CHQ003234",
+    "CurrentInvoice": "Salary (4月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30699,
+    "Title": "EXP-03533-CHQ003301",
+    "CurrentInvoice": "Salary (4月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30701,
+    "Title": "EXP-03535-CHQ003302",
+    "CurrentInvoice": "Salary (4月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30702,
+    "Title": "EXP-03531-CHQ003301",
+    "CurrentInvoice": "Salary (4月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30707,
+    "Title": "EXP-03537-CHQ003235",
+    "CurrentInvoice": "Salary (4月)",
+    "TargetInvoice": "Salary (5月)",
+    "Matched": true
+  },
+  {
+    "Id": 30709,
+    "Title": "EXP-03541-CHQ003305",
+    "CurrentInvoice": "Salary (4月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30710,
+    "Title": "EXP-03539-CHQ003306",
+    "CurrentInvoice": "Salary (4月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30711,
+    "Title": "EXP-03543-CHQ003305",
+    "CurrentInvoice": "Salary (4月)K361934(6)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30715,
+    "Title": "EXP-03544-CHQ003305",
+    "CurrentInvoice": "Salary (4月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30716,
+    "Title": "EXP-03545-CHQ003305",
+    "CurrentInvoice": "Salary (4月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30768,
+    "Title": "EXP-03599-ck0008",
+    "CurrentInvoice": "Salary (4月) 雄榮",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30800,
+    "Title": "EXP-03634-CHQ003251",
+    "CurrentInvoice": "Salary (3月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30814,
+    "Title": "EXP-03644-CHQ003252",
+    "CurrentInvoice": "Salary (3月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30822,
+    "Title": "EXP-03654-CHQ003253",
+    "CurrentInvoice": "Salary (3月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30832,
+    "Title": "EXP-03665-CHQ003255",
+    "CurrentInvoice": "Salary (3月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30863,
+    "Title": "EXP-03694-CHQ003258",
+    "CurrentInvoice": "Salary (3月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30872,
+    "Title": "EXP-03706-CHQ003261",
+    "CurrentInvoice": "Salary (3月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30877,
+    "Title": "EXP-03712-CHQ003262",
+    "CurrentInvoice": "Salary (3月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30907,
+    "Title": "EXP-03742-WS1709",
+    "CurrentInvoice": "Salary (3月) 雄榮",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 30978,
+    "Title": "EXP-03812-WS1660",
+    "CurrentInvoice": "Salary (2月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 31052,
+    "Title": "EXP-03883",
+    "CurrentInvoice": "Salary (1月)",
+    "TargetInvoice": "Salary (12月)",
+    "Matched": true
+  },
+  {
+    "Id": 31053,
+    "Title": "EXP-03882-WS1656",
+    "CurrentInvoice": "Salary (12月)",
+    "TargetInvoice": "Salary (1月)",
+    "Matched": true
+  },
+  {
+    "Id": 31120,
+    "Title": "EXP-03954-CHQ003558",
+    "CurrentInvoice": "公司費用",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 31455,
+    "Title": "EXP-04292-CHQ003526",
+    "CurrentInvoice": "劉遠邦 宏利-24年9月月薪MPF",
+    "TargetInvoice": "劉遠邦 宏利-24年7月月薪MPF",
+    "Matched": true
+  },
+  {
+    "Id": 31460,
+    "Title": "EXP-04290-CHQ003526",
+    "CurrentInvoice": "劉遠邦 宏利-24年7月月薪MPF",
+    "TargetInvoice": "劉遠邦 宏利-24年9月月薪MPF",
+    "Matched": true
+  },
+  {
+    "Id": 31690,
+    "Title": "EXP-04522-CHQ003511",
+    "CurrentInvoice": "棚架020162",
+    "TargetInvoice": "棚架019754",
+    "Matched": true
+  },
+  {
+    "Id": 31692,
+    "Title": "EXP-04521-CHQ003511",
+    "CurrentInvoice": "棚架019754",
+    "TargetInvoice": "棚架020162",
+    "Matched": true
+  },
+  {
+    "Id": 31800,
+    "Title": "EXP-04631-CHQ003194",
+    "CurrentInvoice": "Salary (10月)",
+    "TargetInvoice": "Salary (4月)",
+    "Matched": true
+  },
+  {
+    "Id": 32207,
+    "Title": "EXP-05041-WS1349",
+    "CurrentInvoice": "HAE-030724",
+    "TargetInvoice": "HAE-240824",
+    "Matched": true
+  },
+  {
+    "Id": 32209,
+    "Title": "EXP-05040-WS1349",
+    "CurrentInvoice": "HAE-240824",
+    "TargetInvoice": "HAE-030724",
+    "Matched": true
+  },
+  {
+    "Id": 32298,
+    "Title": "EXP-05125-WS1316",
+    "CurrentInvoice": "Project 項目介紹費",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 32362,
+    "Title": "EXP-05198-WS1300",
+    "CurrentInvoice": "GINV202312L375",
+    "TargetInvoice": "GINV202403L015",
+    "Matched": true
+  },
+  {
+    "Id": 32447,
+    "Title": "EXP-05279-WS1273",
+    "CurrentInvoice": "Salary (7月)",
+    "TargetInvoice": "Salary (6月)",
+    "Matched": true
+  },
+  {
+    "Id": 32828,
+    "Title": "EXP-05659-WS1151",
+    "CurrentInvoice": "Salary (5月)",
+    "TargetInvoice": "Salary (3月)",
+    "Matched": true
+  },
+  {
+    "Id": 32877,
+    "Title": "EXP-05709-WS1130",
+    "CurrentInvoice": "Salary (4月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 32888,
+    "Title": "EXP-05722-WS1126",
+    "CurrentInvoice": "TRILLION PRODUCTS LTD                      INV2024/01003442",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 32889,
+    "Title": "EXP-05720-WS1127",
+    "CurrentInvoice": "Salary (4月)",
+    "TargetInvoice": "Salary (11月)",
+    "Matched": true
+  },
+  {
+    "Id": 33034,
+    "Title": "EXP-05868-WS1060",
+    "CurrentInvoice": "HAE-150424",
+    "TargetInvoice": "HAE-081223-1",
+    "Matched": true
+  },
+  {
+    "Id": 33036,
+    "Title": "EXP-05867-WS1060",
+    "CurrentInvoice": "HAE-081223-1",
+    "TargetInvoice": "HAE-150424",
+    "Matched": true
+  },
+  {
+    "Id": 33156,
+    "Title": "EXP-05991-WS1011",
+    "CurrentInvoice": "Salary (3月)",
+    "TargetInvoice": "Salary (2月)",
+    "Matched": true
+  },
+  {
+    "Id": 33213,
+    "Title": "EXP-06047-WS0992",
+    "CurrentInvoice": "大埔富善平水12月糧統一出到張傑仁賬戶",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 33420,
+    "Title": "EXP-06252-WS0929",
+    "CurrentInvoice": "12月月結單：KT233707/KT233756",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 33422,
+    "Title": "EXP-06251-WS0929",
+    "CurrentInvoice": "11月月結單：KT233665/KT233669",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 33540,
+    "Title": "EXP-06370-WS0880",
+    "CurrentInvoice": "Hydraulics and Drainage",
+    "TargetInvoice": "Advanced Analysis and Design Methods",
+    "Matched": true
+  },
+  {
+    "Id": 33541,
+    "Title": "EXP-06369-WS0880",
+    "CurrentInvoice": "Advanced Analysis and Design Methods",
+    "TargetInvoice": "Hydraulics and Drainage",
+    "Matched": true
+  },
+  {
+    "Id": 33619,
+    "Title": "EXP-06452-WS0847",
+    "CurrentInvoice": "大埔富善平水12月糧統一出到張傑仁賬戶",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 33648,
+    "Title": "EXP-06478-WS0833",
+    "CurrentInvoice": "大埔富善平水12月糧統一出到張傑仁賬戶",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 33666,
+    "Title": "EXP-06495-WS0826",
+    "CurrentInvoice": "Salary (12月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 34128,
+    "Title": "EXP-06962-CHQ003049",
+    "CurrentInvoice": "Salary (11月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 34196,
+    "Title": "EXP-07029-CHQ003038",
+    "CurrentInvoice": "Salary (10月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 34472,
+    "Title": "EXP-07306-CHQ003018",
+    "CurrentInvoice": "Salary (9月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 34668,
+    "Title": "EXP-07499-CHQ002895",
+    "CurrentInvoice": "Invoice：ZM20230909             支付50%訂金",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 34730,
+    "Title": "EXP-07561-CHQ002892",
+    "CurrentInvoice": "臨時電開票",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35319,
+    "Title": "EXP-08151-WS0123",
+    "CurrentInvoice": "6月CLAIM",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35320,
+    "Title": "EXP-08152-CK0603",
+    "CurrentInvoice": "6月CLAIM",
+    "TargetInvoice": "仲哥",
+    "Matched": true
+  },
+  {
+    "Id": 35321,
+    "Title": "EXP-08153-CK0604",
+    "CurrentInvoice": "6月CLAIM",
+    "TargetInvoice": "仲哥",
+    "Matched": true
+  },
+  {
+    "Id": 35322,
+    "Title": "EXP-08154-CK0605",
+    "CurrentInvoice": "6月CLAIM",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35323,
+    "Title": "EXP-08155-CK0606",
+    "CurrentInvoice": "6月CLAIM",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35324,
+    "Title": "EXP-08156-CK0607",
+    "CurrentInvoice": "6月CLAIM",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35325,
+    "Title": "EXP-08157-CK0608",
+    "CurrentInvoice": "6月CLAIM",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35326,
+    "Title": "EXP-08158-CK0609",
+    "CurrentInvoice": "6月CLAIM",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35327,
+    "Title": "EXP-08159-TEST0001",
+    "CurrentInvoice": "代資",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35328,
+    "Title": "EXP-08160",
+    "CurrentInvoice": "公司費用",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35329,
+    "Title": "EXP-08160",
+    "CurrentInvoice": "公司費用",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35330,
+    "Title": "EXP-08161",
+    "CurrentInvoice": "D-I-230703",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35331,
+    "Title": "EXP-08162",
+    "CurrentInvoice": "云地利道 賬號：2245",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35332,
+    "Title": "EXP-08163",
+    "CurrentInvoice": "云地利道 賬號：2245",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35333,
+    "Title": "EXP-08164",
+    "CurrentInvoice": "I108469",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35335,
+    "Title": "EXP-08165",
+    "CurrentInvoice": "163449",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35336,
+    "Title": "EXP-08166",
+    "CurrentInvoice": "C23-KW0092-01",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35337,
+    "Title": "EXP-08167",
+    "CurrentInvoice": "ARIN202306003-Bal",
+    "TargetInvoice": "No.359104\n9.14",
+    "Matched": true
+  },
+  {
+    "Id": 35338,
+    "Title": "EXP-08168",
+    "CurrentInvoice": "I108468",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35339,
+    "Title": "EXP-08169",
+    "CurrentInvoice": "V5636-23-WL",
+    "TargetInvoice": "報價單號：KWFS260819",
+    "Matched": true
+  },
+  {
+    "Id": 35340,
+    "Title": "EXP-08170",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35341,
+    "Title": "EXP-08171",
+    "CurrentInvoice": "大成建材NO.206715",
+    "TargetInvoice": "Inv No: CCTV-054",
+    "Matched": true
+  },
+  {
+    "Id": 35342,
+    "Title": "EXP-08172",
+    "CurrentInvoice": "公司費用",
+    "TargetInvoice": "訂單編號：SO-974080",
+    "Matched": true
+  },
+  {
+    "Id": 35343,
+    "Title": "EXP-08173",
+    "CurrentInvoice": "DN-421681",
+    "TargetInvoice": "Invoice No.:\nIN-TY-26-138",
+    "Matched": true
+  },
+  {
+    "Id": 35344,
+    "Title": "EXP-08174",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "No.2026-41",
+    "Matched": true
+  },
+  {
+    "Id": 35345,
+    "Title": "EXP-08175",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35346,
+    "Title": "EXP-08176",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35347,
+    "Title": "EXP-08177",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35348,
+    "Title": "EXP-08178",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35349,
+    "Title": "EXP-08179",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35350,
+    "Title": "EXP-08180",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35351,
+    "Title": "EXP-08181",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35352,
+    "Title": "EXP-08182",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35353,
+    "Title": "EXP-0008183",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35354,
+    "Title": "EXP-0008184",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35355,
+    "Title": "EXP-0008185",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35356,
+    "Title": "EXP-0008186",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35357,
+    "Title": "EXP-0008187",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35358,
+    "Title": "EXP-0008188",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35359,
+    "Title": "EXP-0008189",
+    "CurrentInvoice": "QCAR-23-0566880-01",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35360,
+    "Title": "EXP-0008190",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35361,
+    "Title": "EXP-0008191",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35362,
+    "Title": "EXP-0008192",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35363,
+    "Title": "EXP-0008193",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35364,
+    "Title": "EXP-0008194",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35365,
+    "Title": "EXP-0008195",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "Salary (9月) M220647(7). 2026.9.1 入職；2026.9.15終止雇用,請假半天",
+    "Matched": true
+  },
+  {
+    "Id": 35367,
+    "Title": "EXP-0008196",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": true
+  },
+  {
+    "Id": 35368,
+    "Title": "EXP-0008197",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "仲哥",
+    "Matched": true
+  },
+  {
+    "Id": 35369,
+    "Title": "EXP-0008198",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35370,
+    "Title": "EXP-0008199",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35371,
+    "Title": "EXP-0008200",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35372,
+    "Title": "EXP-0008201",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "INVOICE No. 0930",
+    "Matched": true
+  },
+  {
+    "Id": 35373,
+    "Title": "EXP-0008202",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": true
+  },
+  {
+    "Id": 35374,
+    "Title": "EXP-0008203",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35375,
+    "Title": "EXP-0008204",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35376,
+    "Title": "EXP-0008205",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35377,
+    "Title": "EXP-0008206",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35378,
+    "Title": "EXP-0008207",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "2026 0319-0813 Kei claim整合版",
+    "Matched": true
+  },
+  {
+    "Id": 35379,
+    "Title": "EXP-0008208",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35380,
+    "Title": "EXP-0008209",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35381,
+    "Title": "EXP-0008210",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35382,
+    "Title": "EXP-0008211",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35383,
+    "Title": "EXP-0008212",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35384,
+    "Title": "EXP-0008213",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35385,
+    "Title": "EXP-0008214",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35386,
+    "Title": "EXP-0008215",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35387,
+    "Title": "EXP-0008216",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35388,
+    "Title": "EXP-0008217",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  },
+  {
+    "Id": 35389,
+    "Title": "EXP-0008218",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "20260908邦claim",
+    "Matched": true
+  },
+  {
+    "Id": 35390,
+    "Title": "EXP-0008219",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "20260908邦claim",
+    "Matched": true
+  },
+  {
+    "Id": 35391,
+    "Title": "EXP-0008220",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "20260908邦claim",
+    "Matched": true
+  },
+  {
+    "Id": 35392,
+    "Title": "EXP-0008221",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "20260908邦claim",
+    "Matched": true
+  },
+  {
+    "Id": 35393,
+    "Title": "EXP-0008222",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "20260908邦claim",
+    "Matched": true
+  },
+  {
+    "Id": 35394,
+    "Title": "EXP-0008223",
+    "CurrentInvoice": "Salary (6月)",
+    "TargetInvoice": "",
+    "Matched": false
+  }
+]

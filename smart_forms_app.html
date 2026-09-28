@@ -2224,6 +2224,14 @@
       box-sizing: border-box;
     }
 
+    .proj-tx-table tbody td.td-invoice {
+      white-space: normal;
+      overflow: visible;
+      text-overflow: clip;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+
     .proj-tx-table tbody tr:hover {
       background: #f8fafc;
     }
@@ -2440,21 +2448,22 @@
     }
 
     .proj-tx-invoice {
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
+      display: inline-block;
       font-size: 11px;
       font-weight: 500;
       color: #0f766e;
       background: #f0fdfa;
       border: 1px solid #ccfbf1;
-      padding: 1.5px 6px;
+      padding: 2px 6px;
       border-radius: 4px;
-      max-width: 170px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      max-width: 100%;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      line-height: 1.4;
       vertical-align: middle;
+      box-sizing: border-box;
+      text-align: left;
     }
 
     .proj-tx-receipt-link {
@@ -3906,7 +3915,7 @@
                   <col style="width: auto;">
                   <col style="width: 80px;">
                   <col style="width: auto;">
-                  <col style="width: 110px;">
+                  <col style="width: 120px;">
                   <col style="width: auto;">
                   <col style="width: 155px;">
                 </colgroup>
@@ -10409,7 +10418,7 @@
               <td style="white-space: nowrap;">${projHtml}</td>
               <td style="white-space: nowrap;">${subitemHtml}</td>
               <td style="white-space: nowrap;">${payeeHtml}</td>
-              <td style="white-space: nowrap;">${invoiceHtml}</td>
+              <td class="td-invoice">${invoiceHtml}</td>
               <td style="white-space: nowrap;">${remarksHtml}</td>
               <td style="white-space: nowrap;">${receiptHtml}</td>
             </tr>
@@ -10494,7 +10503,7 @@
           <td style="white-space: nowrap;">${projHtml}</td>
           <td style="white-space: nowrap;">${subitemHtml}</td>
           <td style="white-space: nowrap;">${payeeHtml}</td>
-          <td style="white-space: nowrap;">${invoiceHtml}</td>
+          <td class="td-invoice">${invoiceHtml}</td>
           <td style="white-space: nowrap;">${remarksHtml}</td>
           <td style="white-space: nowrap;">${receiptHtml}</td>
         </tr>
@@ -11793,7 +11802,7 @@
               <td style="text-align: right; white-space: nowrap;"><span class="proj-tx-amt exp">-${fmtMoney(item.amt)}</span></td>
               <td style="white-space: nowrap;">${subitemHtml}</td>
               <td style="white-space: nowrap;">${payeeHtml}</td>
-              <td style="white-space: nowrap;">${invoiceHtml}</td>
+              <td class="td-invoice">${invoiceHtml}</td>
               <td style="white-space: nowrap;">${remarksHtml}</td>
               <td style="white-space: nowrap;">${receiptHtml}</td>
             </tr>
@@ -11874,7 +11883,7 @@
           <td style="text-align: right; white-space: nowrap;">${amtHtml}</td>
           <td style="white-space: nowrap;">${subitemHtml}</td>
           <td style="white-space: nowrap;">${payeeHtml}</td>
-          <td style="white-space: nowrap;">${invoiceHtml}</td>
+          <td class="td-invoice">${invoiceHtml}</td>
           <td style="white-space: nowrap;">${remarksHtml}</td>
           <td style="white-space: nowrap;">${receiptHtml}</td>
         </tr>
