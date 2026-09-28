@@ -222,6 +222,7 @@
       border: 1px solid var(--border);
       border-radius: 6px;
       font-size: 14px;
+      font-family: inherit;
       color: #1e293b;
       outline: none;
       transition: border-color 0.2s, box-shadow 0.2s;
@@ -2224,7 +2225,9 @@
       box-sizing: border-box;
     }
 
-    .proj-tx-table tbody td.td-invoice {
+    .proj-tx-table tbody td.td-invoice,
+    .proj-tx-table tbody td.td-subitem,
+    .proj-tx-table tbody td.td-payee {
       white-space: normal;
       overflow: visible;
       text-overflow: clip;
@@ -2413,7 +2416,16 @@
       font-size: 11px;
       font-weight: 500;
       color: #1e293b;
-      white-space: nowrap;
+      white-space: normal;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      line-height: 1.35;
+      vertical-align: middle;
+      max-width: 100%;
+    }
+
+    .proj-tx-payee.inc {
+      color: #059669;
     }
 
     .proj-tx-remarks {
@@ -2428,17 +2440,22 @@
     }
 
     .proj-tx-subitem {
-      display: inline-flex;
-      align-items: center;
+      display: inline-block;
       font-size: 11px;
       font-weight: 600;
       color: #4338ca;
       background: #eef2ff;
       border: 1px solid #e0e7ff;
-      padding: 2px 7px;
+      padding: 2px 6px;
       border-radius: 4px;
-      white-space: nowrap;
+      max-width: 100%;
+      white-space: normal;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      line-height: 1.35;
       vertical-align: middle;
+      box-sizing: border-box;
+      text-align: center;
     }
 
     .proj-tx-subitem.inc {
@@ -3119,7 +3136,7 @@
 
             <div class="form-group col-full">
               <label>發票 / 單號 (Invoice No.)</label>
-              <input type="text" id="exp-invoice-no" placeholder="請輸入發票號碼 (選填，例如：BLE 113332102850401 INSTL 10)..." autocomplete="off">
+              <textarea id="exp-invoice-no" rows="2" placeholder="請輸入發票號碼 (選填，支援多行輸入，例如：&#10;INV-2024-001&#10;INV-2024-002)..." autocomplete="off" style="resize: vertical; min-height: 52px; line-height: 1.4;"></textarea>
             </div>
 
             <div class="form-group col-full">
@@ -3172,20 +3189,6 @@
             </div>
           </div>
 
-          <!-- Presets for subitems -->
-          <datalist id="exp-subitem-presets">
-            <option value="Salary"></option>
-            <option value="材料款"></option>
-            <option value="工程尾款"></option>
-            <option value="運輸費"></option>
-            <option value="五金"></option>
-            <option value="雜費"></option>
-            <option value="工具"></option>
-            <option value="分判款"></option>
-            <option value="顧問費"></option>
-            <option value="水電"></option>
-            <option value="保險"></option>
-          </datalist>
 
           <div class="exp-entries-table-wrap">
             <table class="exp-entries-table">
@@ -3655,7 +3658,7 @@
 
             <div class="form-group edit-expense-field">
               <label>發票 / 單號 (Invoice No.)</label>
-              <input type="text" id="edit-invoice-no" placeholder="例如：BLE 113332102850401 INSTL 10" autocomplete="off">
+              <textarea id="edit-invoice-no" rows="2" placeholder="例如：&#10;BLE 113332102850401&#10;INSTL 10" autocomplete="off" style="resize: vertical; min-height: 52px; line-height: 1.4;"></textarea>
             </div>
 
             <div class="form-group edit-expense-field">
@@ -3913,7 +3916,7 @@
                   <col style="width: 82px;">
                   <col style="width: 95px;">
                   <col style="width: auto;">
-                  <col style="width: 80px;">
+                  <col style="width: 85px;">
                   <col style="width: auto;">
                   <col style="width: 120px;">
                   <col style="width: auto;">
@@ -4250,6 +4253,25 @@
         .replace(/[^0-9.-]/g, '');
       const num = parseFloat(s);
       return (isNaN(num) || !isFinite(num)) ? 0 : Math.round(num * 100) / 100;
+    }
+
+    // Helper to clean invoice string (stripping rich-text HTML wrappers if saved via SharePoint Online)
+    function cleanInvoiceNoStr(val) {
+      if (val === null || val === undefined) return '';
+      let s = (typeof val === 'string') ? val : String(val);
+      if (s.indexOf('<') !== -1 && s.indexOf('>') !== -1) {
+        s = s
+          .replace(/<br\s*[\/]?>/gi, '\n')
+          .replace(/<\/div>\s*<div>/gi, '\n')
+          .replace(/<\/p>\s*<p>/gi, '\n')
+          .replace(/<[^>]+>/g, '')
+          .replace(/&nbsp;/gi, ' ')
+          .replace(/&amp;/gi, '&')
+          .replace(/&lt;/gi, '<')
+          .replace(/&gt;/gi, '>')
+          .replace(/&quot;/gi, '"');
+      }
+      return s.trim();
     }
 
     // Helper to attach input normalization to currency / amount inputs
@@ -5495,9 +5517,9 @@
           </td>
           <td>
             <input type="text" class="exp-row-subitem-input" id="exp-row-subitem-${r.id}"
-                   list="exp-subitem-presets"
                    placeholder="例如：Salary、材料款..."
                    value="${escapeHtml(r.subitem || '')}"
+                   autocomplete="off"
                    oninput="onExpRowSubitemChange(${r.id}, this.value)">
           </td>
           <td>
@@ -7273,7 +7295,7 @@
         r['IsIndependent.value'] === 'true'
       );
       const batchId = (r.BatchId || r['BatchId.'] || r.OData_BatchId || '').trim();
-      const invoiceNo = (r.Invoice_x0020_No_x002e_ || r.InvoiceNo || r['Invoice No.'] || r.OData_Invoice_x0020_No_x002e_ || '').trim();
+      const invoiceNo = cleanInvoiceNoStr(r.Invoice_x0020_No_x002e_ || r.InvoiceNo || r['Invoice No.'] || r.OData_Invoice_x0020_No_x002e_ || '');
 
       return {
         Id: id,
@@ -8185,9 +8207,9 @@
           </td>
           <td>
             <input type="text" class="exp-row-subitem-input" id="edit-batch-subitem-${idx}"
-                   list="exp-subitem-presets"
                    placeholder="例如：材料款、工程尾款..."
                    value="${escapeHtml(curSubitem)}"
+                   autocomplete="off"
                    oninput="onEditBatchRowSubitemChange(${idx}, this.value)">
           </td>
           <td>
@@ -9122,7 +9144,7 @@
         }
         const editInvoiceInput = document.getElementById('edit-invoice-no');
         if (editInvoiceInput) {
-          const batchInvoice = (selectedEditBatch.find(x => x.invoiceNo && x.invoiceNo.trim())?.invoiceNo || tx.invoiceNo || '').trim();
+          const batchInvoice = cleanInvoiceNoStr(selectedEditBatch.find(x => x.invoiceNo && x.invoiceNo.trim())?.invoiceNo || tx.invoiceNo || '');
           editInvoiceInput.value = batchInvoice;
         }
         if (singleAmtInput) {
@@ -9233,7 +9255,7 @@
         document.getElementById('edit-payee').value = tx.payee || '';
         document.getElementById('edit-subitem').value = tx.subitem || '';
         if (document.getElementById('edit-invoice-no')) {
-          document.getElementById('edit-invoice-no').value = tx.invoiceNo || '';
+          document.getElementById('edit-invoice-no').value = cleanInvoiceNoStr(tx.invoiceNo || '');
         }
       } else {
         setBankSelectValue('edit-inc', tx.bank || '東亞銀行');
@@ -10395,7 +10417,7 @@
             }
 
             let invoiceHtml = '<span style="color:#94a3b8;">-</span>';
-            const invoiceText = (item.invoiceNo && item.invoiceNo.trim()) ? item.invoiceNo.trim() : '';
+            const invoiceText = cleanInvoiceNoStr(item.invoiceNo);
             if (invoiceText) {
               invoiceHtml = `<span class="proj-tx-invoice" title="${escapeHtml(invoiceText)}">${escapeHtml(invoiceText)}</span>`;
             }
@@ -10416,8 +10438,8 @@
               <td style="color:#475569; font-weight:500; white-space: nowrap;">${item.date || '-'}</td>
               <td style="text-align: right; white-space: nowrap;"><span class="proj-tx-amt exp">-${fmtMoney(item.amt)}</span></td>
               <td style="white-space: nowrap;">${projHtml}</td>
-              <td style="white-space: nowrap;">${subitemHtml}</td>
-              <td style="white-space: nowrap;">${payeeHtml}</td>
+              <td class="td-subitem">${subitemHtml}</td>
+              <td class="td-payee">${payeeHtml}</td>
               <td class="td-invoice">${invoiceHtml}</td>
               <td style="white-space: nowrap;">${remarksHtml}</td>
               <td style="white-space: nowrap;">${receiptHtml}</td>
@@ -10477,12 +10499,12 @@
           if (isExp) {
             payeeHtml = `<span class="proj-tx-payee" title="${escapeHtml(payeeText)}">${escapeHtml(payeeText)}</span>`;
           } else {
-            payeeHtml = `<span style="color:#059669; font-size:11px; font-weight:500;" title="${escapeHtml(payeeText)}">${escapeHtml(payeeText)}</span>`;
+            payeeHtml = `<span class="proj-tx-payee inc" title="${escapeHtml(payeeText)}">${escapeHtml(payeeText)}</span>`;
           }
         }
 
         let invoiceHtml = '<span style="color:#94a3b8;">-</span>';
-        const invoiceText = (item.invoiceNo && item.invoiceNo.trim()) ? item.invoiceNo.trim() : '';
+        const invoiceText = cleanInvoiceNoStr(item.invoiceNo);
         if (invoiceText) {
           invoiceHtml = `<span class="proj-tx-invoice" title="${escapeHtml(invoiceText)}">${escapeHtml(invoiceText)}</span>`;
         }
@@ -10501,8 +10523,8 @@
           <td style="color:#475569; font-weight:500; white-space: nowrap;">${item.date || '-'}</td>
           <td style="text-align: right; white-space: nowrap;">${amtHtml}</td>
           <td style="white-space: nowrap;">${projHtml}</td>
-          <td style="white-space: nowrap;">${subitemHtml}</td>
-          <td style="white-space: nowrap;">${payeeHtml}</td>
+          <td class="td-subitem">${subitemHtml}</td>
+          <td class="td-payee">${payeeHtml}</td>
           <td class="td-invoice">${invoiceHtml}</td>
           <td style="white-space: nowrap;">${remarksHtml}</td>
           <td style="white-space: nowrap;">${receiptHtml}</td>
@@ -10633,7 +10655,7 @@
           const chqVal = (r['_x652f__x7968__x7de8__x865f_'] || r['Title'] || '').trim();
           const payStatus = (r['_x4ed8__x6b3e__x72c0__x614b_'] || (chqVal ? '已付' : '未付')).trim();
           const rawPayee = (r['_x6536__x6b3e__x4eba_'] || '').trim();
-          const invNo = (r['Invoice_x0020_No_x002e_'] || r['InvoiceNo'] || r['Invoice No.'] || r.OData_Invoice_x0020_No_x002e_ || '').trim();
+          const invNo = cleanInvoiceNoStr(r['Invoice_x0020_No_x002e_'] || r['InvoiceNo'] || r['Invoice No.'] || r.OData_Invoice_x0020_No_x002e_ || '');
           periodItems.push({
             id: parseInt(r.ID || r.Id || 0, 10),
             title: r.Title || '',
@@ -11398,7 +11420,7 @@
             const rawAmt = r['_x91d1__x984d_.'] || strClean(r['_x91d1__x984d_']);
             const chqVal = (r['_x652f__x7968__x7de8__x865f_'] || '').trim();
             const payStatus = (r['_x4ed8__x6b3e__x72c0__x614b_'] || (chqVal ? '已付' : '未付')).trim();
-            const invNo = (r['Invoice_x0020_No_x002e_'] || r['InvoiceNo'] || r['Invoice No.'] || r.OData_Invoice_x0020_No_x002e_ || '').trim();
+            const invNo = cleanInvoiceNoStr(r['Invoice_x0020_No_x002e_'] || r['InvoiceNo'] || r['Invoice No.'] || r.OData_Invoice_x0020_No_x002e_ || '');
             items.push({
               id: parseInt(r.ID || r.Id || 0, 10),
               title: r.Title || '',
@@ -11780,7 +11802,7 @@
             }
 
             let invoiceHtml = '<span style="color:#94a3b8;">-</span>';
-            const invoiceText = (item.invoiceNo && item.invoiceNo.trim()) ? item.invoiceNo.trim() : '';
+            const invoiceText = cleanInvoiceNoStr(item.invoiceNo);
             if (invoiceText) {
               invoiceHtml = `<span class="proj-tx-invoice" title="${escapeHtml(invoiceText)}">${escapeHtml(invoiceText)}</span>`;
             }
@@ -11800,8 +11822,8 @@
               <td style="text-align: center;"><span class="proj-tx-tag exp">💸 支出</span></td>
               <td style="color:#475569; font-weight:500; white-space: nowrap;">${item.date || '-'}</td>
               <td style="text-align: right; white-space: nowrap;"><span class="proj-tx-amt exp">-${fmtMoney(item.amt)}</span></td>
-              <td style="white-space: nowrap;">${subitemHtml}</td>
-              <td style="white-space: nowrap;">${payeeHtml}</td>
+              <td class="td-subitem">${subitemHtml}</td>
+              <td class="td-payee">${payeeHtml}</td>
               <td class="td-invoice">${invoiceHtml}</td>
               <td style="white-space: nowrap;">${remarksHtml}</td>
               <td style="white-space: nowrap;">${receiptHtml}</td>
@@ -11858,12 +11880,12 @@
           if (isExp) {
             payeeHtml = `<span class="proj-tx-payee" title="${escapeHtml(payeeText)}">${escapeHtml(payeeText)}</span>`;
           } else {
-            payeeHtml = `<span style="color:#059669; font-size:11px; font-weight:500;" title="${escapeHtml(payeeText)}">${escapeHtml(payeeText)}</span>`;
+            payeeHtml = `<span class="proj-tx-payee inc" title="${escapeHtml(payeeText)}">${escapeHtml(payeeText)}</span>`;
           }
         }
 
         let invoiceHtml = '<span style="color:#94a3b8;">-</span>';
-        const invoiceText = (item.invoiceNo && item.invoiceNo.trim()) ? item.invoiceNo.trim() : '';
+        const invoiceText = cleanInvoiceNoStr(item.invoiceNo);
         if (invoiceText) {
           invoiceHtml = `<span class="proj-tx-invoice" title="${escapeHtml(invoiceText)}">${escapeHtml(invoiceText)}</span>`;
         }
@@ -11881,8 +11903,8 @@
           <td style="text-align: center;">${tagHtml}</td>
           <td style="color:#475569; font-weight:500; white-space: nowrap;">${item.date || '-'}</td>
           <td style="text-align: right; white-space: nowrap;">${amtHtml}</td>
-          <td style="white-space: nowrap;">${subitemHtml}</td>
-          <td style="white-space: nowrap;">${payeeHtml}</td>
+          <td class="td-subitem">${subitemHtml}</td>
+          <td class="td-payee">${payeeHtml}</td>
           <td class="td-invoice">${invoiceHtml}</td>
           <td style="white-space: nowrap;">${remarksHtml}</td>
           <td style="white-space: nowrap;">${receiptHtml}</td>
