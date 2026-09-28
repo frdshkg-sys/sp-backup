@@ -2439,6 +2439,24 @@
       border-color: #d1fae5;
     }
 
+    .proj-tx-invoice {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 11px;
+      font-weight: 500;
+      color: #0f766e;
+      background: #f0fdfa;
+      border: 1px solid #ccfbf1;
+      padding: 1.5px 6px;
+      border-radius: 4px;
+      max-width: 170px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+
     .proj-tx-receipt-link {
       display: inline-flex;
       align-items: center;
@@ -3842,7 +3860,7 @@
                   <span class="proj-tx-count-badge" id="period-tx-total-badge">0 筆</span>
                 </div>
                 <div class="proj-tx-search-box">
-                  <input type="text" id="period-tx-search-input" placeholder="🔍 搜尋項目、日期、金額、小類、收款人..."
+                  <input type="text" id="period-tx-search-input" placeholder="🔍 搜尋項目、日期、金額、發票、小類、收款人..."
                     oninput="onPeriodTxSearch(this.value)">
                 </div>
               </div>
@@ -3884,12 +3902,13 @@
                 <colgroup>
                   <col style="width: 58px;">
                   <col style="width: 82px;">
-                  <col style="width: 98px;">
+                  <col style="width: 95px;">
                   <col style="width: auto;">
+                  <col style="width: 80px;">
                   <col style="width: auto;">
+                  <col style="width: 110px;">
                   <col style="width: auto;">
-                  <col style="width: auto;">
-                  <col style="width: 175px;">
+                  <col style="width: 155px;">
                 </colgroup>
                 <thead>
                   <tr>
@@ -3899,6 +3918,7 @@
                     <th>所屬項目</th>
                     <th>小類</th>
                     <th>收款人</th>
+                    <th>發票號碼</th>
                     <th>備註</th>
                     <th>收據 / 操作</th>
                   </tr>
@@ -4020,7 +4040,7 @@
                   <span class="proj-tx-count-badge" id="proj-tx-total-badge">36 筆</span>
                 </div>
                 <div class="proj-tx-search-box">
-                  <input type="text" id="proj-tx-search-input" placeholder="🔍 搜尋日期、金額、小類、收款人..."
+                  <input type="text" id="proj-tx-search-input" placeholder="🔍 搜尋日期、金額、發票、小類、收款人..."
                     oninput="onProjTxSearch(this.value)">
                 </div>
               </div>
@@ -4060,11 +4080,12 @@
                 <colgroup>
                   <col style="width: 58px;">
                   <col style="width: 82px;">
-                  <col style="width: 98px;">
+                  <col style="width: 95px;">
+                  <col style="width: 85px;">
                   <col style="width: auto;">
+                  <col style="width: 120px;">
                   <col style="width: auto;">
-                  <col style="width: auto;">
-                  <col style="width: 175px;">
+                  <col style="width: 155px;">
                 </colgroup>
                 <thead>
                   <tr>
@@ -4073,6 +4094,7 @@
                     <th style="text-align: right;">金額</th>
                     <th>小類</th>
                     <th>收款人</th>
+                    <th>發票號碼</th>
                     <th>備註</th>
                     <th>收據 / 操作</th>
                   </tr>
@@ -10184,6 +10206,7 @@
           (x.project && x.project.toLowerCase().includes(currentPeriodTxSearch)) ||
           (x.date && x.date.toLowerCase().includes(currentPeriodTxSearch)) ||
           (x.cheque && x.cheque.toLowerCase().includes(currentPeriodTxSearch)) ||
+          (x.invoiceNo && x.invoiceNo.toLowerCase().includes(currentPeriodTxSearch)) ||
           (x.amt && String(x.amt).includes(currentPeriodTxSearch)) ||
           (x.subitem && x.subitem.toLowerCase().includes(currentPeriodTxSearch)) ||
           (x.payee && x.payee.toLowerCase().includes(currentPeriodTxSearch)) ||
@@ -10331,7 +10354,7 @@
 
           html += `
           <tr class="${headerClass}" data-group-id="${groupId}" onclick="togglePeriodTxGroup('${groupId}')" title="點擊展開 / 收起明細">
-            <td colspan="8">
+            <td colspan="9">
               <div class="proj-tx-group-bar">
                 <div class="proj-tx-group-left">
                   <span class="proj-tx-group-arrow" id="period-group-arrow-${groupId}">${isExpanded ? '▼' : '▶'}</span>
@@ -10362,6 +10385,12 @@
               payeeHtml = `<span class="proj-tx-payee" title="${escapeHtml(payeeText)}">${escapeHtml(payeeText)}</span>`;
             }
 
+            let invoiceHtml = '<span style="color:#94a3b8;">-</span>';
+            const invoiceText = (item.invoiceNo && item.invoiceNo.trim()) ? item.invoiceNo.trim() : '';
+            if (invoiceText) {
+              invoiceHtml = `<span class="proj-tx-invoice" title="${escapeHtml(invoiceText)}">${escapeHtml(invoiceText)}</span>`;
+            }
+
             let remarksHtml = '<span style="color:#94a3b8;">-</span>';
             const remarksText = (item.remarks && item.remarks.trim()) ? item.remarks.trim() : '';
             if (remarksText) {
@@ -10380,6 +10409,7 @@
               <td style="white-space: nowrap;">${projHtml}</td>
               <td style="white-space: nowrap;">${subitemHtml}</td>
               <td style="white-space: nowrap;">${payeeHtml}</td>
+              <td style="white-space: nowrap;">${invoiceHtml}</td>
               <td style="white-space: nowrap;">${remarksHtml}</td>
               <td style="white-space: nowrap;">${receiptHtml}</td>
             </tr>
@@ -10442,6 +10472,12 @@
           }
         }
 
+        let invoiceHtml = '<span style="color:#94a3b8;">-</span>';
+        const invoiceText = (item.invoiceNo && item.invoiceNo.trim()) ? item.invoiceNo.trim() : '';
+        if (invoiceText) {
+          invoiceHtml = `<span class="proj-tx-invoice" title="${escapeHtml(invoiceText)}">${escapeHtml(invoiceText)}</span>`;
+        }
+
         let remarksHtml = '<span style="color:#94a3b8;">-</span>';
         const remarksText = (item.remarks && item.remarks.trim()) ? item.remarks.trim() : '';
         if (remarksText) {
@@ -10458,6 +10494,7 @@
           <td style="white-space: nowrap;">${projHtml}</td>
           <td style="white-space: nowrap;">${subitemHtml}</td>
           <td style="white-space: nowrap;">${payeeHtml}</td>
+          <td style="white-space: nowrap;">${invoiceHtml}</td>
           <td style="white-space: nowrap;">${remarksHtml}</td>
           <td style="white-space: nowrap;">${receiptHtml}</td>
         </tr>
@@ -10587,6 +10624,7 @@
           const chqVal = (r['_x652f__x7968__x7de8__x865f_'] || r['Title'] || '').trim();
           const payStatus = (r['_x4ed8__x6b3e__x72c0__x614b_'] || (chqVal ? '已付' : '未付')).trim();
           const rawPayee = (r['_x6536__x6b3e__x4eba_'] || '').trim();
+          const invNo = (r['Invoice_x0020_No_x002e_'] || r['InvoiceNo'] || r['Invoice No.'] || r.OData_Invoice_x0020_No_x002e_ || '').trim();
           periodItems.push({
             id: parseInt(r.ID || r.Id || 0, 10),
             title: r.Title || '',
@@ -10597,6 +10635,7 @@
             project: extractProjectNameFromRow(r),
             payee: rawPayee,
             cheque: chqVal,
+            invoiceNo: invNo,
             paymentStatus: payStatus,
             receipt: rcpt.url,
             receiptDesc: rcpt.desc,
@@ -10621,6 +10660,7 @@
             project: extractProjectNameFromRow(r),
             payee: r['_x6536__x9805__x9280__x884c_'] || (r['Title'] || ''),
             cheque: r['Title'] || '',
+            invoiceNo: '',
             paymentStatus: '已付',
             receipt: rcpt.url,
             receiptDesc: rcpt.desc,
@@ -11349,6 +11389,7 @@
             const rawAmt = r['_x91d1__x984d_.'] || strClean(r['_x91d1__x984d_']);
             const chqVal = (r['_x652f__x7968__x7de8__x865f_'] || '').trim();
             const payStatus = (r['_x4ed8__x6b3e__x72c0__x614b_'] || (chqVal ? '已付' : '未付')).trim();
+            const invNo = (r['Invoice_x0020_No_x002e_'] || r['InvoiceNo'] || r['Invoice No.'] || r.OData_Invoice_x0020_No_x002e_ || '').trim();
             items.push({
               id: parseInt(r.ID || r.Id || 0, 10),
               title: r.Title || '',
@@ -11358,6 +11399,7 @@
               subitem: r['_x5b50__x9805__x76ee_'] || '其他',
               payee: r['_x6536__x6b3e__x4eba_'] || '',
               cheque: chqVal,
+              invoiceNo: invNo,
               paymentStatus: payStatus,
               receipt: rcpt.url,
               receiptDesc: rcpt.desc,
@@ -11379,6 +11421,7 @@
               subitem: '工程款',
               payee: payeeLabel,
               cheque: r['Title'] || '',
+              invoiceNo: '',
               paymentStatus: '已付',
               receipt: rcpt.url,
               receiptDesc: rcpt.desc,
@@ -11549,6 +11592,7 @@
           (x.subitem && x.subitem.toLowerCase().includes(currentProjTxSearch)) ||
           (x.payee && x.payee.toLowerCase().includes(currentProjTxSearch)) ||
           (x.cheque && x.cheque.toLowerCase().includes(currentProjTxSearch)) ||
+          (x.invoiceNo && x.invoiceNo.toLowerCase().includes(currentProjTxSearch)) ||
           (x.amt && String(x.amt).includes(currentProjTxSearch)) ||
           (x.remarks && x.remarks.toLowerCase().includes(currentProjTxSearch)) ||
           (x.receiptDesc && x.receiptDesc.toLowerCase().includes(currentProjTxSearch)) ||
@@ -11698,7 +11742,7 @@
 
           html += `
           <tr class="${headerClass}" data-group-id="${groupId}" onclick="toggleProjTxGroup('${groupId}')" title="點擊展開 / 收起明細">
-            <td colspan="7">
+            <td colspan="8">
               <div class="proj-tx-group-bar">
                 <div class="proj-tx-group-left">
                   <span class="proj-tx-group-arrow" id="group-arrow-${groupId}">${isExpanded ? '▼' : '▶'}</span>
@@ -11726,6 +11770,12 @@
               payeeHtml = `<span class="proj-tx-payee" title="${escapeHtml(payeeText)}">${escapeHtml(payeeText)}</span>`;
             }
 
+            let invoiceHtml = '<span style="color:#94a3b8;">-</span>';
+            const invoiceText = (item.invoiceNo && item.invoiceNo.trim()) ? item.invoiceNo.trim() : '';
+            if (invoiceText) {
+              invoiceHtml = `<span class="proj-tx-invoice" title="${escapeHtml(invoiceText)}">${escapeHtml(invoiceText)}</span>`;
+            }
+
             let remarksHtml = '<span style="color:#94a3b8;">-</span>';
             const remarksText = (item.remarks && item.remarks.trim()) ? item.remarks.trim() : '';
             if (remarksText) {
@@ -11743,6 +11793,7 @@
               <td style="text-align: right; white-space: nowrap;"><span class="proj-tx-amt exp">-${fmtMoney(item.amt)}</span></td>
               <td style="white-space: nowrap;">${subitemHtml}</td>
               <td style="white-space: nowrap;">${payeeHtml}</td>
+              <td style="white-space: nowrap;">${invoiceHtml}</td>
               <td style="white-space: nowrap;">${remarksHtml}</td>
               <td style="white-space: nowrap;">${receiptHtml}</td>
             </tr>
@@ -11802,6 +11853,12 @@
           }
         }
 
+        let invoiceHtml = '<span style="color:#94a3b8;">-</span>';
+        const invoiceText = (item.invoiceNo && item.invoiceNo.trim()) ? item.invoiceNo.trim() : '';
+        if (invoiceText) {
+          invoiceHtml = `<span class="proj-tx-invoice" title="${escapeHtml(invoiceText)}">${escapeHtml(invoiceText)}</span>`;
+        }
+
         let remarksHtml = '<span style="color:#94a3b8;">-</span>';
         const remarksText = (item.remarks && item.remarks.trim()) ? item.remarks.trim() : '';
         if (remarksText) {
@@ -11817,6 +11874,7 @@
           <td style="text-align: right; white-space: nowrap;">${amtHtml}</td>
           <td style="white-space: nowrap;">${subitemHtml}</td>
           <td style="white-space: nowrap;">${payeeHtml}</td>
+          <td style="white-space: nowrap;">${invoiceHtml}</td>
           <td style="white-space: nowrap;">${remarksHtml}</td>
           <td style="white-space: nowrap;">${receiptHtml}</td>
         </tr>
