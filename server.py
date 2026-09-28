@@ -18,13 +18,19 @@ session = requests.Session()
 session.trust_env = False
 if os.path.exists(COOKIES_PATH):
     with open(COOKIES_PATH, 'r', encoding='utf-8') as f:
-        cookies = json.load(f)
+        cookies_data = json.load(f)
+        if isinstance(cookies_data, list):
+            cookies = {c['name']: c['value'] for c in cookies_data if 'name' in c and 'value' in c}
+        else:
+            cookies = cookies_data
         session.cookies.update(cookies)
     print("✅ Loaded SharePoint cookies from cookies.json")
 else:
     print("⚠️ Warning: cookies.json not found in directory!")
 
 class SharePointProxyHandler(http.server.SimpleHTTPRequestHandler):
+    warned_auth = False
+
     def do_GET(self):
         if self.path.startswith("/_api") or "/_api" in self.path:
             self.proxy_sharepoint("GET")
@@ -59,6 +65,13 @@ class SharePointProxyHandler(http.server.SimpleHTTPRequestHandler):
 
         try:
             r = session.request(method, url, headers=headers, data=data)
+            if r.status_code in (401, 403) and not SharePointProxyHandler.warned_auth:
+                print(f"\n⚠️  [SharePoint Authentication Expired] HTTP {r.status_code} received!")
+                print(f"👉 Please update cookies.json using `python update_cookies.py` or paste new cookies.\n")
+                SharePointProxyHandler.warned_auth = True
+            elif r.status_code == 200:
+                SharePointProxyHandler.warned_auth = False
+
             self.send_response(r.status_code)
             for k, v in r.headers.items():
                 if k.lower() not in ["content-encoding", "transfer-encoding", "content-length"]:

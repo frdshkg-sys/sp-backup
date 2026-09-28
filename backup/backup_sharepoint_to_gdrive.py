@@ -35,13 +35,30 @@ def load_sharepoint_cookies() -> Dict[str, str]:
     """Loads SharePoint cookies from environment variable or local cookies.json."""
     env_cookies = os.environ.get("SP_COOKIES_JSON")
     if env_cookies:
+        env_cookies = env_cookies.strip()
+        # Case 1: JSON format
+        if env_cookies.startswith("{") or env_cookies.startswith("["):
+            try:
+                parsed = json.loads(env_cookies)
+                if isinstance(parsed, list):
+                    return {c["name"]: c["value"] for c in parsed}
+                return parsed
+            except Exception as e:
+                print(f"⚠️ Could not parse SP_COOKIES_JSON as JSON: {e}")
+        # Case 2: Raw cookie header string (e.g. "FedAuth=...; rtFa=...")
         try:
-            parsed = json.loads(env_cookies)
-            if isinstance(parsed, list):
-                return {c["name"]: c["value"] for c in parsed}
-            return parsed
+            import urllib.parse
+            if env_cookies.lower().startswith("cookie:"):
+                env_cookies = env_cookies[7:].strip()
+            cookies = {}
+            for part in env_cookies.split(";"):
+                if "=" in part:
+                    k, v = part.split("=", 1)
+                    cookies[k.strip()] = urllib.parse.unquote(v.strip())
+            if cookies:
+                return cookies
         except Exception as e:
-            print(f"⚠️ Could not parse SP_COOKIES_JSON environment variable: {e}")
+            print(f"⚠️ Could not parse SP_COOKIES_JSON as cookie header: {e}")
 
     local_cookie_path = os.path.join(PROJECT_DIR, "cookies.json")
     if os.path.exists(local_cookie_path):
