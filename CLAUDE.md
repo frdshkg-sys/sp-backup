@@ -120,7 +120,7 @@ mitigation/
 │   └── requirements.txt            # Python dependencies for backup
 │
 ├── .github/workflows/
-│   └── weekly_backup.yml           # GitHub Actions weekly Sunday 03:00 HKT backup cron
+│   └── weekly_backup.yml           # GitHub Actions weekly Friday 18:30 HKT backup cron
 │
 └── _archive/                       # Historical scripts, past migrations & audit logs (DO NOT EDIT)
 ```

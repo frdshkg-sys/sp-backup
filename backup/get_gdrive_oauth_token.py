@@ -32,9 +32,33 @@ def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     client_secret_path = os.path.join(script_dir, "client_secret.json")
 
+    existing_token_path = os.path.join(script_dir, "oauth_token.json")
+    saved_client_id = ""
+    saved_client_secret = ""
+    if os.path.exists(existing_token_path):
+        try:
+            with open(existing_token_path, "r", encoding="utf-8") as f:
+                prev_data = json.load(f)
+                saved_client_id = prev_data.get("client_id", "")
+                saved_client_secret = prev_data.get("client_secret", "")
+        except Exception:
+            pass
+
     if os.path.exists(client_secret_path):
         print(f"📄 Found {client_secret_path}, loading credentials...")
         flow = InstalledAppFlow.from_client_secrets_file(client_secret_path, SCOPES)
+    elif saved_client_id and saved_client_secret:
+        print(f"📄 Reusing existing Client ID from {os.path.basename(existing_token_path)} ({saved_client_id[:16]}...)")
+        client_config = {
+            "installed": {
+                "client_id": saved_client_id,
+                "client_secret": saved_client_secret,
+                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                "token_uri": "https://oauth2.googleapis.com/token",
+                "redirect_uris": ["http://localhost:8088/"]
+            }
+        }
+        flow = InstalledAppFlow.from_client_config(client_config, SCOPES)
     else:
         print("💡 Step: In Google Cloud Console:")
         print("   1. Go to: https://console.cloud.google.com/apis/credentials")

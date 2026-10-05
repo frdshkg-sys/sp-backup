@@ -5,8 +5,8 @@ on:
     branches:
       - main
   schedule:
-    # Runs every Sunday at 03:00 HKT (Saturday 19:00 UTC) during off-peak hours
-    - cron: '0 19 * * 6'
+    # Runs every Friday at 18:30 HKT (Friday 10:30 UTC)
+    - cron: '30 10 * * 5'
   workflow_dispatch: # Enables manual 1-click execution in GitHub Actions UI
 
 concurrency:
