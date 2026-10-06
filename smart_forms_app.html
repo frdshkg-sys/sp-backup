@@ -3142,11 +3142,6 @@
             </div>
 
             <div class="form-group col-full">
-              <label>發票 / 單號 (Invoice No.)</label>
-              <textarea id="exp-invoice-no" rows="2" placeholder="請輸入發票號碼 (選填，支援多行輸入，例如：&#10;INV-2024-001&#10;INV-2024-002)..." autocomplete="off" style="resize: vertical; min-height: 52px; line-height: 1.4;"></textarea>
-            </div>
-
-            <div class="form-group col-full">
               <label>備註 (Remarks) <span class="badge-auto"
                   style="background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd;">自動套用至本批次所有項目</span></label>
               <input type="text" id="exp-remarks" placeholder="請輸入備註說明 (選填，將自動套用至本批次所有分攤項目)..." autocomplete="off">
@@ -3202,9 +3197,10 @@
               <thead>
                 <tr>
                   <th style="width: 36px; text-align: center;">#</th>
-                  <th style="width: 44%;">所屬項目 <span class="req">*</span></th>
-                  <th style="width: 25%;">小類</th>
-                  <th style="width: 22%; text-align: right;">金額 (HKD) <span class="req">*</span></th>
+                  <th style="width: 32%;">所屬項目 <span class="req">*</span></th>
+                  <th style="width: 22%;">發票 / 單號</th>
+                  <th style="width: 18%;">小類</th>
+                  <th style="width: 18%; text-align: right;">金額 (HKD) <span class="req">*</span></th>
                   <th style="width: 65px; text-align: center;">操作</th>
                 </tr>
               </thead>
@@ -3661,11 +3657,6 @@
             <div class="form-group edit-expense-field">
               <label>收款人 / 廠商</label>
               <input type="text" id="edit-payee" placeholder="輸入收款公司或個人">
-            </div>
-
-            <div class="form-group edit-expense-field">
-              <label>發票 / 單號 (Invoice No.)</label>
-              <textarea id="edit-invoice-no" rows="2" placeholder="例如：&#10;BLE 113332102850401&#10;INSTL 10" autocomplete="off" style="resize: vertical; min-height: 52px; line-height: 1.4;"></textarea>
             </div>
 
             <div class="form-group edit-expense-field">
@@ -5490,7 +5481,7 @@
 
     // --- Dynamic Multi-project Expense Entries State & Functions ---
     let expenseRowList = [
-      { id: 1, projId: '', projName: '', subitem: '', amount: '' }
+      { id: 1, projId: '', projName: '', invoiceNo: '', subitem: '', amount: '' }
     ];
     let nextExpenseRowId = 2;
 
@@ -5499,7 +5490,7 @@
       if (!tbody) return;
 
       if (!expenseRowList || expenseRowList.length === 0) {
-        expenseRowList = [{ id: nextExpenseRowId++, projId: '', projName: '', subitem: '', amount: '' }];
+        expenseRowList = [{ id: nextExpenseRowId++, projId: '', projName: '', invoiceNo: '', subitem: '', amount: '' }];
       }
 
       tbody.innerHTML = expenseRowList.map((r, idx) => {
@@ -5521,6 +5512,13 @@
                       style="${r.projId ? 'display:flex' : 'display:none'}" title="清除選取">✕</button>
               <div class="exp-row-proj-dropdown" id="exp-row-proj-dropdown-${r.id}"></div>
             </div>
+          </td>
+          <td>
+            <input type="text" class="exp-row-subitem-input" id="exp-row-invoice-${r.id}"
+                   placeholder="發票號碼..."
+                   value="${escapeHtml(r.invoiceNo || '')}"
+                   autocomplete="off"
+                   oninput="onExpRowInvoiceChange(${r.id}, this.value)">
           </td>
           <td>
             <input type="text" class="exp-row-subitem-input" id="exp-row-subitem-${r.id}"
@@ -5557,11 +5555,13 @@
 
     function addExpenseEntryRow() {
       const lastSubitem = expenseRowList.length > 0 ? (expenseRowList[expenseRowList.length - 1].subitem || '') : '';
+      const lastInvoice = expenseRowList.length > 0 ? (expenseRowList[expenseRowList.length - 1].invoiceNo || '') : '';
       const newId = nextExpenseRowId++;
       expenseRowList.push({
         id: newId,
         projId: '',
         projName: '',
+        invoiceNo: '',
         subitem: lastSubitem,
         amount: ''
       });
@@ -5581,6 +5581,7 @@
         id: newId,
         projId: src.projId,
         projName: src.projName,
+        invoiceNo: src.invoiceNo || '',
         subitem: src.subitem,
         amount: src.amount
       };
@@ -5595,7 +5596,7 @@
 
     function deleteExpenseEntryRow(rowId) {
       if (expenseRowList.length <= 1) {
-        expenseRowList[0] = { id: 1, projId: '', projName: '', subitem: '', amount: '' };
+        expenseRowList[0] = { id: 1, projId: '', projName: '', invoiceNo: '', subitem: '', amount: '' };
       } else {
         expenseRowList = expenseRowList.filter(x => x.id !== rowId);
       }
@@ -5630,6 +5631,11 @@
         toast.style.display = 'block';
         setTimeout(() => { toast.style.display = 'none'; }, 3000);
       }
+    }
+
+    function onExpRowInvoiceChange(rowId, val) {
+      const row = expenseRowList.find(x => x.id === rowId);
+      if (row) row.invoiceNo = val;
     }
 
     function onExpRowSubitemChange(rowId, val) {
@@ -5846,7 +5852,6 @@
       const prefix = document.getElementById('exp-chq-prefix')?.value || 'CK';
       const bank = getBankValue('exp');
       const payee = (document.getElementById('exp-payee')?.value || '').trim();
-      const invoiceNo = (document.getElementById('exp-invoice-no')?.value || '').trim();
       const recordStatus = document.getElementById('exp-status')?.value || '有效';
 
       // 2. Validate Row Entries
@@ -5924,6 +5929,7 @@
           btn.innerHTML = `<span>⏳</span> 正在儲存第 ${i + 1} / ${count} 筆 (${escapeHtml(r.projName || '項目')})...`;
 
           const commonRemarks = (document.getElementById('exp-remarks')?.value || '').trim();
+          const rowInvoice = cleanInvoiceNoStr(r.invoiceNo || '').trim();
 
           const payload = {
             "__metadata": { "type": "SP.Data.TransactionsListItem" },
@@ -5931,7 +5937,7 @@
             "OData__x4ea4__x6613__x6642__x9593_": new Date(dateVal).toISOString(),
             "OData__x91d1__x984d_": rowAmt,
             "OData__x652f__x7968__x7de8__x865f_": chqNum,
-            "Invoice_x0020_No_x002e_": invoiceNo,
+            "Invoice_x0020_No_x002e_": rowInvoice,
             "OData__x8f49__x5e33__x9280__x884c_": bank,
             "OData__x6240__x5c6c__x9805__x76ee_Id": pid,
             "OData__x6536__x6b3e__x4eba_": payee,
@@ -6009,7 +6015,7 @@
         removeFile('expense');
         const commonRemarksInput = document.getElementById('exp-remarks');
         if (commonRemarksInput) commonRemarksInput.value = '';
-        expenseRowList = [{ id: 1, projId: '', projName: '', subitem: '', amount: '' }];
+        expenseRowList = [{ id: 1, projId: '', projName: '', invoiceNo: '', subitem: '', amount: '' }];
         nextExpenseRowId = 2;
         renderExpenseEntriesTable();
         document.getElementById('exp-payee').value = '';
@@ -7055,7 +7061,6 @@
       const currentSubitem = isExp ? (document.getElementById('edit-subitem').value || '').trim() : '';
       const currentCheque = isExp ? (document.getElementById('edit-cheque').value || '').trim() : '';
       const currentBank = isExp ? getBankValue('edit-exp') : getBankValue('edit-inc');
-      const currentInvoiceNo = cleanInvoiceNoStr(document.getElementById('edit-invoice-no')?.value || '').trim();
 
       // If in Expense Unified/Batch Edit Mode:
       if (isExp && selectedEditBatch && selectedEditBatch.length >= 1) {
@@ -7073,19 +7078,16 @@
         const origRemarks = (selectedEditBatch[0]?._orig?.remarks || selectedEditTx.remarks || '').trim();
         if (currentRemarks !== origRemarks) return false;
 
-        const origInvoiceNo = cleanInvoiceNoStr(
-          selectedEditBatch.find(x => x.invoiceNo && x.invoiceNo.trim())?.invoiceNo ||
-          selectedEditBatch[0]?._orig?.invoiceNo ||
-          selectedEditTx.invoiceNo || ''
-        ).trim();
-        if (currentInvoiceNo !== origInvoiceNo) return false;
-
         // Check each row in the batch
         for (const item of selectedEditBatch) {
           const orig = item._orig || item;
           const curProjId = String(item.projId || '');
           const origProjId = String(orig.projId || '');
           if (curProjId !== origProjId) return false;
+
+          const curInvoice = cleanInvoiceNoStr(item.invoiceNo || '').trim();
+          const origInvoice = cleanInvoiceNoStr(orig.invoiceNo || '').trim();
+          if (curInvoice !== origInvoice) return false;
 
           const curSubitem = (item.subitem || '').trim();
           const origSubitem = (orig.subitem || '').trim();
@@ -7115,8 +7117,11 @@
       const origRemarks = (selectedEditTx.remarks || '').trim();
       if (currentRemarks !== origRemarks) return false;
 
-      const origInvoiceNo = cleanInvoiceNoStr(selectedEditTx.invoiceNo || '').trim();
-      if (currentInvoiceNo !== origInvoiceNo) return false;
+      if (document.getElementById('edit-invoice-no')) {
+        const currentInvoiceNo = cleanInvoiceNoStr(document.getElementById('edit-invoice-no')?.value || '').trim();
+        const origInvoiceNo = cleanInvoiceNoStr(selectedEditTx.invoiceNo || '').trim();
+        if (currentInvoiceNo !== origInvoiceNo) return false;
+      }
 
       if (isExp) {
         if (currentCheque !== (selectedEditTx.cheque || '').trim()) return false;
@@ -8203,6 +8208,7 @@
 
       const rowsHtml = selectedEditBatch.map((item, idx) => {
         const curProjName = item.projName || (item.projId ? ('項目 #' + item.projId) : '');
+        const curInvoice = cleanInvoiceNoStr(item.invoiceNo || '');
         const curSubitem = item.subitem || '';
         const curAmt = (item.amount !== undefined && item.amount !== null && item.amount !== '') ? item.amount : '';
         return `
@@ -8222,6 +8228,13 @@
                       style="${item.projId ? 'display:flex' : 'display:none'}" title="清除選取">✕</button>
               <div class="exp-row-proj-dropdown" id="edit-batch-proj-dropdown-${idx}"></div>
             </div>
+          </td>
+          <td>
+            <input type="text" class="exp-row-subitem-input" id="edit-batch-invoice-${idx}"
+                   placeholder="發票號碼..."
+                   value="${escapeHtml(curInvoice)}"
+                   autocomplete="off"
+                   oninput="onEditBatchRowInvoiceChange(${idx}, this.value)">
           </td>
           <td>
             <input type="text" class="exp-row-subitem-input" id="edit-batch-subitem-${idx}"
@@ -8273,9 +8286,10 @@
             <thead>
               <tr>
                 <th style="width: 36px; text-align: center;">#</th>
-                <th style="${showExtractCol ? 'width: 40%;' : 'width: 48%;'}">所屬項目 <span class="req">*</span></th>
-                <th style="${showExtractCol ? 'width: 20%;' : 'width: 26%;'}">小類</th>
-                <th style="${showExtractCol ? 'width: 22%;' : 'width: 26%;'} text-align: right;">分攤金額 (HKD) <span class="req">*</span></th>
+                <th style="${showExtractCol ? 'width: 28%;' : 'width: 32%;'}">所屬項目 <span class="req">*</span></th>
+                <th style="${showExtractCol ? 'width: 20%;' : 'width: 22%;'}">發票 / 單號</th>
+                <th style="${showExtractCol ? 'width: 18%;' : 'width: 20%;'}">小類</th>
+                <th style="${showExtractCol ? 'width: 18%;' : 'width: 20%;'} text-align: right;">分攤金額 (HKD) <span class="req">*</span></th>
                 ${showExtractCol ? `<th style="width: 105px; text-align: center;">操作</th>` : ''}
               </tr>
             </thead>
@@ -8413,6 +8427,12 @@
       const dropdown = document.getElementById(`edit-batch-proj-dropdown-${idx}`);
       if (dropdown) dropdown.style.display = 'none';
 
+      setEditSubmitButtonState('idle');
+    }
+
+    function onEditBatchRowInvoiceChange(idx, val) {
+      if (!selectedEditBatch || !selectedEditBatch[idx]) return;
+      selectedEditBatch[idx].invoiceNo = val;
       setEditSubmitButtonState('idle');
     }
 
@@ -9514,7 +9534,6 @@
 
           const syncResults = [];
           const submitBtn = document.getElementById('edit-submit-btn');
-          const invoiceNoVal = (document.getElementById('edit-invoice-no')?.value || '').trim();
 
           for (let i = 0; i < count; i++) {
             const item = selectedEditBatch[i];
@@ -9523,6 +9542,7 @@
             const rowSubitem = (item.subitem || '').trim() || '其他';
             const rowRemarks = batchRemarks;
             const rowAmount = parseAmount(item.amount);
+            const rowInvoice = cleanInvoiceNoStr(item.invoiceNo || '').trim();
 
             if (submitBtn) {
               submitBtn.innerHTML = `<span>⏳</span> 正在更新第 ${i + 1} / ${count} 筆 (${item.Title})...`;
@@ -9533,7 +9553,7 @@
               "OData__x4ea4__x6613__x6642__x9593_": new Date(newDateVal).toISOString(),
               "RecordStatus": newStatus,
               "OData__x652f__x7968__x7de8__x865f_": chqNum,
-              "Invoice_x0020_No_x002e_": invoiceNoVal,
+              "Invoice_x0020_No_x002e_": rowInvoice,
               "OData__x8f49__x5e33__x9280__x884c_": bankVal,
               "OData__x6536__x6b3e__x4eba_": payeeVal,
               "OData__x4ed8__x6b3e__x72c0__x614b_": editPayStatus,
@@ -9620,7 +9640,7 @@
             item.projId = rowProjId;
             item.subitem = rowSubitem;
             item.remarks = rowRemarks;
-            item.invoiceNo = invoiceNoVal;
+            item.invoiceNo = rowInvoice;
             item.amount = rowAmount;
             item.batchId = payload["BatchId"];
             item.isIndependent = payload["IsIndependent"];
@@ -9632,7 +9652,7 @@
               amount: rowAmount,
               status: newStatus,
               paymentStatus: editPayStatus,
-              invoiceNo: invoiceNoVal
+              invoiceNo: rowInvoice
             };
 
             const inMem = loadedEditTransactions.find(t => t.Id === item.Id);
@@ -9652,7 +9672,7 @@
                 pTx.amount = rowAmount;
                 pTx.subitem = rowSubitem;
                 pTx.remarks = rowRemarks;
-                pTx.invoiceNo = invoiceNoVal;
+                pTx.invoiceNo = rowInvoice;
                 if (newFileUrl) {
                   pTx.receipt = newFileUrl;
                   pTx.receiptDesc = newFileName;
@@ -9784,7 +9804,7 @@
 
         if (isExp) {
           payload["OData__x652f__x7968__x7de8__x865f_"] = document.getElementById('edit-cheque').value;
-          payload["Invoice_x0020_No_x002e_"] = (document.getElementById('edit-invoice-no')?.value || '').trim();
+          payload["Invoice_x0020_No_x002e_"] = (document.getElementById('edit-invoice-no')?.value || selectedEditTx.invoiceNo || '').trim();
           payload["OData__x8f49__x5e33__x9280__x884c_"] = getBankValue('edit-exp');
           payload["OData__x6240__x5c6c__x9805__x76ee_Id"] = newProjId;
           payload["OData__x6536__x6b3e__x4eba_"] = document.getElementById('edit-payee').value;
@@ -9849,7 +9869,7 @@
 
         if (isExp) {
           selectedEditTx.cheque = document.getElementById('edit-cheque').value;
-          selectedEditTx.invoiceNo = (document.getElementById('edit-invoice-no')?.value || '').trim();
+          selectedEditTx.invoiceNo = (document.getElementById('edit-invoice-no')?.value || selectedEditTx.invoiceNo || '').trim();
           selectedEditTx.bank = getBankValue('edit-exp');
           selectedEditTx.payee = document.getElementById('edit-payee').value;
           selectedEditTx.subitem = document.getElementById('edit-subitem').value;
