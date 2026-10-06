@@ -482,7 +482,7 @@
       width: 100%;
       background-color: var(--primary);
       color: white;
-      border: none;
+      border: 1px solid transparent;
       padding: 13px;
       font-size: 15px;
       font-weight: 600;
@@ -493,6 +493,10 @@
       justify-content: center;
       gap: 8px;
       transition: background-color 0.2s, transform 0.1s;
+    }
+
+    #edit-submit-btn {
+      margin-top: 0;
     }
 
     .btn-submit:hover {
@@ -1224,20 +1228,29 @@
     }
 
     .btn-cancel {
-      padding: 12px 16px;
+      margin: 0;
+      padding: 13px 16px;
       background: #f1f5f9;
       color: #475569;
       border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 14px;
+      border-radius: 8px;
+      font-size: 15px;
       font-weight: 600;
       cursor: pointer;
-      transition: background-color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background-color 0.2s, transform 0.1s;
     }
 
     .btn-cancel:hover {
       background: #e2e8f0;
       color: #1e293b;
+    }
+
+    .btn-cancel:active {
+      transform: scale(0.99);
     }
 
     /* Dashboard Native Tab Styles */
@@ -3725,12 +3738,12 @@
 
           <div id="edit-toast" class="toast"></div>
 
-          <div style="display:flex; gap:12px; margin-top:20px;">
-            <button type="button" id="edit-submit-btn" class="btn-submit" style="flex:2;"
+          <div style="display:flex; gap:12px; margin-top:24px; align-items:stretch;">
+            <button type="button" id="edit-submit-btn" class="btn-submit" style="flex:2; margin-top:0;"
               onclick="submitEditTransaction(event)">
               <span>💾</span> 儲存修改並同步項目金額
             </button>
-            <button type="button" class="btn-cancel" style="flex:1;" onclick="cancelEditTransaction()">
+            <button type="button" class="btn-cancel" style="flex:1; margin-top:0;" onclick="cancelEditTransaction()">
               ✕ 取消選取
             </button>
           </div>
