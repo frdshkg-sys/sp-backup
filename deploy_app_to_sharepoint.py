@@ -5,7 +5,7 @@ import requests
 
 sys.stdout.reconfigure(encoding='utf-8')
 
-BASE_DIR = r"c:\Users\kmk112\Downloads\mitigation"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 HTML_PATH = os.path.join(BASE_DIR, "smart_forms_app.html")
 COOKIES_PATH = os.path.join(BASE_DIR, "cookies.json")
 SITE_URL = "https://k35n.sharepoint.com/sites/CHUNKING"

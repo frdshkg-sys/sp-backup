@@ -1392,6 +1392,22 @@
       padding: 24px 0;
     }
 
+    .project-list-search {
+      width: 220px;
+      max-width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--card-bg);
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .project-list-search:focus {
+      border-color: var(--primary);
+    }
+
     .project-list-vodetail {
       display: none;
     }
@@ -4265,6 +4281,8 @@
                 <span class="card-badge-icon">📋</span>
                 <span class="card-title">項目清單總表</span>
               </div>
+              <input type="text" id="project-list-search" class="project-list-search"
+                placeholder="🔍 搜尋項目名稱或編號..." autocomplete="off">
             </div>
 
             <div class="project-list-table-wrap">
@@ -10157,6 +10175,7 @@
     let dashboardInitialized = false;
     const PROJECT_LIST_PAGE_SIZE = 20;
     let projectListPage = 1;
+    let projectListQuery = '';            // current 項目清單總表 search filter (name/code)
     let projectUnpaidMap = {};            // pid -> unpaid cost
     let projectUnpaidFetched = new Set(); // pids successfully queried
     let projectUnpaidFailed = new Set();  // pids whose query failed
@@ -11194,18 +11213,33 @@
       if (!tbody) return;
 
       // List only (does not mutate dashboardProjectsList, which feeds the 🏗️ dropdown).
-      const list = (dashboardProjectsList || [])
+      let list = (dashboardProjectsList || [])
         .filter(p => !/test/i.test(p.title || p.Title || ''))
         .slice();
+      if (projectListQuery) {
+        const q = projectListQuery.toLowerCase();
+        list = list.filter(p =>
+          (p.title && String(p.title).toLowerCase().includes(q)) ||
+          (p.code && String(p.code).toLowerCase().includes(q))
+        );
+      }
       sortDashboardProjects(list);
 
       if (list.length === 0) {
-        if (empty) empty.style.display = 'block';
+        if (empty) {
+          empty.textContent = projectListQuery
+            ? `找不到符合「${projectListQuery}」的項目`
+            : '尚無項目資料';
+          empty.style.display = 'block';
+        }
         tbody.innerHTML = '';
         if (pager) pager.style.display = 'none';
         return;
       }
-      if (empty) empty.style.display = 'none';
+      if (empty) {
+        empty.textContent = '尚無項目資料';
+        empty.style.display = 'none';
+      }
 
       const pageCount = Math.max(1, Math.ceil(list.length / PROJECT_LIST_PAGE_SIZE));
       projectListPage = Math.min(Math.max(1, projectListPage), pageCount);
@@ -11681,6 +11715,16 @@
             if (wrap && !wrap.contains(e.target)) {
               closeDashDropdown();
             }
+          });
+        }
+
+        // 項目清單總表搜尋（名稱 / 編號）
+        const listSearch = document.getElementById('project-list-search');
+        if (listSearch) {
+          listSearch.addEventListener('input', (e) => {
+            projectListQuery = e.target.value.trim();
+            projectListPage = 1;
+            renderProjectList();
           });
         }
 
