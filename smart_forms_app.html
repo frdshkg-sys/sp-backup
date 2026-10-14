@@ -1276,7 +1276,7 @@
       gap: 4px;
       border: 1px solid #e2e8f0;
       width: 100%;
-      max-width: 520px;
+      max-width: 780px;
       box-sizing: border-box;
       margin: 0 auto;
     }
@@ -1313,6 +1313,213 @@
 
     .dash-switch-btn .dash-switch-icon {
       font-size: 15px;
+    }
+
+    .project-list-table-wrap {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .project-list-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 13px;
+      min-width: 920px;
+    }
+
+    .project-list-table th,
+    .project-list-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: right;
+      vertical-align: top;
+    }
+
+    .project-list-table thead th {
+      position: sticky;
+      top: 0;
+      background: var(--card-bg);
+      color: #64748b;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .project-list-table td.num {
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .project-list-name {
+      font-weight: 700;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+
+    .project-list-name:hover {
+      color: var(--primary);
+      text-decoration: underline;
+    }
+
+    .project-list-date {
+      color: #64748b;
+      white-space: nowrap;
+    }
+
+    .project-list-vo-toggle {
+      margin-left: 8px;
+      font-size: 11px;
+      color: var(--primary);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .project-list-vo-toggle:hover {
+      text-decoration: underline;
+    }
+
+    .project-list-pending {
+      color: #94a3b8;
+      font-weight: 500;
+    }
+
+    .project-list-loading {
+      text-align: center;
+      color: #94a3b8;
+      padding: 24px 0;
+    }
+
+    .project-list-vodetail {
+      display: none;
+    }
+
+    .project-list-vodetail.open {
+      display: table-row;
+    }
+
+    .project-list-vodetail > td {
+      background: #f8fafc;
+      border-bottom: 1px solid var(--border);
+      padding: 8px 12px 10px;
+      text-align: left;
+      white-space: normal;
+    }
+
+    .project-list-vo-breakdown {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      text-align: left;
+      font-size: 12px;
+      white-space: normal;
+    }
+
+    .project-list-pager {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .pl-pager-info {
+      font-size: 12px;
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    .pl-pager-btns {
+      display: flex;
+      gap: 8px;
+    }
+
+    .pl-pager-btn {
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      color: var(--text-main);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+
+    .pl-pager-btn:hover:not(:disabled) {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+      color: var(--primary);
+    }
+
+    .pl-pager-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .project-list-vo-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 2px 0;
+    }
+
+    .project-list-vo-row.orig {
+      color: #64748b;
+    }
+
+    .project-list-vo-row .tag {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 0 5px;
+      border-radius: 4px;
+      margin-right: 6px;
+    }
+
+    .project-list-vo-row .tag.orig {
+      background: #e2e8f0;
+      color: #475569;
+    }
+
+    .project-list-vo-row .tag.vo {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+
+    .project-list-vo-row .tag.vo-deduct {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .project-list-vo-row .vo-name {
+      color: #475569;
+      margin-left: 2px;
+    }
+
+    .project-list-vo-row .val {
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .project-list-vo-row .val.add {
+      color: #16a34a;
+    }
+
+    .project-list-vo-row .val.deduct {
+      color: #dc2626;
+    }
+
+    .project-list-empty {
+      text-align: center;
+      color: #64748b;
+      padding: 24px 12px;
+      font-size: 13px;
     }
 
     .dashboard-panels-container {
@@ -3694,6 +3901,11 @@
             <span class="dash-switch-icon">🏗️</span>
             <span class="dash-switch-label">工程項目淨結餘與財務</span>
           </button>
+          <button type="button" class="dash-switch-btn" id="btn-dash-view-list"
+            onclick="switchDashboardView('list')">
+            <span class="dash-switch-icon">📋</span>
+            <span class="dash-switch-label">項目清單總表</span>
+          </button>
         </div>
       </div>
 
@@ -4040,6 +4252,53 @@
               <div id="proj-tx-loading" class="proj-tx-loading" style="display: none;">
                 <span class="refresh-spinner"
                   style="display:inline-block; vertical-align:middle; margin-right:6px;"></span>載入收支明細中...
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: 項目清單總表 -->
+        <div class="dash-card" id="card-project-list" style="display: none;">
+          <div>
+            <div class="card-top">
+              <div class="card-title-wrap">
+                <span class="card-badge-icon">📋</span>
+                <span class="card-title">項目清單總表</span>
+              </div>
+            </div>
+
+            <div class="project-list-table-wrap">
+              <table class="project-list-table">
+                <colgroup>
+                  <col style="width: 26%;">
+                  <col style="width: 12%;">
+                  <col style="width: 18%;">
+                  <col style="width: 14%;">
+                  <col style="width: 16%;">
+                  <col style="width: 14%;">
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th style="text-align:left;">項目</th>
+                    <th style="text-align:left;">施工日期</th>
+                    <th style="text-align:right;">合約總額（含 VO）</th>
+                    <th style="text-align:right;">已收</th>
+                    <th style="text-align:right;">成本（已付＋未付）</th>
+                    <th style="text-align:right;">成本（只計已付）</th>
+                  </tr>
+                </thead>
+                <tbody id="project-list-tbody"></tbody>
+              </table>
+              <div id="project-list-empty" class="project-list-empty" style="display: none;">尚無項目資料</div>
+            </div>
+
+            <div class="project-list-pager" id="project-list-pager" style="display: none;">
+              <span class="pl-pager-info" id="pl-pager-info"></span>
+              <div class="pl-pager-btns">
+                <button type="button" class="pl-pager-btn" id="pl-pager-prev"
+                  onclick="goProjectListPage(-1)">‹ 上一頁</button>
+                <button type="button" class="pl-pager-btn" id="pl-pager-next"
+                  onclick="goProjectListPage(1)">下一頁 ›</button>
               </div>
             </div>
           </div>
@@ -9896,6 +10155,14 @@
     sortDashboardProjects(dashboardProjectsList);
     let selectedDashProject = dashboardProjectsList.find(p => p.id === 228) || dashboardProjectsList.find(p => p.id !== 838 && p.code !== 'UNASSIGNED') || dashboardProjectsList[0] || null;
     let dashboardInitialized = false;
+    const PROJECT_LIST_PAGE_SIZE = 20;
+    let projectListPage = 1;
+    let projectUnpaidMap = {};            // pid -> unpaid cost
+    let projectUnpaidFetched = new Set(); // pids successfully queried
+    let projectUnpaidFailed = new Set();  // pids whose query failed
+    let projectUnpaidPromises = new Map(); // pid -> in-flight fetch promise (shared across awaits)
+    let projectListVOOpen = new Set();    // pids whose VO panel is expanded
+    let projectListRenderSeq = 0;         // guards against superseded renders
 
     let projectTxCache = {
       228: [
@@ -10821,6 +11088,236 @@
         }
       }
       renderDashboardProjectDropdown(dashboardProjectsList);
+      renderProjectList();
+    }
+
+    function getProjectLookupId(r) {
+      const pidRaw = r['_x6240__x5c6c__x9805__x76ee_Id'] || r['OData__x6240__x5c6c__x9805__x76ee_Id'] || r['LookupId'];
+      if (pidRaw !== undefined && pidRaw !== null && pidRaw !== '') {
+        const n = parseInt(pidRaw, 10);
+        if (!isNaN(n)) return n;
+      }
+      const pField = r['_x6240__x5c6c__x9805__x76ee_'];
+      if (Array.isArray(pField) && pField.length > 0) {
+        const id = pField[0].lookupId !== undefined ? pField[0].lookupId : pField[0].Id;
+        if (id !== undefined) return parseInt(id, 10) || 0;
+      }
+      if (pField && typeof pField === 'object') {
+        const id = pField.lookupId !== undefined ? pField.lookupId : pField.Id;
+        if (id !== undefined) return parseInt(id, 10) || 0;
+      }
+      if (typeof pField === 'string' && pField.trim()) {
+        const m = pField.match(/^(\d+)\s*;/);
+        if (m) return parseInt(m[1], 10) || 0;
+      }
+      return 0;
+    }
+
+    async function fetchUnpaidCostsForPage(ids) {
+      const pending = (ids || []).map(Number).filter(id =>
+        id && !projectUnpaidFetched.has(id) && !projectUnpaidFailed.has(id) && !projectUnpaidPromises.has(id));
+      if (pending.length > 0) {
+        const batchPromise = (async () => {
+          let ok = false;
+          try {
+            if (!digestValue) {
+              try { await getDigest(); } catch (e) { }
+            }
+            const postHeaders = {
+              'Accept': 'application/json;odata=verbose',
+              'Content-Type': 'application/json;odata=verbose'
+            };
+            if (digestValue) postHeaders['X-RequestDigest'] = digestValue;
+
+            const valuesXml = pending.map(id => `<Value Type='Integer'>${id}</Value>`).join('');
+            const caml = `<View><Query><Where><And><In><FieldRef Name='_x6240__x5c6c__x9805__x76ee_' LookupId='TRUE' /><Values>${valuesXml}</Values></In><Neq><FieldRef Name='RecordStatus' /><Value Type='Choice'>作廢</Value></Neq></And></Where></Query><RowLimit>2000</RowLimit></View>`;
+            const res = await spFetch(`${SITE_URL}/_api/web/lists(guid'${GUID_EXPENSE}')/RenderListDataAsStream`, {
+              method: 'POST',
+              headers: postHeaders,
+              body: JSON.stringify({ parameters: { RenderOptions: 2, ViewXml: caml } })
+            });
+            if (!res || !res.ok) {
+              console.warn('Unpaid-cost fetch non-ok:', res && res.status);
+              return;
+            }
+            const data = await res.json();
+            const rows = (data && data.Row) ? data.Row : ((data && data.d && data.d.Row) ? data.d.Row : []);
+            rows.forEach(r => {
+              const chqVal = (r['_x652f__x7968__x7de8__x865f_'] || '').trim();
+              const payStatus = (r['_x4ed8__x6b3e__x72c0__x614b_'] || (chqVal ? '已付' : '未付')).trim();
+              if (payStatus !== '未付') return;
+              const rawAmt = r['_x91d1__x984d_.'] || strClean(r['_x91d1__x984d_']);
+              const amt = parseFloat(rawAmt) || 0;
+              if (!amt) return;
+              const pid = getProjectLookupId(r);
+              if (!pid) return;
+              projectUnpaidMap[pid] = (projectUnpaidMap[pid] || 0) + amt;
+            });
+            ok = true;
+          } catch (err) {
+            console.error('Error fetching unpaid costs for page:', err);
+          } finally {
+            pending.forEach(id => {
+              projectUnpaidPromises.delete(id);
+              if (ok) { projectUnpaidFetched.add(id); projectUnpaidFailed.delete(id); }
+              else { projectUnpaidFailed.add(id); }
+            });
+          }
+        })();
+        pending.forEach(id => projectUnpaidPromises.set(id, batchPromise));
+      }
+      const waitFor = (ids || []).map(Number).map(id => projectUnpaidPromises.get(id)).filter(Boolean);
+      await Promise.all(waitFor);
+    }
+
+    function fmtListDate(pStartDate) {
+      if (!pStartDate) return '—';
+      const d = new Date(pStartDate);
+      if (!isNaN(d.getTime())) {
+        return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`;
+      }
+      return String(pStartDate).slice(0, 10).replace(/-/g, '/');
+    }
+
+    function openProjectFromList(id) {
+      const p = dashboardProjectsList.find(x => (x.id !== undefined ? x.id : x.Id) == id);
+      if (!p) return;
+      selectDashProject(p);
+      switchDashboardView('project');
+    }
+
+    async function renderProjectList() {
+      const seq = ++projectListRenderSeq;
+      const tbody = document.getElementById('project-list-tbody');
+      const empty = document.getElementById('project-list-empty');
+      const pager = document.getElementById('project-list-pager');
+      if (!tbody) return;
+
+      // List only (does not mutate dashboardProjectsList, which feeds the 🏗️ dropdown).
+      const list = (dashboardProjectsList || [])
+        .filter(p => !/test/i.test(p.title || p.Title || ''))
+        .slice();
+      sortDashboardProjects(list);
+
+      if (list.length === 0) {
+        if (empty) empty.style.display = 'block';
+        tbody.innerHTML = '';
+        if (pager) pager.style.display = 'none';
+        return;
+      }
+      if (empty) empty.style.display = 'none';
+
+      const pageCount = Math.max(1, Math.ceil(list.length / PROJECT_LIST_PAGE_SIZE));
+      projectListPage = Math.min(Math.max(1, projectListPage), pageCount);
+      const start = (projectListPage - 1) * PROJECT_LIST_PAGE_SIZE;
+      const pageItems = list.slice(start, start + PROJECT_LIST_PAGE_SIZE);
+      const pageIds = pageItems
+        .map(p => Number(p.id !== undefined ? p.id : p.Id))
+        .filter(id => id > 0);
+
+      // Await the page's 未付 costs before painting, so all columns appear together.
+      const needFetch = pageIds.some(id => !projectUnpaidFetched.has(id) && !projectUnpaidFailed.has(id));
+      if (needFetch) {
+        tbody.innerHTML = '<tr><td colspan="6" class="project-list-loading">載入中…</td></tr>';
+        await fetchUnpaidCostsForPage(pageIds);
+        if (seq !== projectListRenderSeq) return; // superseded by a newer navigation/refresh
+      }
+
+      const allResolved = pageIds.every(id => projectUnpaidFetched.has(id));
+      const anyFailed = pageIds.some(id => projectUnpaidFailed.has(id));
+
+      const rowsHtml = pageItems.map(p => {
+        const id = Number(p.id !== undefined ? p.id : p.Id);
+        const base = p.contract !== undefined ? p.contract : (p.amt || 0);
+        const voTotal = p.voTotal !== undefined ? p.voTotal : (Array.isArray(p.vos) ? p.vos.reduce((s, v) => s + (parseFloat(v.amount) || 0), 0) : 0);
+        const contractTotal = base + voTotal;
+        const recv = p.recv !== undefined ? p.recv : 0;
+        const paid = p.cost !== undefined ? p.cost : 0;
+        const unpaid = projectUnpaidMap[id] || 0;
+        const total = paid + unpaid;
+
+        const title = p.title || p.Title || '未命名項目';
+        const vos = Array.isArray(p.vos) ? p.vos : [];
+        const isOpen = projectListVOOpen.has(id);
+
+        let voRows = '';
+        if (vos.length > 0) {
+          voRows = `<div class="project-list-vo-row orig"><span><span class="tag orig">原合約</span></span><span class="val">${fmtMoney(base)}</span></div>`;
+          vos.forEach((vo, i) => {
+            const vNo = vo.no || (i + 1);
+            const vAmt = parseFloat(vo.amount) || 0;
+            const isNeg = vAmt < 0;
+            const rawTitle = (vo.title || '').trim();
+            let displayTitle = rawTitle;
+            if (displayTitle.toLowerCase() === `vo ${vNo}`.toLowerCase() || displayTitle.toLowerCase() === `vo${vNo}`.toLowerCase() || displayTitle === `後加工程 ${vNo}`) {
+              displayTitle = '';
+            }
+            voRows += `<div class="project-list-vo-row vo"><span><span class="tag ${isNeg ? 'vo-deduct' : 'vo'}">VO ${vNo}</span>${displayTitle ? `<span class="vo-name">${escapeHtml(displayTitle)}</span>` : ''}</span><span class="val ${isNeg ? 'deduct' : 'add'}">${fmtVOMoney(vAmt, true)}</span></div>`;
+          });
+        }
+
+        const voToggleHtml = vos.length > 0
+          ? `<span class="project-list-vo-toggle" id="plvotgl-${id}" data-count="${vos.length}" onclick="toggleProjectListVO(${id})">${vos.length} 項 VO ${isOpen ? '▴' : '▸'}</span>`
+          : '';
+
+        let costCell;
+        if (allResolved) costCell = fmtMoney(total);
+        else if (anyFailed) costCell = '<span class="project-list-pending" title="未付成本載入失敗，請按右上角重新整理">—</span>';
+        else costCell = '<span class="project-list-pending">…</span>';
+
+        const mainRow = `<tr>
+          <td style="text-align:left;">
+            <span class="project-list-name" onclick="openProjectFromList(${id})">${escapeHtml(title)}</span>
+          </td>
+          <td class="project-list-date" style="text-align:left;">${fmtListDate(p.startDate || p.OData__x9810__x8a08__x65bd__x5de5__x65 || p._x9810__x8a08__x65bd__x5de5__x65)}</td>
+          <td class="num">${fmtMoney(contractTotal)}${voToggleHtml}</td>
+          <td class="num">${fmtMoney(recv)}</td>
+          <td class="num">${costCell}</td>
+          <td class="num">${fmtMoney(paid)}</td>
+        </tr>`;
+
+        const detailRow = vos.length > 0
+          ? `<tr class="project-list-vodetail${isOpen ? ' open' : ''}" id="plvo-${id}"><td colspan="6"><div class="project-list-vo-breakdown">${voRows}</div></td></tr>`
+          : '';
+
+        return mainRow + detailRow;
+      }).join('');
+
+      tbody.innerHTML = rowsHtml;
+
+      if (pager) {
+        if (pageCount <= 1) {
+          pager.style.display = 'none';
+        } else {
+          pager.style.display = 'flex';
+          const info = document.getElementById('pl-pager-info');
+          if (info) info.textContent = `第 ${projectListPage} / ${pageCount} 頁（共 ${list.length} 個項目）`;
+          const prev = document.getElementById('pl-pager-prev');
+          const next = document.getElementById('pl-pager-next');
+          if (prev) prev.disabled = projectListPage <= 1;
+          if (next) next.disabled = projectListPage >= pageCount;
+        }
+      }
+    }
+
+    function goProjectListPage(delta) {
+      const next = projectListPage + delta;
+      if (next < 1) return;
+      projectListPage = next;
+      renderProjectList();
+    }
+
+    function toggleProjectListVO(id) {
+      const key = Number(id);
+      const el = document.getElementById('plvo-' + id);
+      if (!el) return;
+      const open = el.classList.toggle('open');
+      if (open) projectListVOOpen.add(key); else projectListVOOpen.delete(key);
+      const tgl = document.getElementById('plvotgl-' + id);
+      if (tgl) {
+        const n = tgl.getAttribute('data-count') || '0';
+        tgl.textContent = `${n} 項 VO ${open ? '▴' : '▸'}`;
+      }
     }
 
     function selectDashProject(p) {
@@ -11086,6 +11583,11 @@
       if (isManual) {
         // 使用者手動按刷新時清空期間快取並顯示骨架屏
         periodCache = {};
+        projectUnpaidMap = {};
+        projectUnpaidFetched = new Set();
+        projectUnpaidFailed = new Set();
+        projectUnpaidPromises = new Map();
+        projectListPage = 1;
         showPeriodSkeleton(currentPeriod);
         if (selectedDashProject) {
           const curPid = selectedDashProject.id !== undefined ? selectedDashProject.id : selectedDashProject.Id;
@@ -11109,36 +11611,24 @@
     }
 
     let currentDashboardView = 'period';
+    const DASH_VIEWS = [
+      { key: 'period',  btn: 'btn-dash-view-period',  card: 'card-period-balance' },
+      { key: 'project', btn: 'btn-dash-view-project', card: 'card-project-balance' },
+      { key: 'list',    btn: 'btn-dash-view-list',    card: 'card-project-list' }
+    ];
     function switchDashboardView(view) {
       currentDashboardView = view;
-      const btnPeriod = document.getElementById('btn-dash-view-period');
-      const btnProject = document.getElementById('btn-dash-view-project');
-      const cardPeriod = document.getElementById('card-period-balance');
-      const cardProject = document.getElementById('card-project-balance');
-
-      if (view === 'period') {
-        if (btnPeriod) btnPeriod.classList.add('active');
-        if (btnProject) btnProject.classList.remove('active');
-        if (cardPeriod) {
-          cardPeriod.style.display = 'flex';
-          cardPeriod.classList.add('active-panel');
+      DASH_VIEWS.forEach(v => {
+        const btn = document.getElementById(v.btn);
+        const card = document.getElementById(v.card);
+        const active = (v.key === view);
+        if (btn) btn.classList.toggle('active', active);
+        if (card) {
+          card.style.display = active ? 'flex' : 'none';
+          card.classList.toggle('active-panel', active);
         }
-        if (cardProject) {
-          cardProject.style.display = 'none';
-          cardProject.classList.remove('active-panel');
-        }
-      } else {
-        if (btnPeriod) btnPeriod.classList.remove('active');
-        if (btnProject) btnProject.classList.add('active');
-        if (cardPeriod) {
-          cardPeriod.style.display = 'none';
-          cardPeriod.classList.remove('active-panel');
-        }
-        if (cardProject) {
-          cardProject.style.display = 'flex';
-          cardProject.classList.add('active-panel');
-        }
-      }
+      });
+      if (view === 'list') renderProjectList();
     }
 
     function initDashboardTab() {
