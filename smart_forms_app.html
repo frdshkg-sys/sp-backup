@@ -10,19 +10,19 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #0284c7;
-      --primary-hover: #0369a1;
-      --primary-light: #e0f2fe;
-      --success: #16a34a;
+      --primary: #1d4ed8;
+      --primary-hover: #1e40af;
+      --primary-light: #eff6ff;
+      --success: #15803d;
       --success-light: #dcfce7;
       --bg: #f8fafc;
       --card-bg: #ffffff;
       --text-main: #0f172a;
       --text-muted: #64748b;
       --border: #e2e8f0;
-      --border-focus: #38bdf8;
-      --radius: 10px;
-      --shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+      --border-focus: #3b82f6;
+      --radius: 8px;
+      --shadow: 0 1px 3px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.03);
     }
 
     * {
@@ -35,99 +35,116 @@
     body {
       background-color: var(--bg);
       color: var(--text-main);
-      padding: 20px;
+      padding: 16px 24px 32px;
       min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
     }
 
     .container {
-      max-width: 1440px;
+      max-width: 1360px;
       width: 100%;
       margin: 0 auto;
     }
 
     .header-banner {
-      background: linear-gradient(135deg, #0369a1 0%, #0284c7 50%, #38bdf8 100%);
-      color: white;
-      padding: 24px 30px;
+      background: var(--card-bg);
+      color: var(--text-main);
+      padding: 14px 20px;
       border-radius: var(--radius);
+      border: 1px solid var(--border);
       box-shadow: var(--shadow);
-      margin-bottom: 24px;
+      margin-bottom: 12px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
 
     .header-banner h1 {
-      font-size: 22px;
+      font-size: 17px;
       font-weight: 700;
-      letter-spacing: 0.5px;
+      color: var(--text-main);
+      letter-spacing: 0.2px;
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
+    .header-banner h1::before {
+      content: "CHUN KING";
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      color: var(--primary);
+      background: var(--primary-light);
+      border: 1px solid #bfdbfe;
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+
     .header-banner p {
-      font-size: 13px;
-      opacity: 0.9;
-      margin-top: 4px;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
     }
 
     .home-link-btn {
-      background-color: rgba(255, 255, 255, 0.2);
-      color: white;
+      background-color: #ffffff;
+      color: #475569;
       text-decoration: none;
-      padding: 8px 16px;
+      padding: 6px 12px;
       border-radius: 6px;
-      font-size: 13px;
-      font-weight: 600;
-      border: 1px solid rgba(255, 255, 255, 0.4);
-      transition: all 0.2s;
+      font-size: 12.5px;
+      font-weight: 500;
+      border: 1px solid var(--border);
+      transition: background-color 0.15s, color 0.15s, border-color 0.15s;
     }
 
     .home-link-btn:hover {
-      background-color: white;
-      color: #0369a1;
+      background-color: #f8fafc;
+      color: var(--text-main);
+      border-color: #cbd5e1;
     }
 
     /* Tabs */
     .tabs-nav {
       display: flex;
       flex-wrap: wrap;
-      background: white;
+      background: var(--card-bg);
       border-radius: var(--radius);
-      padding: 6px;
+      padding: 4px;
       box-shadow: var(--shadow);
-      margin-bottom: 20px;
-      gap: 6px;
+      margin-bottom: 16px;
+      gap: 4px;
       border: 1px solid var(--border);
     }
 
     .tab-btn {
       flex: 1 1 auto;
-      min-width: 140px;
+      min-width: 120px;
       border: none;
       background: transparent;
-      padding: 12px 14px;
-      font-size: 14px;
-      font-weight: 600;
+      padding: 9px 14px;
+      font-size: 13.5px;
+      font-weight: 500;
       color: var(--text-muted);
-      border-radius: 8px;
+      border-radius: 6px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      transition: all 0.2s ease;
+      gap: 6px;
+      transition: background-color 0.15s ease, color 0.15s ease;
     }
 
     .tab-btn:hover {
-      background-color: #f1f5f9;
+      background-color: #f8fafc;
       color: var(--text-main);
     }
 
     .tab-btn.active {
-      background-color: var(--primary-light);
-      color: var(--primary);
+      background-color: var(--primary);
+      color: #ffffff;
+      font-weight: 600;
     }
 
     /* Card Panels */
@@ -135,33 +152,22 @@
       display: none;
       background: var(--card-bg);
       border-radius: var(--radius);
-      padding: 28px;
+      padding: 24px 28px;
       box-shadow: var(--shadow);
       border: 1px solid var(--border);
     }
 
     .form-panel.active {
       display: block;
-      animation: fadeIn 0.25s ease-in-out;
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(4px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
     }
 
     .panel-title {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 700;
-      color: #1e293b;
-      margin-bottom: 20px;
+      color: #0f172a;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       gap: 8px;
@@ -171,7 +177,7 @@
     .form-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 18px;
+      gap: 16px 20px;
     }
 
     .col-full {
@@ -194,17 +200,17 @@
     }
 
     .req {
-      color: #ef4444;
+      color: #dc2626;
       margin-left: 2px;
     }
 
     .badge-auto {
-      font-size: 11px;
-      background: #e0f2fe;
-      color: #0284c7;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-weight: 500;
+      font-size: 11.5px;
+      background: transparent;
+      color: var(--text-muted);
+      padding: 0;
+      border-radius: 0;
+      font-weight: 400;
     }
 
     input[type="text"],
@@ -212,14 +218,14 @@
     input[type="date"],
     select,
     textarea {
-      padding: 10px 12px;
-      border: 1px solid var(--border);
+      padding: 8px 11px;
+      border: 1px solid #cbd5e1;
       border-radius: 6px;
-      font-size: 14px;
+      font-size: 13.5px;
       font-family: inherit;
-      color: #1e293b;
+      color: #0f172a;
       outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      transition: border-color 0.15s, box-shadow 0.15s;
       background-color: #ffffff;
     }
 
@@ -227,7 +233,7 @@
     select:focus,
     textarea:focus {
       border-color: var(--border-focus);
-      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
     }
 
     .cheque-group {
@@ -444,9 +450,9 @@
     }
 
     .file-name-target {
-      font-weight: 700;
-      color: #0284c7;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+      font-weight: 600;
+      color: var(--primary);
+      font-variant-numeric: tabular-nums;
     }
 
     .file-name-orig {
@@ -457,7 +463,7 @@
     .remove-file {
       background: none;
       border: none;
-      color: #ef4444;
+      color: #dc2626;
       cursor: pointer;
       font-size: 12px;
       font-weight: 600;
@@ -472,33 +478,32 @@
 
     /* Submit Button */
     .btn-submit {
-      margin-top: 24px;
-      width: 100%;
+      margin-top: 20px;
+      margin-left: auto;
+      width: auto;
+      min-width: 200px;
       background-color: var(--primary);
       color: white;
       border: 1px solid transparent;
-      padding: 13px;
-      font-size: 15px;
+      padding: 10px 24px;
+      font-size: 14px;
       font-weight: 600;
-      border-radius: 8px;
+      border-radius: 6px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      transition: background-color 0.2s, transform 0.1s;
+      transition: background-color 0.15s;
     }
 
     #edit-submit-btn {
       margin-top: 0;
+      margin-left: 0;
     }
 
     .btn-submit:hover {
       background-color: var(--primary-hover);
-    }
-
-    .btn-submit:active {
-      transform: scale(0.99);
     }
 
     .btn-submit:disabled {
@@ -507,7 +512,7 @@
     }
 
     .btn-submit.btn-saved {
-      background-color: #e2e8f0;
+      background-color: #f1f5f9;
       color: #64748b;
       border: 1px solid #cbd5e1;
       cursor: not-allowed;
@@ -519,7 +524,7 @@
       margin-top: 16px;
       padding: 12px 16px;
       border-radius: 6px;
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 500;
     }
 
@@ -543,25 +548,26 @@
 
     /* Project Remarks Editor Card */
     .project-card {
-      background: #f1f5f9;
+      background: #f8fafc;
+      border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 16px;
+      padding: 16px 18px;
       margin-bottom: 18px;
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
+      gap: 12px 16px;
       font-size: 13px;
     }
 
     .project-card-item {
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 4px;
     }
 
     .project-card-label {
       color: var(--text-muted);
-      font-size: 11px;
+      font-size: 12px;
     }
 
     .project-card-val {
@@ -574,16 +580,15 @@
       background: #ffffff;
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 20px 22px;
-      margin-bottom: 22px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      padding: 18px 20px;
+      margin-bottom: 20px;
     }
 
     .vo-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       padding-bottom: 12px;
       border-bottom: 1px solid var(--border);
       flex-wrap: wrap;
@@ -591,9 +596,9 @@
     }
 
     .vo-header-title {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 700;
-      color: #1e293b;
+      color: #0f172a;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -602,33 +607,31 @@
     .vo-badge-count {
       display: inline-flex;
       align-items: center;
-      background: var(--primary-light);
-      color: var(--primary);
+      background: #f1f5f9;
+      color: #475569;
       font-size: 11.5px;
       font-weight: 600;
-      padding: 2px 9px;
-      border-radius: 999px;
+      padding: 2px 8px;
+      border-radius: 4px;
     }
 
     .btn-vo-add {
       background: var(--primary);
       color: white;
       border: none;
-      padding: 8px 16px;
+      padding: 7px 14px;
       border-radius: 6px;
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 500;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      transition: all 0.2s ease;
+      transition: background-color 0.15s ease;
     }
 
     .btn-vo-add:hover {
       background: var(--primary-hover);
-      box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
-      transform: translateY(-1px);
     }
 
     /* VO Financial Summary Bar */
@@ -638,9 +641,9 @@
       gap: 14px;
       background: #f8fafc;
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 14px 18px;
-      margin-bottom: 18px;
+      border-radius: 6px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
     }
 
     .vo-summary-item {
@@ -663,7 +666,8 @@
     .vo-summary-val {
       font-size: 15px;
       font-weight: 700;
-      color: #1e293b;
+      color: #0f172a;
+      font-variant-numeric: tabular-nums;
     }
 
     .vo-text-highlight {
@@ -682,21 +686,19 @@
     .vo-form-card {
       background: #f8fafc;
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 18px 20px;
-      margin-bottom: 18px;
-      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
-      animation: fadeIn 0.2s ease;
+      border-radius: 6px;
+      padding: 16px 18px;
+      margin-bottom: 16px;
     }
 
     .vo-form-title {
-      font-size: 14.5px;
+      font-size: 14px;
       font-weight: 700;
-      color: #1e293b;
+      color: #0f172a;
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       padding-bottom: 10px;
       border-bottom: 1px solid var(--border);
     }
@@ -704,25 +706,25 @@
     /* VO Type Toggle (matches Tab 5 tx-type-toggle) */
     .vo-type-toggle {
       display: flex;
-      gap: 12px;
-      margin-bottom: 16px;
+      gap: 10px;
+      margin-bottom: 14px;
     }
 
     .vo-toggle-btn {
       flex: 1;
-      padding: 11px 16px;
-      font-size: 14px;
+      padding: 9px 14px;
+      font-size: 13.5px;
       font-weight: 600;
-      border: 2px solid var(--border);
-      border-radius: 8px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
       background: white;
       color: var(--text-muted);
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.15s ease;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 6px;
     }
 
     .vo-toggle-btn:hover {
@@ -734,21 +736,19 @@
       border-color: #059669;
       background: #ecfdf5;
       color: #065f46;
-      box-shadow: 0 2px 6px rgba(5, 150, 105, 0.15);
     }
 
     .vo-toggle-btn.active.deduct {
       border-color: #d97706;
       background: #fffbeb;
       color: #92400e;
-      box-shadow: 0 2px 6px rgba(217, 119, 6, 0.15);
     }
 
     .vo-calc-hint {
       font-size: 12px;
       font-weight: 500;
-      padding: 5px 10px;
-      border-radius: 6px;
+      padding: 4px 8px;
+      border-radius: 4px;
       margin-top: 6px;
       display: inline-flex;
       align-items: center;
@@ -759,13 +759,11 @@
     .vo-calc-hint.add {
       background: #ecfdf5;
       color: #065f46;
-      border: 1px solid #a7f3d0;
     }
 
     .vo-calc-hint.deduct {
       background: #fffbeb;
       color: #92400e;
-      border: 1px solid #fde68a;
     }
 
     /* Form Grid & Inputs matching app standard */
@@ -782,14 +780,14 @@
     .vo-form-grid input,
     .vo-form-grid textarea {
       width: 100%;
-      padding: 10px 12px;
-      border: 1px solid var(--border);
+      padding: 8px 11px;
+      border: 1px solid #cbd5e1;
       border-radius: 6px;
-      font-size: 14px;
-      color: #1e293b;
+      font-size: 13.5px;
+      color: #0f172a;
       background-color: #ffffff;
       outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      transition: border-color 0.15s, box-shadow 0.15s;
       box-sizing: border-box;
       font-family: inherit;
     }
@@ -798,9 +796,9 @@
       display: flex;
       justify-content: flex-end;
       align-items: center;
-      gap: 10px;
-      margin-top: 18px;
-      padding-top: 14px;
+      gap: 8px;
+      margin-top: 16px;
+      padding-top: 12px;
       border-top: 1px solid var(--border);
     }
 
@@ -808,40 +806,38 @@
       background: var(--primary);
       color: white;
       border: none;
-      padding: 9px 22px;
-      font-size: 13.5px;
+      padding: 8px 18px;
+      font-size: 13px;
       font-weight: 600;
       border-radius: 6px;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      transition: all 0.2s ease;
+      transition: background-color 0.15s ease;
     }
 
     .btn-vo-submit:hover {
       background: var(--primary-hover);
-      box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
-      transform: translateY(-1px);
     }
 
     .btn-vo-cancel {
       background: white;
       color: var(--text-muted);
       border: 1px solid var(--border);
-      padding: 9px 18px;
-      font-size: 13.5px;
-      font-weight: 600;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 500;
       border-radius: 6px;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      transition: all 0.2s ease;
+      transition: all 0.15s ease;
     }
 
     .btn-vo-cancel:hover {
-      background: #f1f5f9;
+      background: #f8fafc;
       border-color: #cbd5e1;
       color: var(--text-main);
     }
@@ -850,15 +846,15 @@
     .vo-items-container {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
     }
 
     .vo-empty {
       text-align: center;
-      padding: 24px 16px;
+      padding: 20px 16px;
       background: #f8fafc;
       border: 1px dashed var(--border);
-      border-radius: 8px;
+      border-radius: 6px;
       color: var(--text-muted);
       font-size: 13px;
     }
@@ -866,18 +862,11 @@
     .vo-card {
       background: #ffffff;
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 14px 16px;
-      transition: all 0.2s ease;
+      border-radius: 6px;
+      padding: 12px 16px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
-    }
-
-    .vo-card:hover {
-      border-color: #cbd5e1;
-      box-shadow: 0 3px 8px rgba(15, 23, 42, 0.05);
+      gap: 8px;
     }
 
     .vo-card-header {
@@ -896,69 +885,58 @@
     }
 
     .vo-num-badge {
-      background: var(--primary-light);
-      color: var(--primary);
-      border: 1px solid #bae6fd;
+      background: #f1f5f9;
+      color: #334155;
       font-weight: 700;
-      font-size: 11.5px;
-      padding: 2px 8px;
+      font-size: 11px;
+      padding: 2px 7px;
       border-radius: 4px;
-      letter-spacing: 0.5px;
     }
 
     .vo-type-badge {
       font-size: 11px;
       font-weight: 600;
-      padding: 2px 7px;
+      padding: 2px 6px;
       border-radius: 4px;
     }
 
     .vo-type-badge.add {
       background: #ecfdf5;
       color: #065f46;
-      border: 1px solid #a7f3d0;
     }
 
     .vo-type-badge.deduct {
       background: #fffbeb;
       color: #92400e;
-      border: 1px solid #fde68a;
     }
 
     .vo-item-title {
       font-weight: 600;
-      font-size: 14px;
-      color: #1e293b;
+      font-size: 13.5px;
+      color: #0f172a;
     }
 
     .vo-date-badge {
-      font-size: 11px;
+      font-size: 11.5px;
       color: #64748b;
-      background: #f1f5f9;
-      padding: 2px 6px;
-      border-radius: 4px;
+      font-variant-numeric: tabular-nums;
     }
 
     .vo-card-amount {
       font-size: 14px;
       font-weight: 700;
       color: #059669;
-      background: #ecfdf5;
-      border: 1px solid #a7f3d0;
-      padding: 4px 10px;
-      border-radius: 6px;
+      font-variant-numeric: tabular-nums;
       white-space: nowrap;
     }
 
     .vo-card-amount.deduct {
       color: #dc2626;
-      background: #fef2f2;
-      border-color: #fca5a5;
     }
 
     .vo-card-body {
       background: #f8fafc;
-      border-radius: 6px;
+      border-radius: 4px;
       padding: 8px 12px;
       font-size: 12.5px;
       color: #334155;
@@ -974,26 +952,26 @@
     .vo-card-actions {
       display: flex;
       justify-content: flex-end;
-      gap: 8px;
+      gap: 6px;
     }
 
     .btn-vo-action {
       background: transparent;
       border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 5px 12px;
-      font-size: 12.5px;
+      border-radius: 4px;
+      padding: 4px 10px;
+      font-size: 12px;
       font-weight: 500;
       color: #475569;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
       transition: all 0.15s ease;
     }
 
     .btn-vo-action:hover {
-      background: #f1f5f9;
+      background: #f8fafc;
       border-color: #cbd5e1;
       color: var(--text-main);
     }
@@ -1012,7 +990,6 @@
       background: #fef2f2;
       border: 1px solid #fca5a5;
       border-radius: 6px;
-      animation: fadeIn 0.15s ease;
     }
 
     .btn-vo-confirm-delete {
@@ -1024,7 +1001,6 @@
       font-weight: 600;
       border-radius: 4px;
       cursor: pointer;
-      transition: background 0.15s;
     }
 
     .btn-vo-confirm-delete:hover {
@@ -1040,7 +1016,6 @@
       font-weight: 500;
       border-radius: 4px;
       cursor: pointer;
-      transition: background 0.15s;
     }
 
     .btn-vo-cancel-delete:hover {
@@ -1049,54 +1024,56 @@
     }
 
     .vo-card.editing {
-      border: 2px solid var(--primary);
+      border: 1px solid var(--primary);
       background: #f8fafc;
-      border-radius: 8px;
-      padding: 18px 20px;
-      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.08);
+      border-radius: 6px;
+      padding: 16px 18px;
     }
 
     /* Tab 5: Edit Transactions Styles */
     .tx-type-toggle {
       display: flex;
-      gap: 12px;
-      margin-bottom: 20px;
+      width: fit-content;
+      margin: 0 auto 18px;
+      background: #f1f5f9;
+      padding: 3px;
+      border-radius: 6px;
+      gap: 4px;
+      border: 1px solid var(--border);
     }
 
     .toggle-btn {
-      flex: 1;
-      padding: 12px 18px;
-      font-size: 15px;
-      font-weight: 600;
-      border: 2px solid var(--border);
-      border-radius: 8px;
-      background: white;
+      padding: 7px 18px;
+      font-size: 13.5px;
+      font-weight: 500;
+      border: none;
+      border-radius: 5px;
+      background: transparent;
       color: var(--text-muted);
       cursor: pointer;
-      transition: all 0.2s ease;
-      display: flex;
+      transition: all 0.15s ease;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 6px;
     }
 
     .toggle-btn:hover {
-      border-color: #cbd5e1;
-      background: #f8fafc;
+      color: var(--text-main);
     }
 
     .toggle-btn.active {
-      border-color: var(--primary);
-      background: var(--primary-light);
+      background: white;
       color: var(--primary);
-      box-shadow: 0 2px 6px rgba(2, 132, 199, 0.15);
+      font-weight: 600;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
     }
 
     .edit-selector-card {
       background: #f8fafc;
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 18px;
+      border-radius: 6px;
+      padding: 16px;
       margin-bottom: 18px;
     }
 
@@ -1108,19 +1085,19 @@
     }
 
     .btn-sm {
-      padding: 6px 12px;
+      padding: 5px 11px;
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 500;
       background: white;
-      border: 1px solid var(--border);
+      border: 1px solid #cbd5e1;
       border-radius: 4px;
       cursor: pointer;
       color: #334155;
-      transition: all 0.2s;
+      transition: all 0.15s;
     }
 
     .btn-sm:hover {
-      background: #f1f5f9;
+      background: #f8fafc;
       border-color: #94a3b8;
     }
 
@@ -1128,11 +1105,11 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: #f1f5f9;
-      padding: 12px 16px;
+      background: #f8fafc;
+      padding: 10px 14px;
       border-radius: 6px;
-      margin-bottom: 18px;
-      border-left: 4px solid var(--primary);
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
     }
 
     .tx-badge-group {
@@ -1143,7 +1120,7 @@
 
     .badge-tx-id {
       font-weight: 700;
-      font-size: 15px;
+      font-size: 14px;
       color: #0f172a;
     }
 
@@ -1151,15 +1128,15 @@
       font-size: 12px;
       padding: 2px 8px;
       border-radius: 4px;
-      font-weight: 600;
+      font-weight: 500;
       background: #e2e8f0;
       color: #334155;
     }
 
     .badge-chq {
       font-size: 11px;
-      background: #fef3c7;
-      color: #92400e;
+      background: #f1f5f9;
+      color: #475569;
       padding: 1px 6px;
       border-radius: 4px;
       font-weight: 600;
@@ -1185,9 +1162,9 @@
 
     .receipt-preview-box {
       background: #f8fafc;
-      padding: 10px 14px;
+      padding: 9px 12px;
       border-radius: 6px;
-      border: 1px dashed var(--border);
+      border: 1px solid var(--border);
       display: flex;
       align-items: center;
       gap: 8px;
@@ -1197,33 +1174,29 @@
     .receipt-preview-box a {
       color: var(--primary);
       text-decoration: underline;
-      font-weight: 600;
+      font-weight: 500;
     }
 
     .btn-cancel {
       margin: 0;
-      padding: 13px 16px;
-      background: #f1f5f9;
+      padding: 10px 18px;
+      background: #ffffff;
       color: #475569;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: 600;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
-      transition: background-color 0.2s, transform 0.1s;
+      transition: background-color 0.15s;
     }
 
     .btn-cancel:hover {
-      background: #e2e8f0;
-      color: #1e293b;
-    }
-
-    .btn-cancel:active {
-      transform: scale(0.99);
+      background: #f8fafc;
+      color: #0f172a;
     }
 
     /* Dashboard Native Tab Styles */
@@ -1232,19 +1205,20 @@
       align-items: center;
       gap: 6px;
       padding: 6px 12px;
-      font-size: 12px;
+      font-size: 12.5px;
       font-weight: 500;
-      color: var(--primary);
-      background: #eff6ff;
-      border: 1px solid #bfdbfe;
+      color: #334155;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
       border-radius: 6px;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: background-color 0.15s, border-color 0.15s;
     }
 
     .btn-refresh:hover {
-      background: #dbeafe;
-      transform: translateY(-1px);
+      background: #f8fafc;
+      border-color: #94a3b8;
+      color: var(--text-main);
     }
 
     .btn-refresh.spinning svg {
@@ -1265,59 +1239,51 @@
       display: flex;
       justify-content: center;
       width: 100%;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
 
     .dash-view-switcher {
       display: inline-flex;
       background: #f1f5f9;
-      padding: 4px;
-      border-radius: 10px;
-      gap: 4px;
-      border: 1px solid #e2e8f0;
-      width: 100%;
-      max-width: 780px;
-      box-sizing: border-box;
-      margin: 0 auto;
+      padding: 3px;
+      border-radius: 6px;
+      gap: 3px;
+      border: 1px solid var(--border);
     }
 
     .dash-switch-btn {
-      flex: 1;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      padding: 9px 16px;
-      border-radius: 8px;
+      gap: 6px;
+      padding: 7px 16px;
+      border-radius: 5px;
       border: none;
       background: transparent;
       color: #64748b;
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 500;
       cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: background-color 0.15s, color 0.15s;
       white-space: nowrap;
     }
 
     .dash-switch-btn:hover {
       color: var(--text-main);
-      background: rgba(255, 255, 255, 0.6);
     }
 
     .dash-switch-btn.active {
       background: white;
-      color: var(--primary);
-      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04);
-      font-weight: 700;
-    }
-
-    .dash-switch-btn .dash-switch-icon {
-      font-size: 15px;
+      color: var(--text-main);
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+      font-weight: 600;
     }
 
     .project-list-table-wrap {
       width: 100%;
       overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 6px;
     }
 
     .project-list-table {
@@ -1330,21 +1296,25 @@
 
     .project-list-table th,
     .project-list-table td {
-      padding: 10px 12px;
-      border-bottom: 1px solid var(--border);
+      padding: 10px 14px;
+      border-bottom: 1px solid #f1f5f9;
       text-align: right;
       vertical-align: top;
+    }
+
+    .project-list-table tbody tr:hover {
+      background: #f8fafc;
     }
 
     .project-list-table thead th {
       position: sticky;
       top: 0;
-      background: var(--card-bg);
-      color: #64748b;
+      background: #f8fafc;
+      color: #475569;
       font-size: 12px;
       font-weight: 600;
       white-space: nowrap;
-      border-bottom: 2px solid var(--border);
+      border-bottom: 1px solid var(--border);
     }
 
     .project-list-table td.num {
@@ -1354,7 +1324,7 @@
     }
 
     .project-list-name {
-      font-weight: 700;
+      font-weight: 600;
       color: var(--text-main);
       cursor: pointer;
     }
@@ -1367,6 +1337,7 @@
     .project-list-date {
       color: #64748b;
       white-space: nowrap;
+      font-variant-numeric: tabular-nums;
     }
 
     .project-list-vo-toggle {
@@ -1393,11 +1364,11 @@
     }
 
     .project-list-search {
-      width: 220px;
+      width: 240px;
       max-width: 100%;
-      padding: 8px 12px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
+      padding: 7px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
       background: var(--card-bg);
       color: var(--text-main);
       font-size: 13px;
@@ -1419,7 +1390,7 @@
     .project-list-vodetail > td {
       background: #f8fafc;
       border-bottom: 1px solid var(--border);
-      padding: 8px 12px 10px;
+      padding: 8px 14px 10px;
       text-align: left;
       white-space: normal;
     }
@@ -1427,7 +1398,7 @@
     .project-list-vo-breakdown {
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 3px;
       text-align: left;
       font-size: 12px;
       white-space: normal;
@@ -1441,13 +1412,12 @@
       flex-wrap: wrap;
       margin-top: 12px;
       padding-top: 12px;
-      border-top: 1px solid var(--border);
     }
 
     .pl-pager-info {
       font-size: 12px;
       color: #64748b;
-      font-weight: 600;
+      font-weight: 500;
     }
 
     .pl-pager-btns {
@@ -1456,21 +1426,20 @@
     }
 
     .pl-pager-btn {
-      border: 1px solid var(--border);
+      border: 1px solid #cbd5e1;
       background: var(--card-bg);
       color: var(--text-main);
       font-size: 12px;
-      font-weight: 600;
-      padding: 6px 14px;
-      border-radius: 8px;
+      font-weight: 500;
+      padding: 5px 12px;
+      border-radius: 6px;
       cursor: pointer;
-      transition: background 0.15s, border-color 0.15s, color 0.15s;
+      transition: background 0.15s, border-color 0.15s;
     }
 
     .pl-pager-btn:hover:not(:disabled) {
-      background: #f1f5f9;
-      border-color: #cbd5e1;
-      color: var(--primary);
+      background: #f8fafc;
+      border-color: #94a3b8;
     }
 
     .pl-pager-btn:disabled {
@@ -1490,10 +1459,10 @@
     }
 
     .project-list-vo-row .tag {
-      font-size: 10px;
-      font-weight: 700;
-      padding: 0 5px;
-      border-radius: 4px;
+      font-size: 10.5px;
+      font-weight: 600;
+      padding: 1px 5px;
+      border-radius: 3px;
       margin-right: 6px;
     }
 
@@ -1504,7 +1473,7 @@
 
     .project-list-vo-row .tag.vo {
       background: #dcfce7;
-      color: #16a34a;
+      color: #15803d;
     }
 
     .project-list-vo-row .tag.vo-deduct {
@@ -1524,7 +1493,7 @@
     }
 
     .project-list-vo-row .val.add {
-      color: #16a34a;
+      color: #15803d;
     }
 
     .project-list-vo-row .val.deduct {
@@ -1543,51 +1512,29 @@
       width: 100%;
     }
 
-    @keyframes dashFadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(4px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .dash-card.active-panel {
-      animation: dashFadeIn 0.2s ease-out;
-    }
-
     .dash-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 18px 20px;
-      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      padding: 0;
+      box-shadow: none;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       position: relative;
       overflow: visible;
-      transition: box-shadow 0.2s, border-color 0.2s;
       min-width: 0;
       width: 100%;
       box-sizing: border-box;
-    }
-
-    .dash-card:hover {
-      border-color: #cbd5e1;
-      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
     }
 
     .card-top {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 10px;
     }
 
     .card-title-wrap {
@@ -1596,32 +1543,29 @@
       gap: 8px;
     }
 
-    .card-badge-icon {
-      font-size: 18px;
-    }
-
     .card-title {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--text-main);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
     }
 
     .pills-container {
       display: flex;
       background: #f1f5f9;
       padding: 3px;
-      border-radius: 8px;
+      border-radius: 6px;
       gap: 2px;
+      border: 1px solid var(--border);
     }
 
     .pill-btn {
       border: none;
       background: transparent;
-      padding: 4px 9px;
-      font-size: 11px;
+      padding: 5px 12px;
+      font-size: 12px;
       font-weight: 500;
       color: var(--text-muted);
-      border-radius: 6px;
+      border-radius: 4px;
       cursor: pointer;
       transition: all 0.15s ease;
       white-space: nowrap;
@@ -1633,26 +1577,26 @@
 
     .pill-btn.active {
       background: white;
-      color: var(--primary);
-      font-weight: 700;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      color: var(--text-main);
+      font-weight: 600;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
     }
 
     .period-range-text {
-      font-size: 11px;
+      font-size: 12.5px;
       color: var(--text-muted);
-      margin-bottom: 12px;
       display: flex;
       align-items: center;
       gap: 4px;
+      font-variant-numeric: tabular-nums;
     }
 
     .hero-balance-wrap {
-      background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-      border: 1px solid #e2e8f0;
-      border-radius: 10px;
-      padding: 12px 14px;
-      margin-bottom: 12px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 14px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -1661,25 +1605,24 @@
     .balance-info {
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 4px;
     }
 
     .balance-label {
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 500;
       color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
     }
 
     .balance-value {
-      font-size: 22px;
+      font-size: 24px;
       font-weight: 700;
       color: var(--text-main);
+      font-variant-numeric: tabular-nums;
       display: flex;
       align-items: baseline;
       gap: 4px;
-      letter-spacing: -0.5px;
+      letter-spacing: -0.3px;
     }
 
     .balance-value.positive {
@@ -1693,22 +1636,22 @@
     .status-badge {
       display: inline-flex;
       align-items: center;
-      gap: 4px;
+      gap: 6px;
       padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 11px;
+      border-radius: 6px;
+      font-size: 12px;
       font-weight: 600;
     }
 
     .status-badge.positive {
       background: #ecfdf5;
-      color: #059669;
+      color: #065f46;
       border: 1px solid #a7f3d0;
     }
 
     .status-badge.negative {
       background: #fef2f2;
-      color: #dc2626;
+      color: #991b1b;
       border: 1px solid #fecaca;
     }
 
@@ -1740,70 +1683,88 @@
     .stat-tiles {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 12px;
+      gap: 14px;
+      margin-bottom: 14px;
     }
 
     .stat-tile {
-      background: white;
-      border: 1px solid #f1f5f9;
+      background: #ffffff;
+      border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 10px 12px;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+      padding: 14px 18px;
       display: flex;
       flex-direction: column;
-      gap: 2px;
-    }
-
-    .stat-tile.income {
-      border-left: 3px solid #10b981;
-    }
-
-    .stat-tile.expense {
-      border-left: 3px solid #ef4444;
-    }
-
-    .stat-tile.contract {
-      border-left: 3px solid #3b82f6;
-    }
-
-    .stat-tile.cost {
-      border-left: 3px solid #f59e0b;
+      gap: 6px;
     }
 
     .stat-tile-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 11px;
+      font-size: 12px;
       color: var(--text-muted);
       font-weight: 500;
     }
 
     .stat-tile-num {
-      font-size: 15px;
+      font-size: 18px;
       font-weight: 700;
       color: var(--text-main);
+      font-variant-numeric: tabular-nums;
       margin-top: 2px;
     }
 
     .stat-tile-extra {
-      font-size: 10px;
-      color: #94a3b8;
+      font-size: 11.5px;
+      color: #64748b;
       display: flex;
       align-items: center;
       gap: 4px;
     }
 
+    .cost-metrics-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .cost-metric-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 13px;
+      line-height: 1.4;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .cost-metric-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .cost-metric-label {
+      color: #64748b;
+      font-weight: 500;
+      font-size: 12.5px;
+    }
+
+    .cost-metric-val {
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      color: #0f172a;
+    }
+
     /* Contract VOs Breakdown List */
     .contract-breakdown-list {
-      margin-top: 8px;
-      margin-bottom: 8px;
-      padding: 6px 10px;
+      margin-top: 6px;
+      margin-bottom: 6px;
+      padding: 8px 10px;
       background: #f8fafc;
       border: 1px solid var(--border);
       border-radius: 6px;
-      font-size: 11.5px;
+      font-size: 12px;
       display: flex;
       flex-direction: column;
       gap: 5px;
@@ -1847,7 +1808,7 @@
       display: inline-flex;
       align-items: center;
       font-size: 10.5px;
-      font-weight: 700;
+      font-weight: 600;
       padding: 1px 5px;
       border-radius: 3px;
       flex-shrink: 0;
@@ -1861,13 +1822,11 @@
     .contract-breakdown-tag.vo {
       background: var(--primary-light);
       color: var(--primary);
-      border: 1px solid #bae6fd;
     }
 
     .contract-breakdown-tag.vo-deduct {
       background: #fffbeb;
       color: #92400e;
-      border: 1px solid #fde68a;
     }
 
     .contract-breakdown-val {
@@ -1894,16 +1853,16 @@
     .ratio-bar-header {
       display: flex;
       justify-content: space-between;
-      font-size: 11px;
+      font-size: 12px;
       color: var(--text-muted);
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
 
     .progress-track {
       width: 100%;
-      height: 8px;
+      height: 6px;
       background: #e2e8f0;
-      border-radius: 4px;
+      border-radius: 3px;
       overflow: hidden;
       display: flex;
     }
@@ -1911,19 +1870,19 @@
     .progress-fill-income {
       background: #10b981;
       height: 100%;
-      transition: width 0.5s ease;
+      transition: width 0.4s ease;
     }
 
     .progress-fill-expense {
       background: #ef4444;
       height: 100%;
-      transition: width 0.5s ease;
+      transition: width 0.4s ease;
     }
 
     .progress-fill-project {
-      background: linear-gradient(90deg, #3b82f6, #059669);
+      background: var(--primary);
       height: 100%;
-      transition: width 0.5s ease;
+      transition: width 0.4s ease;
     }
 
     .project-picker-wrap {
@@ -1947,7 +1906,7 @@
 
     .project-search-input:focus {
       border-color: var(--primary);
-      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15);
+      box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.12);
     }
 
     .project-search-icon {
@@ -1968,7 +1927,7 @@
       margin-top: 4px;
       background: white;
       border: 1px solid #cbd5e1;
-      border-radius: 8px;
+      border-radius: 6px;
       max-height: 240px;
       overflow-y: auto;
       box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
@@ -2019,7 +1978,7 @@
     .project-code-tag {
       background: #eff6ff;
       color: var(--primary);
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 600;
       padding: 1px 6px;
       border-radius: 4px;
@@ -2027,7 +1986,7 @@
     }
 
     .project-updated-tag {
-      font-size: 10px;
+      font-size: 11px;
       color: #94a3b8;
     }
 
@@ -2037,11 +1996,11 @@
       align-items: center;
       margin-top: 10px;
       padding-top: 8px;
-      border-top: 1px dashed #e2e8f0;
+      border-top: 1px solid #e2e8f0;
     }
 
     .card-footer-link {
-      font-size: 11px;
+      font-size: 11.5px;
       color: var(--primary);
       text-decoration: none;
       font-weight: 500;
@@ -2058,9 +2017,9 @@
 
     /* Project Transactions Section */
     .proj-tx-section {
-      margin-top: 14px;
-      padding-top: 12px;
-      border-top: 1px dashed #e2e8f0;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #e2e8f0;
     }
 
     .proj-tx-toolbar {
@@ -2086,17 +2045,17 @@
     }
 
     .proj-tx-title {
-      font-size: 13px;
+      font-size: 13.5px;
       font-weight: 700;
       color: var(--text-main);
     }
 
     .proj-tx-count-badge {
-      font-size: 11px;
+      font-size: 11.5px;
       padding: 1px 7px;
       background: #f1f5f9;
       color: #64748b;
-      border-radius: 12px;
+      border-radius: 4px;
       font-weight: 600;
     }
 
@@ -2119,8 +2078,8 @@
     .proj-tx-pill {
       border: none;
       background: transparent;
-      padding: 3px 8px;
-      font-size: 11px;
+      padding: 4px 10px;
+      font-size: 11.5px;
       font-weight: 500;
       color: #64748b;
       border-radius: 5px;
@@ -2136,7 +2095,7 @@
       background: white;
       color: var(--primary);
       font-weight: 600;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
     }
 
     .proj-tx-pill.active.exp {
@@ -2158,8 +2117,8 @@
     .proj-tx-sub-pill {
       border: none;
       background: transparent;
-      padding: 3px 8px;
-      font-size: 11px;
+      padding: 4px 10px;
+      font-size: 11.5px;
       font-weight: 500;
       color: #64748b;
       border-radius: 5px;
@@ -2180,7 +2139,7 @@
       background: white;
       color: #dc2626;
       font-weight: 600;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
     }
 
     .proj-tx-sub-pill.active#btn-tx-sub-none {
@@ -2193,11 +2152,11 @@
       justify-content: space-between;
       gap: 8px;
       padding: 6px 10px;
-      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      background: #f8fafc;
       border: 1px solid #e2e8f0;
       border-radius: 6px;
       margin-bottom: 8px;
-      font-size: 11.5px;
+      font-size: 12px;
     }
 
     .subtotal-summary-left {
@@ -2214,7 +2173,7 @@
       color: #dc2626;
       border-radius: 4px;
       font-weight: 600;
-      font-size: 10.5px;
+      font-size: 11px;
     }
 
     .subtotal-summary-text {
@@ -2232,7 +2191,7 @@
       border: 1px solid #cbd5e1;
       background: white;
       color: #475569;
-      font-size: 10.5px;
+      font-size: 11px;
       padding: 2px 8px;
       border-radius: 4px;
       cursor: pointer;
@@ -2261,7 +2220,7 @@
     }
 
     .proj-tx-group-header td {
-      padding: 6px 10px !important;
+      padding: 7px 10px !important;
     }
 
     .proj-tx-group-bar {
@@ -2294,18 +2253,18 @@
     }
 
     .proj-tx-group-name {
-      font-weight: 700;
-      font-size: 12px;
+      font-weight: 600;
+      font-size: 12.5px;
       color: #1e293b;
       white-space: nowrap;
     }
 
     .proj-tx-group-count {
-      font-size: 10.5px;
+      font-size: 11px;
       color: #64748b;
       background: #e2e8f0;
       padding: 1px 6px;
-      border-radius: 10px;
+      border-radius: 4px;
       font-weight: 600;
       flex-shrink: 0;
     }
@@ -2318,9 +2277,9 @@
     }
 
     .proj-tx-group-amt {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+      font-variant-numeric: tabular-nums;
       font-weight: 700;
-      font-size: 11.5px;
+      font-size: 12.5px;
       color: #dc2626;
       white-space: nowrap;
     }
@@ -2343,12 +2302,12 @@
     }
 
     .proj-tx-search-box input {
-      padding: 3px 8px;
-      font-size: 11px;
+      padding: 4px 10px;
+      font-size: 12px;
       border: 1px solid #cbd5e1;
       border-radius: 6px;
       outline: none;
-      width: 150px;
+      width: 165px;
       transition: border-color 0.15s, box-shadow 0.15s;
       background: white;
       box-sizing: border-box;
@@ -2356,13 +2315,12 @@
 
     .proj-tx-search-box input:focus {
       border-color: var(--primary);
-      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15);
+      box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.12);
     }
 
     .proj-tx-table-container {
-      height: 280px;
-      min-height: 280px;
-      max-height: 280px;
+      min-height: 260px;
+      max-height: 520px;
       overflow-y: auto;
       scrollbar-gutter: stable;
       border: 1px solid #e2e8f0;
@@ -2376,7 +2334,7 @@
       width: 100%;
       table-layout: fixed;
       border-collapse: collapse;
-      font-size: 11px;
+      font-size: 12.5px;
       text-align: left;
     }
 
@@ -2384,9 +2342,10 @@
       position: sticky;
       top: 0;
       background: #f8fafc;
-      color: #64748b;
+      color: #475569;
       font-weight: 600;
-      padding: 6px 8px;
+      font-size: 12px;
+      padding: 8px 10px;
       border-bottom: 1px solid #e2e8f0;
       z-index: 2;
       overflow: hidden;
@@ -2396,7 +2355,7 @@
     }
 
     .proj-tx-table tbody td {
-      padding: 6px 8px;
+      padding: 8px 10px;
       border-bottom: 1px solid #f1f5f9;
       color: var(--text-main);
       vertical-align: middle;
@@ -2430,9 +2389,9 @@
       display: inline-flex;
       align-items: center;
       gap: 3px;
-      padding: 2px 5px;
+      padding: 1px 6px;
       border-radius: 4px;
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 600;
       white-space: nowrap;
     }
@@ -2451,7 +2410,7 @@
 
     .proj-tx-status {
       display: inline-block;
-      font-size: 10px;
+      font-size: 10.5px;
       font-weight: 600;
       padding: 1px 5px;
       border-radius: 4px;
@@ -2513,8 +2472,6 @@
       background: #fde68a;
       color: #78350f;
       border-color: #d97706;
-      box-shadow: 0 1px 3px rgba(217, 119, 6, 0.2);
-      transform: translateY(-1px);
     }
 
     .btn-quick-edit {
@@ -2527,7 +2484,7 @@
       border: 1px solid #cbd5e1;
       border-radius: 4px;
       font-size: 11px;
-      font-weight: 600;
+      font-weight: 500;
       cursor: pointer;
       text-decoration: none;
       transition: all 0.15s ease;
@@ -2539,22 +2496,18 @@
       background: #f1f5f9;
       color: #1e293b;
       border-color: #94a3b8;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-      transform: translateY(-1px);
     }
 
     .edit-tx-batch-card {
-      background: #f0f9ff;
-      border: 1px solid #bae6fd;
-      border-radius: 8px;
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
       padding: 14px 16px;
       margin-bottom: 16px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
     }
 
     .proj-tx-amt {
       font-weight: 600;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
       font-variant-numeric: tabular-nums;
       white-space: nowrap;
       text-align: right;
@@ -2570,7 +2523,7 @@
 
     .proj-tx-payee {
       display: inline-block;
-      font-size: 11px;
+      font-size: 12.5px;
       font-weight: 500;
       color: #1e293b;
       white-space: normal;
@@ -2587,7 +2540,7 @@
 
     .proj-tx-remarks {
       display: inline-block;
-      font-size: 11.5px;
+      font-size: 12px;
       color: #64748b;
       max-width: 180px;
       overflow: hidden;
@@ -2598,45 +2551,33 @@
 
     .proj-tx-subitem {
       display: inline-block;
-      font-size: 11px;
-      font-weight: 600;
-      color: #4338ca;
-      background: #eef2ff;
-      border: 1px solid #e0e7ff;
-      padding: 2px 6px;
-      border-radius: 4px;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: #334155;
       max-width: 100%;
       white-space: normal;
       word-break: break-word;
       overflow-wrap: anywhere;
       line-height: 1.35;
       vertical-align: middle;
-      box-sizing: border-box;
-      text-align: center;
     }
 
     .proj-tx-subitem.inc {
       color: #047857;
-      background: #ecfdf5;
-      border-color: #d1fae5;
     }
 
     .proj-tx-invoice {
       display: inline-block;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 500;
-      color: #0f766e;
-      background: #f0fdfa;
-      border: 1px solid #ccfbf1;
-      padding: 2px 6px;
-      border-radius: 4px;
+      font-variant-numeric: tabular-nums;
+      color: #334155;
       max-width: 100%;
       white-space: pre-wrap;
       word-break: break-word;
       overflow-wrap: anywhere;
       line-height: 1.4;
       vertical-align: middle;
-      box-sizing: border-box;
       text-align: left;
     }
 
@@ -2651,46 +2592,36 @@
       color: var(--primary);
       text-decoration: none;
       font-weight: 500;
-      font-size: 11px;
-      padding: 2px 8px;
-      border-radius: 4px;
-      background: #f0f9ff;
-      border: 1px solid #bae6fd;
-      transition: all 0.15s;
-      box-sizing: border-box;
+      font-size: 12px;
+      transition: color 0.15s;
       vertical-align: middle;
     }
 
     .proj-tx-receipt-link:hover {
-      background: #e0f2fe;
-      text-decoration: none;
-      border-color: #7dd3fc;
+      text-decoration: underline;
       color: var(--primary-hover);
     }
 
     .proj-tx-no-receipt {
       color: #94a3b8;
-      font-size: 10.5px;
+      font-size: 12px;
     }
 
     .period-tx-proj {
       display: inline-block;
-      max-width: 135px;
+      max-width: 140px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
       font-weight: 600;
       color: #1e293b;
-      background: #f1f5f9;
-      padding: 1px 6px;
-      border-radius: 4px;
-      font-size: 10.5px;
-      transition: background 0.15s, color 0.15s;
+      font-size: 12.5px;
+      transition: color 0.15s;
     }
 
     .period-tx-proj:hover {
-      background: #e2e8f0;
       color: var(--primary);
+      text-decoration: underline;
     }
 
     .proj-tx-empty,
@@ -2703,34 +2634,34 @@
       padding: 24px;
       text-align: center;
       color: #94a3b8;
-      font-size: 12px;
+      font-size: 12.5px;
     }
 
-    /* Multi-project Expense Split Entries Table & Cards (Consistent with Dashboard & Form Center) */
+    /* Multi-project Expense Split Entries Table & Sections */
     .exp-card {
-      background: #ffffff;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px 24px;
-      margin-bottom: 22px;
-      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      padding: 0;
+      margin-bottom: 24px;
+      box-shadow: none;
     }
 
     .exp-card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid #f1f5f9;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #e2e8f0;
       flex-wrap: wrap;
       gap: 10px;
     }
 
     .exp-card-title {
-      font-size: 14.5px;
-      font-weight: 700;
-      color: #1e293b;
+      font-size: 15px;
+      font-weight: 600;
+      color: #0f172a;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -2738,11 +2669,10 @@
 
     .exp-entries-table-wrap {
       border: 1px solid #e2e8f0;
-      border-radius: 8px;
+      border-radius: 6px;
       overflow: visible;
       background: #ffffff;
-      margin-bottom: 14px;
-      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02);
+      margin-bottom: 12px;
     }
 
     .exp-entries-table {
@@ -2756,11 +2686,10 @@
       background: #f8fafc;
       color: #475569;
       font-weight: 600;
-      font-size: 11.5px;
+      font-size: 12px;
       padding: 9px 12px;
       border-bottom: 1px solid #e2e8f0;
       white-space: nowrap;
-      letter-spacing: 0.2px;
     }
 
     .exp-entries-table tbody td {
@@ -2783,14 +2712,10 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: #f1f5f9;
       color: #64748b;
-      font-weight: 700;
-      font-size: 11px;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-weight: 600;
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
     }
 
     .exp-row-proj-box {
@@ -2813,7 +2738,7 @@
 
     .exp-row-proj-input:focus {
       border-color: var(--primary);
-      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15);
+      box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.12);
     }
 
     .exp-row-proj-clear {
@@ -2852,7 +2777,7 @@
       overflow-y: auto;
       background: #ffffff;
       border: 1px solid #cbd5e1;
-      border-radius: 8px;
+      border-radius: 6px;
       box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
       z-index: 1050;
       display: none;
@@ -2873,7 +2798,7 @@
 
     .exp-row-subitem-input:focus {
       border-color: var(--primary);
-      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15);
+      box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.12);
     }
 
     .exp-row-amt-input {
@@ -2887,14 +2812,14 @@
       box-sizing: border-box;
       transition: border-color 0.15s, box-shadow 0.15s;
       text-align: right;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+      font-variant-numeric: tabular-nums;
       font-weight: 700;
       color: #0f172a;
     }
 
     .exp-row-amt-input:focus {
       border-color: var(--primary);
-      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15);
+      box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.12);
     }
 
     .btn-row-action {
@@ -2916,7 +2841,7 @@
     .btn-row-action:hover:not(:disabled) {
       background: #eff6ff;
       border-color: #93c5fd;
-      color: #0284c7;
+      color: var(--primary);
     }
 
     .btn-row-action.del:hover:not(:disabled) {
@@ -2940,31 +2865,22 @@
       border: 1px solid #cbd5e1;
       border-radius: 5px;
       font-size: 11.5px;
-      color: #0369a1;
-      font-weight: 600;
+      color: var(--primary);
+      font-weight: 500;
       cursor: pointer;
       transition: all 0.15s ease;
       white-space: nowrap;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
     }
 
     .btn-row-extract:hover:not(:disabled) {
-      background: #e0f2fe;
-      border-color: #7dd3fc;
-      color: #0284c7;
-      box-shadow: 0 2px 4px rgba(3, 105, 161, 0.12);
-      transform: translateY(-1px);
-    }
-
-    .btn-row-extract:active:not(:disabled) {
-      transform: translateY(0);
-      background: #bae6fd;
+      background: #eff6ff;
+      border-color: #93c5fd;
+      color: var(--primary-hover);
     }
 
     .btn-row-extract:disabled {
       opacity: 0.45;
       cursor: not-allowed;
-      filter: grayscale(0.5);
     }
 
     .btn-batch-add-candidate {
@@ -2973,32 +2889,24 @@
       justify-content: center;
       gap: 5px;
       padding: 5px 12px;
-      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      background: var(--primary);
       color: #ffffff;
-      border: 1px solid #0284c7;
+      border: 1px solid var(--primary);
       border-radius: 6px;
       font-size: 12px;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: background 0.15s ease;
       white-space: nowrap;
-      box-shadow: 0 1px 3px rgba(2, 132, 199, 0.25);
     }
 
     .btn-batch-add-candidate:hover:not(:disabled) {
-      background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
-      box-shadow: 0 3px 8px rgba(2, 132, 199, 0.35);
-      transform: translateY(-1px);
-    }
-
-    .btn-batch-add-candidate:active:not(:disabled) {
-      transform: translateY(0);
+      background: var(--primary-hover);
     }
 
     .btn-batch-add-candidate:disabled {
       opacity: 0.5;
       cursor: not-allowed;
-      filter: grayscale(0.5);
     }
 
     /* Modal Overlay & Card for Add Candidates */
@@ -3008,8 +2916,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(15, 23, 42, 0.6);
-      backdrop-filter: blur(4px);
+      background: rgba(15, 23, 42, 0.55);
       z-index: 9999;
       display: flex;
       align-items: center;
@@ -3020,8 +2927,8 @@
 
     .batch-modal-card {
       background: #ffffff;
-      border-radius: 12px;
-      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.25);
+      border-radius: 8px;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
       width: 100%;
       max-width: 860px;
       max-height: 86vh;
@@ -3029,12 +2936,12 @@
       flex-direction: column;
       border: 1px solid #e2e8f0;
       overflow: hidden;
-      animation: modalSlideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      animation: modalSlideIn 0.2s ease-out;
     }
 
     @keyframes modalSlideIn {
-      from { transform: translateY(16px) scale(0.98); opacity: 0; }
-      to { transform: translateY(0) scale(1); opacity: 1; }
+      from { transform: translateY(12px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
     }
 
     .batch-modal-header {
@@ -3047,8 +2954,8 @@
     }
 
     .batch-modal-title {
-      font-size: 15.5px;
-      font-weight: 700;
+      font-size: 15px;
+      font-weight: 600;
       color: #0f172a;
       display: flex;
       align-items: center;
@@ -3106,18 +3013,18 @@
       flex-wrap: wrap;
       gap: 12px;
       padding: 10px 16px;
-      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      background: #f8fafc;
       border: 1px solid #e2e8f0;
-      border-radius: 8px;
+      border-radius: 6px;
     }
 
     .btn-add-entry-row {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: #f0f9ff;
-      color: #0284c7;
-      border: 1px solid #bae6fd;
+      background: #eff6ff;
+      color: var(--primary);
+      border: 1px solid #bfdbfe;
       border-radius: 6px;
       padding: 6px 14px;
       font-size: 12px;
@@ -3128,33 +3035,31 @@
     }
 
     .btn-add-entry-row:hover {
-      background: #0284c7;
+      background: var(--primary);
       color: #ffffff;
-      border-color: #0284c7;
-      box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
+      border-color: var(--primary);
     }
 
     .btn-quick-sync {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: #eef2ff;
-      color: #4338ca;
-      border: 1px solid #c7d2fe;
+      background: #f8fafc;
+      color: #334155;
+      border: 1px solid #cbd5e1;
       border-radius: 6px;
       padding: 6px 13px;
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 500;
       cursor: pointer;
       transition: all 0.15s ease;
       line-height: 1.4;
     }
 
     .btn-quick-sync:hover {
-      background: #4338ca;
-      color: #ffffff;
-      border-color: #4338ca;
-      box-shadow: 0 2px 6px rgba(67, 56, 202, 0.25);
+      background: #f1f5f9;
+      color: #0f172a;
+      border-color: #94a3b8;
     }
 
     .exp-entries-summary-box {
@@ -3167,20 +3072,16 @@
     }
 
     .summary-tag-count {
-      background: #e2e8f0;
-      color: #334155;
-      font-size: 11.5px;
-      font-weight: 600;
-      padding: 3px 9px;
-      border-radius: 12px;
-      border: 1px solid #cbd5e1;
+      color: #64748b;
+      font-size: 12.5px;
+      font-weight: 500;
     }
 
     .summary-tag-amt {
       color: #dc2626;
       font-size: 16px;
-      font-weight: 800;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
       letter-spacing: -0.2px;
     }
   </style>
@@ -3200,40 +3101,40 @@
     <!-- Tabs Navigation -->
     <div class="tabs-nav">
       <button class="tab-btn active" onclick="switchTab('expense')">
-        <span>💸</span> 1. 新增支出記錄
+        新增支出記錄
       </button>
       <button class="tab-btn" onclick="switchTab('income')">
-        <span>💰</span> 2. 新增收入記錄
+        新增收入記錄
       </button>
       <button class="tab-btn" onclick="switchTab('project')">
-        <span>🏗️</span> 3. 新增項目
+        新增項目
       </button>
       <button class="tab-btn" onclick="switchTab('remarks')">
-        <span>📝</span> 4. 編輯項目備註
+        編輯項目備註
       </button>
       <button class="tab-btn" onclick="switchTab('edit-tx')">
-        <span>✏️</span> 5. 編輯收支記錄
+        編輯收支記錄
       </button>
       <button class="tab-btn" onclick="switchTab('dashboard')">
-        <span>📊</span> 6. 財務總覽看板
+        財務總覽看板
       </button>
     </div>
 
 
     <!-- Tab 1: 新增支出記錄 -->
     <div id="panel-expense" class="form-panel active">
-      <div class="panel-title"><span>💸</span> 新增支出記錄</div>
+      <div class="panel-title">新增支出記錄</div>
 
       <form id="form-expense" onsubmit="event.preventDefault(); submitExpense(event); return false;">
         <!-- Hidden fields for auto calculation and default status -->
         <input type="hidden" id="exp-title">
         <input type="hidden" id="exp-status" value="有效">
 
-        <!-- Card 1: 共通支票與付款資訊 -->
+        <!-- Section 1: 共通支票與付款資訊 -->
         <div class="exp-card">
           <div class="exp-card-header">
             <div class="exp-card-title">
-              <span>📌 共通付款資訊</span>
+              <span>共通付款資訊</span>
             </div>
           </div>
 
@@ -3244,7 +3145,7 @@
             </div>
 
             <div class="form-group">
-              <label>支票編號 <span class="badge-auto" id="exp-chq-badge">選擇字頭即自動計算下一個號碼</span></label>
+              <label>支票編號 <span class="badge-auto" id="exp-chq-badge">(選取字頭自動計算)</span></label>
               <div class="cheque-group">
                 <select id="exp-chq-prefix" class="cheque-prefix" onchange="onChequePrefixChange()">
                   <option value="CK">CK</option>
@@ -3265,7 +3166,7 @@
                 <option value="匯豐銀行">匯豐銀行</option>
                 <option value="星展銀行">星展銀行</option>
                 <option value="現金">現金</option>
-                <option value="__custom__">➕ 其他 (自訂銀行)...</option>
+                <option value="__custom__">+ 其他 (自訂銀行)...</option>
               </select>
               <div id="exp-bank-custom-wrap" style="display:none; margin-top:8px;">
                 <input type="text" id="exp-bank-custom" placeholder="請輸入自訂銀行名稱 (例如：恒生銀行、南洋商業銀行)">
@@ -3286,27 +3187,25 @@
             </div>
 
             <div class="form-group col-full">
-              <label>備註 (Remarks) <span class="badge-auto"
-                  style="background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd;">自動套用至本批次所有項目</span></label>
+              <label>備註 (Remarks)</label>
               <input type="text" id="exp-remarks" placeholder="請輸入備註說明 (選填，將自動套用至本批次所有分攤項目)..." autocomplete="off">
             </div>
 
             <!-- File Upload -->
             <div class="form-group col-full">
               <label>收據/支票檔案上傳 (PDF / JPG / PNG) <span class="badge-auto"
-                  id="exp-file-badge">自動以支票號碼命名並存檔</span></label>
+                  id="exp-file-badge">(自動以支票號碼命名)</span></label>
               <div class="dropzone" id="exp-dropzone" onclick="triggerFileUpload('expense')">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                 </svg>
-                <p id="exp-dropzone-text">拖放收據圖檔或 PDF 至此，或 <span>點擊瀏覽上傳</span> (系統將自動以支票號碼命名)</p>
+                <p id="exp-dropzone-text">拖放收據圖檔或 PDF 至此，或 <span>點擊瀏覽上傳</span></p>
                 <input type="file" id="exp-file" accept=".pdf,.jpg,.jpeg,.png" style="display:none"
                   onchange="handleFileSelect('expense', this.files)">
               </div>
               <div id="exp-file-preview" style="display:none;" class="file-preview">
                 <div class="file-info">
-                  <span>📄</span>
                   <span id="exp-file-target-name" class="file-name-target">CK0000.pdf</span>
                   <span id="exp-file-orig-name" class="file-name-orig">(原始: filename.pdf, 0 KB)</span>
                 </div>
@@ -3316,21 +3215,17 @@
           </div>
         </div>
 
-        <!-- Card 2: 工程項目分攤明細清單 -->
+        <!-- Section 2: 工程項目分攤明細清單 -->
         <div class="exp-card">
           <div class="exp-card-header">
             <div class="exp-card-title">
-              <span>🏗️ 工程項目分攤明細清單</span>
-              <span class="badge-auto" id="exp-entries-count-badge"
-                style="background:#f1f5f9; color:#475569; border:1px solid #e2e8f0;">1 個項目</span>
+              <span>工程項目分攤明細</span>
+              <span class="badge-auto" id="exp-entries-count-badge" style="display:none;">1 個項目</span>
             </div>
             <div style="display:flex; gap:10px; align-items:center;">
               <button type="button" class="btn-quick-sync" onclick="syncAllExpSubitemsFromFirst()"
                 title="將第 1 行的小類自動套用至所有行">
-                <span>📋</span> 同步第 1 行小類至全部
-              </button>
-              <button type="button" class="btn-add-entry-row" onclick="addExpenseEntryRow()" title="新增一個工程分攤項目">
-                <span>➕</span> 新增項目行
+                同步第 1 行小類至全部
               </button>
             </div>
           </div>
@@ -3357,7 +3252,7 @@
           <div class="exp-entries-footer">
             <div>
               <button type="button" class="btn-add-entry-row" onclick="addExpenseEntryRow()">
-                <span>➕</span> 新增項目分攤行
+                + 新增項目分攤行
               </button>
             </div>
             <div class="exp-entries-summary-box">
@@ -3369,15 +3264,17 @@
 
         <div id="exp-toast" class="toast"></div>
 
-        <button type="button" id="exp-submit-btn" class="btn-submit" onclick="submitExpense(event)">
-          <span>💾</span> 一鍵儲存支出記錄 (共 <span id="exp-btn-row-count">1</span> 筆)
-        </button>
+        <div class="form-actions-row">
+          <button type="button" id="exp-submit-btn" class="btn-submit" onclick="submitExpense(event)">
+            儲存支出記錄 (共 <span id="exp-btn-row-count">1</span> 筆)
+          </button>
+        </div>
       </form>
     </div>
 
     <!-- Tab 2: 新增收入記錄 -->
     <div id="panel-income" class="form-panel">
-      <div class="panel-title"><span>💰</span> 新增收入記錄</div>
+      <div class="panel-title">新增收入記錄</div>
 
       <form id="form-income" onsubmit="event.preventDefault(); submitIncome(event); return false;">
         <!-- Hidden fields for auto calculation and default status -->
@@ -3400,7 +3297,7 @@
             <label>所屬項目</label>
             <div class="combobox-container" id="inc-project-combobox">
               <div class="combobox-input-wrap">
-                <input type="text" class="combobox-input" id="inc-project-search" placeholder="🔍 輸入項目名稱或編號搜尋 (可選)..."
+                <input type="text" class="combobox-input" id="inc-project-search" placeholder="輸入項目名稱或編號搜尋 (可選)..."
                   autocomplete="off">
                 <div class="combobox-actions">
                   <button type="button" class="combobox-clear" id="inc-project-clear" title="清除選取">✕</button>
@@ -3420,7 +3317,7 @@
               <option value="渣打銀行">渣打銀行</option>
               <option value="星展銀行">星展銀行</option>
               <option value="現金">現金</option>
-              <option value="__custom__">➕ 其他 (自訂銀行)...</option>
+              <option value="__custom__">+ 其他 (自訂銀行)...</option>
             </select>
             <div id="inc-bank-custom-wrap" style="display:none; margin-top:8px;">
               <input type="text" id="inc-bank-custom" placeholder="請輸入自訂銀行名稱 (例如：恒生銀行、花旗銀行)">
@@ -3434,20 +3331,19 @@
 
           <!-- File Upload -->
           <div class="form-group col-full">
-            <label>收據/水單檔案上傳 (PDF / JPG / PNG) <span class="badge-auto" id="inc-file-badge">自動以單號命名並存放至
-                DocLib/收入</span></label>
+            <label>收據/水單檔案上傳 (PDF / JPG / PNG) <span class="badge-auto" id="inc-file-badge">(自動以單號命名並存放至
+                DocLib/收入)</span></label>
             <div class="dropzone" id="inc-dropzone" onclick="triggerFileUpload('income')">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
               </svg>
-              <p id="inc-dropzone-text">拖放銀行入賬傳票或水單至此，或 <span>點擊瀏覽上傳</span> (系統將自動以單號命名)</p>
+              <p id="inc-dropzone-text">拖放銀行入賬傳票或水單至此，或 <span>點擊瀏覽上傳</span></p>
               <input type="file" id="inc-file" accept=".pdf,.jpg,.jpeg,.png" style="display:none"
                 onchange="handleFileSelect('income', this.files)">
             </div>
             <div id="inc-file-preview" style="display:none;" class="file-preview">
               <div class="file-info">
-                <span>📄</span>
                 <span id="inc-file-target-name" class="file-name-target">INC-00000.pdf</span>
                 <span id="inc-file-orig-name" class="file-name-orig">(原始: filename.pdf, 0 KB)</span>
               </div>
@@ -3458,56 +3354,58 @@
 
         <div id="inc-toast" class="toast"></div>
 
-        <button type="button" id="inc-submit-btn" class="btn-submit" onclick="submitIncome(event)">
-          <span>💾</span> 儲存收入記錄並上傳收據
-        </button>
+        <div class="form-actions-row">
+          <button type="button" id="inc-submit-btn" class="btn-submit" onclick="submitIncome(event)">
+            儲存收入記錄
+          </button>
+        </div>
       </form>
     </div>
 
     <!-- Tab 3: 新增工程項目 -->
     <div id="panel-project" class="form-panel">
-      <div class="panel-title"><span>🏗️</span> 新增項目</div>
+      <div class="panel-title">新增項目</div>
 
       <form id="form-project" onsubmit="event.preventDefault(); submitProject(event); return false;">
         <div class="form-grid">
           <div class="form-group col-full">
-            <label>1. 項目名稱 <span class="req">*</span></label>
+            <label>項目名稱 <span class="req">*</span></label>
             <input type="text" id="proj-title" placeholder="例如：尖沙咀文化中心大堂翻新工程" required>
           </div>
 
           <div class="form-group">
-            <label>2. 項目編號</label>
+            <label>項目編號</label>
             <input type="text" id="proj-code" placeholder="例如：CK-2026-001" style="text-transform:uppercase;"
               oninput="this.value = this.value.toUpperCase()">
           </div>
 
           <div class="form-group">
-            <label>3. 分類</label>
+            <label>分類</label>
             <input type="text" id="proj-cat" placeholder="例如：水喉工程、電力維修、裝修">
           </div>
 
           <div class="form-group">
-            <label>4. 負責人</label>
+            <label>負責人</label>
             <input type="text" id="proj-manager" placeholder="例如：歡哥、蛇總、達哥">
           </div>
 
           <div class="form-group">
-            <label>5. 合約金額 (HKD)</label>
+            <label>合約金額 (HKD)</label>
             <input type="text" inputmode="decimal" id="proj-amount" placeholder="例如：500000" autocomplete="off">
           </div>
 
           <div class="form-group">
-            <label>6. 預計施工日期</label>
+            <label>預計施工日期</label>
             <input type="date" id="proj-start-date">
           </div>
 
           <div class="form-group">
-            <label>7. 預計完工日期</label>
+            <label>預計完工日期</label>
             <input type="date" id="proj-end-date">
           </div>
 
           <div class="form-group col-full">
-            <label>8. 項目備註 (可選)</label>
+            <label>項目備註 (可選)</label>
             <textarea id="proj-remarks" rows="3" placeholder="例如：合約特殊條款、進度說明、工程聯絡人或重要備忘事項..."
               style="resize: vertical; min-height: 76px;"></textarea>
           </div>
@@ -3515,22 +3413,24 @@
 
         <div id="proj-toast" class="toast"></div>
 
-        <button type="button" id="proj-submit-btn" class="btn-submit" onclick="submitProject(event)">
-          <span>💾</span> 建立新項目
-        </button>
+        <div class="form-actions-row">
+          <button type="button" id="proj-submit-btn" class="btn-submit" onclick="submitProject(event)">
+            建立新項目
+          </button>
+        </div>
       </form>
     </div>
 
     <!-- Tab 4: 編輯項目資訊與備註 -->
     <div id="panel-remarks" class="form-panel">
-      <div class="panel-title"><span>📝</span> 編輯項目備註</div>
+      <div class="panel-title">編輯項目備註</div>
 
       <form id="form-remarks" onsubmit="event.preventDefault(); submitRemarks(event); return false;">
         <div class="form-group col-full" style="margin-bottom: 16px;">
           <label>搜尋與選取工程項目 <span class="req">*</span></label>
           <div class="combobox-container" id="remarks-project-combobox">
             <div class="combobox-input-wrap">
-              <input type="text" class="combobox-input" id="remarks-project-search" placeholder="🔍 輸入項目名稱或編號搜尋..."
+              <input type="text" class="combobox-input" id="remarks-project-search" placeholder="輸入項目名稱或編號搜尋..."
                 autocomplete="off">
               <div class="combobox-actions">
                 <button type="button" class="combobox-clear" id="remarks-project-clear" title="清除選取">✕</button>
@@ -3543,10 +3443,9 @@
         </div>
 
         <!-- Empty State Hint -->
-        <div id="remarks-empty-hint" style="text-align:center; padding:40px 20px; color:var(--text-muted);">
-          <p style="font-size:36px; margin-bottom:12px;">🏗️</p>
-          <p style="font-size:15px; font-weight:500;">請先從上方搜尋或選取要編輯的工程項目</p>
-          <p style="font-size:13px; margin-top:4px;">選取後即可檢視項目詳情、管理後加工程 (VO) 及修改備註記錄</p>
+        <div id="remarks-empty-hint" style="text-align:center; padding:36px 20px; color:var(--text-muted); border:1px dashed #cbd5e1; border-radius:6px; background:#f8fafc;">
+          <p style="font-size:14px; font-weight:500; color:#475569;">請先從上方搜尋或選取要編輯的工程項目</p>
+          <p style="font-size:12.5px; margin-top:4px;">選取後即可檢視項目詳情、管理後加工程 (VO) 及修改備註記錄</p>
         </div>
 
         <!-- Project Edit Form Container -->
@@ -3558,24 +3457,22 @@
               <span id="card-proj-name" class="project-card-val" style="padding:6px 0; font-size:14px;">-</span>
             </div>
             <div class="project-card-item">
-              <label class="project-card-label" for="edit-proj-code" style="font-weight:600; color:#334155;">項目編號
-                ✏️</label>
+              <label class="project-card-label" for="edit-proj-code" style="font-weight:600; color:#334155;">項目編號</label>
               <input type="text" id="edit-proj-code" placeholder="例如：CK-2026-001 (可留空)"
                 style="background:#ffffff; font-size:13px; font-weight:600; padding:8px 10px; border-radius:6px; border:1px solid #cbd5e1; margin-top:2px; text-transform:uppercase;"
                 oninput="onEditProjCodeInput(this)" autocomplete="off">
               <div id="edit-proj-code-dup-msg"
-                style="display:none; font-size:11px; color:#ef4444; font-weight:600; margin-top:4px;">⚠️ 此編號已被其他項目使用
+                style="display:none; font-size:11px; color:#dc2626; font-weight:600; margin-top:4px;">此編號已被其他項目使用
               </div>
             </div>
             <div class="project-card-item">
-              <label class="project-card-label" for="edit-proj-manager" style="font-weight:600; color:#334155;">負責人
-                ✏️</label>
+              <label class="project-card-label" for="edit-proj-manager" style="font-weight:600; color:#334155;">負責人</label>
               <input type="text" id="edit-proj-manager" placeholder="例如：歡哥、蛇總、達哥"
                 style="background:#ffffff; font-size:13px; font-weight:600; padding:8px 10px; border-radius:6px; border:1px solid #cbd5e1; margin-top:2px;">
             </div>
             <div class="project-card-item">
               <label class="project-card-label" for="edit-proj-amount" style="font-weight:600; color:#334155;">合約金額
-                (HKD) ✏️</label>
+                (HKD)</label>
               <input type="text" inputmode="decimal" id="edit-proj-amount" placeholder="例如：500000"
                 style="background:#ffffff; font-size:13px; font-weight:600; padding:8px 10px; border-radius:6px; border:1px solid #cbd5e1; margin-top:2px;"
                 autocomplete="off">
@@ -3586,12 +3483,12 @@
           <div id="selected-project-vo-section" class="vo-section" style="display:none;">
             <div class="vo-header">
               <div class="vo-header-title">
-                <span>📑</span> 後加工程記錄 (Variation Orders / VO)
+                後加工程記錄 (Variation Orders / VO)
                 <span id="vo-count-badge" class="vo-badge-count">共 0 筆</span>
               </div>
               <div class="vo-header-actions">
                 <button type="button" class="btn-vo-add" id="btn-toggle-add-vo" onclick="toggleAddVOForm()">
-                  <span>➕</span> 新增後加工程 (VO)
+                  + 新增後加工程 (VO)
                 </button>
               </div>
             </div>
@@ -3615,7 +3512,7 @@
             <!-- Add VO Form Card -->
             <div id="add-vo-form-card" class="vo-form-card" style="display:none;">
               <div class="vo-form-title">
-                <span>➕</span> 新增後加工程項目
+                新增後加工程項目
                 <span id="new-vo-number-badge" class="vo-num-badge">VO 1</span>
               </div>
 
@@ -3623,11 +3520,11 @@
               <div class="vo-type-toggle">
                 <button type="button" class="vo-toggle-btn active add" id="btn-vo-type-add"
                   onclick="setNewVOType('add')">
-                  <span>➕ 加項</span> (增加合約金額)
+                  <span>+ 加項</span> (增加合約金額)
                 </button>
                 <button type="button" class="vo-toggle-btn deduct" id="btn-vo-type-deduct"
                   onclick="setNewVOType('deduct')">
-                  <span>➖ 減項</span> (扣減合約金額 / 省減)
+                  <span>- 減項</span> (扣減合約金額 / 省減)
                 </button>
               </div>
 
@@ -3640,7 +3537,7 @@
                   <label id="lbl-new-vo-amount">VO 金額 (HKD) <span class="req">*</span></label>
                   <input type="text" inputmode="decimal" id="new-vo-amount" placeholder="例如：35000" autocomplete="off"
                     oninput="onNewVOAmountInput(this.value)">
-                  <div id="new-vo-calc-hint" class="vo-calc-hint add">➕ 此 VO 將增加項目合約金額</div>
+                  <div id="new-vo-calc-hint" class="vo-calc-hint add">此 VO 將增加項目合約金額</div>
                 </div>
                 <div class="form-group">
                   <label>工程／確認日期</label>
@@ -3653,10 +3550,10 @@
               </div>
               <div class="vo-form-actions">
                 <button type="button" class="btn-vo-cancel" onclick="toggleAddVOForm(false)">
-                  ✕ 取消
+                  取消
                 </button>
                 <button type="button" class="btn-vo-submit" onclick="submitNewVO()">
-                  <span>✓</span> 加入此 VO 項目
+                  加入此 VO 項目
                 </button>
               </div>
             </div>
@@ -3674,35 +3571,37 @@
 
           <div id="remarks-toast" class="toast"></div>
 
-          <button type="button" id="remarks-submit-btn" class="btn-submit" onclick="submitRemarks(event)">
-            <span>💾</span> 儲存並更新項目資訊
-          </button>
+          <div class="form-actions-row">
+            <button type="button" id="remarks-submit-btn" class="btn-submit" onclick="submitRemarks(event)">
+              儲存並更新項目資訊
+            </button>
+          </div>
         </div>
       </form>
     </div>
 
     <!-- Tab 5: 編輯收支記錄 -->
     <div id="panel-edit-tx" class="form-panel">
-      <div class="panel-title"><span>✏️</span> 編輯收支記錄</div>
+      <div class="panel-title">編輯收支記錄</div>
 
       <!-- Type Switcher -->
       <div class="tx-type-toggle">
         <button type="button" id="edit-type-exp-btn" class="toggle-btn active" onclick="setEditTxType('expense')">
-          <span>💸</span> 支出記錄 (Expense)
+          支出記錄 (Expense)
         </button>
         <button type="button" id="edit-type-inc-btn" class="toggle-btn" onclick="setEditTxType('income')">
-          <span>💰</span> 收入記錄 (Income)
+          收入記錄 (Income)
         </button>
       </div>
 
       <!-- Search / Record Selector -->
       <div class="edit-selector-card">
         <div class="form-group col-full">
-          <label>搜尋並選取交易記錄 <span class="badge-auto" id="edit-tx-count-badge">全庫即時搜尋模式</span></label>
+          <label>搜尋並選取交易記錄 <span class="badge-auto" id="edit-tx-count-badge">(全庫即時搜尋)</span></label>
           <div class="combobox-container" id="edit-tx-combobox">
             <div class="combobox-input-wrap">
               <input type="text" class="combobox-input" id="edit-tx-search"
-                placeholder="🔍 輸入單號 (如 EXP-08162)、支票、廠商、小類或項目關鍵字全庫檢索..." autocomplete="off">
+                placeholder="輸入單號 (如 EXP-08162)、支票、廠商、小類或項目關鍵字全庫檢索..." autocomplete="off">
               <div class="combobox-actions">
                 <button type="button" class="combobox-clear" id="edit-tx-clear" title="清除選取">✕</button>
                 <span class="combobox-arrow">▼</span>
@@ -3713,7 +3612,7 @@
           </div>
         </div>
         <div class="quick-actions-bar">
-          <button type="button" class="btn-sm" onclick="refreshEditTxList()">🔄 重新載入最新記錄</button>
+          <button type="button" class="btn-sm" onclick="refreshEditTxList()">重新載入最新記錄</button>
           <span id="edit-load-status" style="font-size:12px; color:var(--text-muted);">已就緒 (輸入關鍵字即可全庫檢索)</span>
         </div>
       </div>
@@ -3724,7 +3623,7 @@
           <div class="edit-header-info" style="display:none !important;">
             <div class="tx-badge-group">
               <span class="badge-tx-id" id="edit-display-id">EXP-00000</span>
-              <span class="badge-type" id="edit-display-type">💸 支出記錄</span>
+              <span class="badge-type" id="edit-display-type">支出記錄</span>
             </div>
             <span style="font-size:12px; color:var(--text-muted);" id="edit-display-modified"></span>
           </div>
@@ -3756,7 +3655,7 @@
               <label>所屬項目</label>
               <div class="combobox-container" id="edit-project-combobox">
                 <div class="combobox-input-wrap">
-                  <input type="text" class="combobox-input" id="edit-project-search" placeholder="🔍 輸入項目名稱或編號搜尋..."
+                  <input type="text" class="combobox-input" id="edit-project-search" placeholder="輸入項目名稱或編號搜尋..."
                     autocomplete="off">
                   <div class="combobox-actions">
                     <button type="button" class="combobox-clear" id="edit-project-clear" title="清除選取">✕</button>
@@ -3770,7 +3669,7 @@
 
             <!-- Expense Specific Fields -->
             <div class="form-group edit-expense-field">
-              <label>支票編號 <span class="badge-auto" id="edit-chq-badge">選擇字頭即自動計算下一個號碼</span></label>
+              <label>支票編號 <span class="badge-auto" id="edit-chq-badge">(選取字頭自動計算)</span></label>
               <div class="cheque-group">
                 <select id="edit-chq-prefix" class="cheque-prefix" onchange="onEditChequePrefixChange()">
                   <option value="CK">CK</option>
@@ -3791,7 +3690,7 @@
                 <option value="匯豐銀行">匯豐銀行</option>
                 <option value="星展銀行">星展銀行</option>
                 <option value="現金">現金</option>
-                <option value="__custom__">➕ 其他 (自訂銀行)...</option>
+                <option value="__custom__">+ 其他 (自訂銀行)...</option>
               </select>
               <div id="edit-exp-bank-custom-wrap" style="display:none; margin-top:8px;">
                 <input type="text" id="edit-exp-bank-custom" placeholder="請輸入自訂銀行名稱">
@@ -3830,7 +3729,7 @@
                 <option value="渣打銀行">渣打銀行</option>
                 <option value="星展銀行">星展銀行</option>
                 <option value="現金">現金</option>
-                <option value="__custom__">➕ 其他 (自訂銀行)...</option>
+                <option value="__custom__">+ 其他 (自訂銀行)...</option>
               </select>
               <div id="edit-inc-bank-custom-wrap" style="display:none; margin-top:8px;">
                 <input type="text" id="edit-inc-bank-custom" placeholder="請輸入自訂銀行名稱">
@@ -3842,7 +3741,7 @@
               <label>收據檔案管理</label>
               <div id="edit-current-receipt-container" style="display:none; margin-bottom:10px;"
                 class="receipt-preview-box">
-                <span>📄 現有收據：</span>
+                <span>現有收據：</span>
                 <a id="edit-current-receipt-link" href="#" target="_blank" rel="noopener noreferrer">檢視檔案</a>
                 <span id="edit-no-receipt-label" style="display:none; color:var(--text-muted);">無收據檔案</span>
               </div>
@@ -3852,13 +3751,13 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                 </svg>
-                <p id="edit-dropzone-text">若需更換收據，請拖放新檔案至此，或 <span>點擊瀏覽上傳</span> (系統將自動以號碼命名)</p>
+                <p id="edit-dropzone-text">若需更換收據，請拖放新檔案至此，或 <span>點擊瀏覽上傳</span></p>
                 <input type="file" id="edit-file" accept=".pdf,.jpg,.jpeg,.png" style="display:none"
                   onchange="handleFileSelect('edit', this.files)">
               </div>
               <div id="edit-file-preview" style="display:none;" class="file-preview">
                 <div class="file-info">
-                  <span>📄 新收據：</span>
+                  <span>新收據：</span>
                   <span id="edit-file-target-name" class="file-name-target">CK0000.pdf</span>
                   <span id="edit-file-orig-name" class="file-name-orig">(原始: filename.pdf, 0 KB)</span>
                 </div>
@@ -3869,23 +3768,21 @@
 
           <div id="edit-toast" class="toast"></div>
 
-          <div style="display:flex; gap:12px; margin-top:24px; align-items:stretch;">
-            <button type="button" id="edit-submit-btn" class="btn-submit" style="flex:2; margin-top:0;"
-              onclick="submitEditTransaction(event)">
-              <span>💾</span> 儲存修改並同步項目金額
+          <div class="form-actions-row">
+            <button type="button" class="btn-cancel" onclick="cancelEditTransaction()">
+              取消選取
             </button>
-            <button type="button" class="btn-cancel" style="flex:1; margin-top:0;" onclick="cancelEditTransaction()">
-              ✕ 取消選取
+            <button type="button" id="edit-submit-btn" class="btn-submit" onclick="submitEditTransaction(event)">
+              儲存修改並同步項目金額
             </button>
           </div>
         </form>
       </div>
 
       <!-- Empty State Hint -->
-      <div id="edit-tx-empty-hint" style="text-align:center; padding:40px 20px; color:var(--text-muted);">
-        <p style="font-size:36px; margin-bottom:12px;">📋</p>
-        <p style="font-size:15px; font-weight:500;">請先由上方搜尋或選取要修改的交易記錄</p>
-        <p style="font-size:12px; margin-top:6px; opacity:0.8;">支援依交易編號、支票號碼、廠商名稱或項目名稱關鍵字即時篩選</p>
+      <div id="edit-tx-empty-hint" style="text-align:center; padding:36px 20px; color:var(--text-muted); border:1px dashed #cbd5e1; border-radius:6px; background:#f8fafc;">
+        <p style="font-size:14px; font-weight:500; color:#475569;">請先由上方搜尋或選取要修改的交易記錄</p>
+        <p style="font-size:12.5px; margin-top:6px;">支援依交易編號、支票號碼、廠商名稱或項目名稱關鍵字即時篩選</p>
       </div>
     </div>
 
@@ -3893,7 +3790,7 @@
     <div id="panel-dashboard" class="form-panel">
       <div
         style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:8px;">
-        <div class="panel-title" style="margin-bottom:0;"><span>📊</span> 財務總覽看板</div>
+        <div class="panel-title" style="margin-bottom:0; padding-bottom:0; border-bottom:none;">財務總覽看板</div>
         <button class="btn-refresh" id="btn-refresh-all" onclick="refreshDashboard(true)"
           title="重新讀取 SharePoint 最新收支與項目資料">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
@@ -3909,30 +3806,26 @@
         <div class="dash-view-switcher">
           <button type="button" class="dash-switch-btn active" id="btn-dash-view-period"
             onclick="switchDashboardView('period')">
-            <span class="dash-switch-icon">📅</span>
             <span class="dash-switch-label">週期收支與現金流結餘</span>
           </button>
           <button type="button" class="dash-switch-btn" id="btn-dash-view-project"
             onclick="switchDashboardView('project')">
-            <span class="dash-switch-icon">🏗️</span>
             <span class="dash-switch-label">工程項目淨結餘與財務</span>
           </button>
           <button type="button" class="dash-switch-btn" id="btn-dash-view-list"
             onclick="switchDashboardView('list')">
-            <span class="dash-switch-icon">📋</span>
             <span class="dash-switch-label">項目清單總表</span>
           </button>
         </div>
       </div>
 
       <div class="dashboard-panels-container">
-        <!-- Card 1: 週期收支與現金流看板 -->
+        <!-- Panel 1: 週期收支與現金流看板 -->
         <div class="dash-card active-panel" id="card-period-balance">
           <div>
             <div class="card-top">
-              <div class="card-title-wrap">
-                <span class="card-badge-icon">📅</span>
-                <span class="card-title">週期收支與現金流結餘</span>
+              <div class="period-range-text" id="period-range-label" style="margin-bottom:0;">
+                <span>統計區間：</span><span id="label-date-range" style="font-weight:600; color:var(--text-main);">讀取中...</span>
               </div>
               <div class="pills-container" id="period-pills">
                 <button type="button" class="pill-btn active" data-period="month"
@@ -3942,10 +3835,6 @@
                 <button type="button" class="pill-btn" data-period="year" onclick="selectPeriod('year')">本年</button>
                 <button type="button" class="pill-btn" data-period="hkfy" onclick="selectPeriod('hkfy')">本財政年度</button>
               </div>
-            </div>
-
-            <div class="period-range-text" id="period-range-label">
-              <span>區間：</span><span id="label-date-range" style="font-weight:600;">讀取中...</span>
             </div>
 
             <!-- Hero Net Balance -->
@@ -3958,7 +3847,7 @@
                 </div>
               </div>
               <div id="hero-net-badge" class="status-badge neutral">
-                <span id="hero-net-status-text">⏳ 即時計算中...</span>
+                <span id="hero-net-status-text">即時計算中...</span>
               </div>
             </div>
 
@@ -3966,7 +3855,7 @@
             <div class="stat-tiles">
               <div class="stat-tile income">
                 <div class="stat-tile-header">
-                  <span>💰 總收入 (入賬)</span>
+                  <span>總收入 (入賬)</span>
                   <span id="stat-inc-count">讀取中...</span>
                 </div>
                 <div class="stat-tile-num" id="stat-inc-total" style="color:#059669;"><span class="skeleton-loading"
@@ -3978,7 +3867,7 @@
 
               <div class="stat-tile expense">
                 <div class="stat-tile-header">
-                  <span>💸 總支出 (成本)</span>
+                  <span>總支出 (成本)</span>
                   <span id="stat-exp-count">讀取中...</span>
                 </div>
                 <div class="stat-tile-num" id="stat-exp-total" style="color:#dc2626;"><span class="skeleton-loading"
@@ -4002,10 +3891,10 @@
             </div>
             <div class="card-footer-links">
               <a class="card-footer-link" href="#" onclick="switchTab('income'); return false;">
-                ➕ 新增收入入賬 ↗
+                + 新增收入入賬 ↗
               </a>
               <a class="card-footer-link" href="#" onclick="switchTab('expense'); return false;">
-                ➕ 新增支出記錄 ↗
+                + 新增支出記錄 ↗
               </a>
             </div>
           </div>
@@ -4015,11 +3904,11 @@
             <div class="proj-tx-toolbar">
               <div class="proj-tx-header-row">
                 <div class="proj-tx-title-wrap">
-                  <span class="proj-tx-title">📋 週期收支明細</span>
+                  <span class="proj-tx-title">週期收支明細</span>
                   <span class="proj-tx-count-badge" id="period-tx-total-badge">0 筆</span>
                 </div>
                 <div class="proj-tx-search-box">
-                  <input type="text" id="period-tx-search-input" placeholder="🔍 搜尋項目、日期、金額、發票、小類、收款人..."
+                  <input type="text" id="period-tx-search-input" placeholder="搜尋項目、日期、金額、發票、小類、收款人..."
                     oninput="onPeriodTxSearch(this.value)">
                 </div>
               </div>
@@ -4028,17 +3917,17 @@
                   <button type="button" class="proj-tx-pill active" id="btn-period-filter-all"
                     onclick="setPeriodTxFilter('all')">全部 (<span id="period-tx-count-all">0</span>)</button>
                   <button type="button" class="proj-tx-pill exp" id="btn-period-filter-exp"
-                    onclick="setPeriodTxFilter('expense')">💸 支出 (<span id="period-tx-count-exp">0</span>)</button>
+                    onclick="setPeriodTxFilter('expense')">支出 (<span id="period-tx-count-exp">0</span>)</button>
                   <button type="button" class="proj-tx-pill inc" id="btn-period-filter-inc"
-                    onclick="setPeriodTxFilter('income')">💰 收入 (<span id="period-tx-count-inc">0</span>)</button>
+                    onclick="setPeriodTxFilter('income')">收入 (<span id="period-tx-count-inc">0</span>)</button>
                 </div>
                 <div class="proj-tx-subtotal-pills" id="period-tx-subtotal-pills" style="display: none;">
                   <button type="button" class="proj-tx-sub-pill active" id="btn-period-sub-none"
-                    onclick="setPeriodTxSubtotal('none')" title="顯示每筆明細記錄">📋 明細</button>
+                    onclick="setPeriodTxSubtotal('none')" title="顯示每筆明細記錄">明細</button>
                   <button type="button" class="proj-tx-sub-pill" id="btn-period-sub-payee"
-                    onclick="setPeriodTxSubtotal('payee')" title="按支出收款人匯總小計">👤 收款人小計</button>
+                    onclick="setPeriodTxSubtotal('payee')" title="按支出收款人匯總小計">收款人小計</button>
                   <button type="button" class="proj-tx-sub-pill" id="btn-period-sub-subitem"
-                    onclick="setPeriodTxSubtotal('subitem')" title="按支出小類匯總小計">🏷️ 小類小計</button>
+                    onclick="setPeriodTxSubtotal('subitem')" title="按支出小類匯總小計">小類小計</button>
                 </div>
               </div>
             </div>
@@ -4049,10 +3938,8 @@
                 <span class="subtotal-summary-text" id="period-subtotal-summary-text">共 0 位收款人，總計 -HK$ 0.00</span>
               </div>
               <div class="subtotal-summary-actions">
-                <button type="button" class="subtotal-action-btn" onclick="toggleAllPeriodTxGroups(true)">➕
-                  展開全部</button>
-                <button type="button" class="subtotal-action-btn" onclick="toggleAllPeriodTxGroups(false)">➖
-                  收起全部</button>
+                <button type="button" class="subtotal-action-btn" onclick="toggleAllPeriodTxGroups(true)">展開全部</button>
+                <button type="button" class="subtotal-action-btn" onclick="toggleAllPeriodTxGroups(false)">收起全部</button>
               </div>
             </div>
 
@@ -4097,29 +3984,24 @@
           </div>
         </div>
 
-        <!-- Card 2: 工程項目淨結餘看板 -->
+        <!-- Panel 2: 工程項目淨結餘看板 -->
         <div class="dash-card" id="card-project-balance" style="display: none;">
           <div>
             <div class="card-top">
-              <div class="card-title-wrap">
-                <span class="card-badge-icon">🏗️</span>
-                <span class="card-title">工程項目淨結餘與財務</span>
+              <div class="project-header-meta" style="margin-bottom:0;">
+                <span id="proj-display-name" style="font-size:15px; font-weight:700; color:var(--text-main);">1881</span>
+                <span class="project-code-tag" id="proj-display-code" style="display:none;">-</span>
+                <span class="project-code-tag" id="proj-display-start-date" style="display:none; background:#eff6ff; color:#1d4ed8; border-color:#dbeafe;">-</span>
+                <span class="project-updated-tag" id="proj-display-time">最近更新：2026/09/17 15:16</span>
               </div>
 
               <!-- Project Selector Combobox -->
               <div class="project-picker-wrap" id="project-picker-wrap">
-                <input type="text" class="project-search-input" id="proj-search-input" placeholder="🔍 搜尋工程項目..."
+                <input type="text" class="project-search-input" id="proj-search-input" placeholder="搜尋工程項目..."
                   value="1881" autocomplete="off">
                 <span class="project-search-icon">▼</span>
                 <div class="project-dropdown" id="proj-dropdown"></div>
               </div>
-            </div>
-
-            <div class="project-header-meta">
-              <span id="proj-display-name" style="font-weight:700; color:var(--text-main);">1881</span>
-              <span class="project-code-tag" id="proj-display-code" style="display:none;">-</span>
-              <span class="project-code-tag" id="proj-display-start-date" style="display:none; background:#eff6ff; color:#0284c7; border-color:#bae6fd;">-</span>
-              <span class="project-updated-tag" id="proj-display-time">最近更新：2026/09/17 15:16</span>
             </div>
 
             <!-- Hero Project Net Balance -->
@@ -4131,7 +4013,7 @@
                 </div>
               </div>
               <div id="proj-net-badge" class="status-badge positive">
-                <span id="proj-net-status-text">🟢 實收盈餘 (利潤率 68.2%)</span>
+                <span id="proj-net-status-text">實收盈餘 (利潤率 68.2%)</span>
               </div>
             </div>
 
@@ -4139,7 +4021,7 @@
             <div class="stat-tiles">
               <div class="stat-tile contract">
                 <div class="stat-tile-header">
-                  <span>📑 合約總額</span>
+                  <span>合約總額</span>
                   <span id="proj-mgr-label">負責人: 榮</span>
                 </div>
                 <div class="stat-tile-num" id="proj-contract-val">HK$ 640,281.00</div>
@@ -4152,14 +4034,25 @@
 
               <div class="stat-tile cost">
                 <div class="stat-tile-header">
-                  <span>💰 實收 / 💸 項目成本</span>
+                  <span>實收與成本結構</span>
                 </div>
-                <div
-                  style="display:flex; flex-direction:column; gap:4px; margin-top:5px; font-size:13px; font-weight:600;">
-                  <span style="color:#059669;" id="proj-recv-val">已收: $364,183</span>
-                  <span style="color:#d97706;" id="proj-cost-total-val">成本 (已付＋未付): $115,660</span>
-                  <span style="color:#ea580c;" id="proj-cost-paid-val">成本 (只計已付): $115,660</span>
-                  <span style="color:#0284c7;" id="proj-margin-rate">毛利率 (已付＋未付): 68.2%</span>
+                <div class="cost-metrics-list">
+                  <div class="cost-metric-row">
+                    <span class="cost-metric-label">已收金額</span>
+                    <span class="cost-metric-val recv" id="proj-recv-val">$364,183</span>
+                  </div>
+                  <div class="cost-metric-row">
+                    <span class="cost-metric-label">總成本 (已付＋未付)</span>
+                    <span class="cost-metric-val" id="proj-cost-total-val">$115,660</span>
+                  </div>
+                  <div class="cost-metric-row">
+                    <span class="cost-metric-label">已付成本</span>
+                    <span class="cost-metric-val muted" id="proj-cost-paid-val">$115,660</span>
+                  </div>
+                  <div class="cost-metric-row">
+                    <span class="cost-metric-label">毛利率 (含未付)</span>
+                    <span class="cost-metric-val margin" id="proj-margin-rate">68.2%</span>
+                  </div>
                   <span style="display:none;" id="proj-cost-val">$115,660</span>
                 </div>
               </div>
@@ -4178,14 +4071,14 @@
             <div class="card-footer-links">
               <a class="card-footer-link" id="link-project-list" href="/sites/CHUNKING/Lists/Projects/AllItems.aspx"
                 target="_blank">
-                📁 查看項目清單 ↗
+                查看項目清單 ↗
               </a>
               <a class="card-footer-link" id="link-create-tx" href="#" onclick="onDashboardAddExpense(); return false;">
-                ✏️ 為此項目記賬 ↗
+                為此項目記賬 ↗
               </a>
               <a class="card-footer-link" id="link-edit-remarks" href="#"
                 onclick="onDashboardEditRemarks(); return false;">
-                📝 編輯備註與 VO ↗
+                編輯備註與 VO ↗
               </a>
             </div>
           </div>
@@ -4195,11 +4088,11 @@
             <div class="proj-tx-toolbar">
               <div class="proj-tx-header-row">
                 <div class="proj-tx-title-wrap">
-                  <span class="proj-tx-title">📋 項目收支明細</span>
+                  <span class="proj-tx-title">項目收支明細</span>
                   <span class="proj-tx-count-badge" id="proj-tx-total-badge">36 筆</span>
                 </div>
                 <div class="proj-tx-search-box">
-                  <input type="text" id="proj-tx-search-input" placeholder="🔍 搜尋日期、金額、發票、小類、收款人..."
+                  <input type="text" id="proj-tx-search-input" placeholder="搜尋日期、金額、發票、小類、收款人..."
                     oninput="onProjTxSearch(this.value)">
                 </div>
               </div>
@@ -4208,17 +4101,17 @@
                   <button type="button" class="proj-tx-pill active" id="btn-tx-filter-all"
                     onclick="setProjTxFilter('all')">全部 (<span id="proj-tx-count-all">36</span>)</button>
                   <button type="button" class="proj-tx-pill exp" id="btn-tx-filter-exp"
-                    onclick="setProjTxFilter('expense')">💸 支出 (<span id="proj-tx-count-exp">32</span>)</button>
+                    onclick="setProjTxFilter('expense')">支出 (<span id="proj-tx-count-exp">32</span>)</button>
                   <button type="button" class="proj-tx-pill inc" id="btn-tx-filter-inc"
-                    onclick="setProjTxFilter('income')">💰 收入 (<span id="proj-tx-count-inc">4</span>)</button>
+                    onclick="setProjTxFilter('income')">收入 (<span id="proj-tx-count-inc">4</span>)</button>
                 </div>
                 <div class="proj-tx-subtotal-pills" id="proj-tx-subtotal-pills" style="display: none;">
                   <button type="button" class="proj-tx-sub-pill active" id="btn-tx-sub-none"
-                    onclick="setProjTxSubtotal('none')" title="顯示每筆明細記錄">📋 明細</button>
+                    onclick="setProjTxSubtotal('none')" title="顯示每筆明細記錄">明細</button>
                   <button type="button" class="proj-tx-sub-pill" id="btn-tx-sub-payee"
-                    onclick="setProjTxSubtotal('payee')" title="按支出收款人匯總小計">👤 收款人小計</button>
+                    onclick="setProjTxSubtotal('payee')" title="按支出收款人匯總小計">收款人小計</button>
                   <button type="button" class="proj-tx-sub-pill" id="btn-tx-sub-subitem"
-                    onclick="setProjTxSubtotal('subitem')" title="按支出小類匯總小計">🏷️ 小類小計</button>
+                    onclick="setProjTxSubtotal('subitem')" title="按支出小類匯總小計">小類小計</button>
                 </div>
               </div>
             </div>
@@ -4229,8 +4122,8 @@
                 <span class="subtotal-summary-text" id="subtotal-summary-text">共 0 位收款人，總計 -HK$ 0.00</span>
               </div>
               <div class="subtotal-summary-actions">
-                <button type="button" class="subtotal-action-btn" onclick="toggleAllProjTxGroups(true)">➕ 展開全部</button>
-                <button type="button" class="subtotal-action-btn" onclick="toggleAllProjTxGroups(false)">➖ 收起全部</button>
+                <button type="button" class="subtotal-action-btn" onclick="toggleAllProjTxGroups(true)">展開全部</button>
+                <button type="button" class="subtotal-action-btn" onclick="toggleAllProjTxGroups(false)">收起全部</button>
               </div>
             </div>
 
@@ -4273,16 +4166,12 @@
           </div>
         </div>
 
-        <!-- Card 3: 項目清單總表 -->
+        <!-- Panel 3: 項目清單總表 -->
         <div class="dash-card" id="card-project-list" style="display: none;">
           <div>
-            <div class="card-top">
-              <div class="card-title-wrap">
-                <span class="card-badge-icon">📋</span>
-                <span class="card-title">項目清單總表</span>
-              </div>
+            <div class="card-top" style="justify-content: flex-end;">
               <input type="text" id="project-list-search" class="project-list-search"
-                placeholder="🔍 搜尋項目名稱或編號..." autocomplete="off">
+                placeholder="搜尋項目名稱或編號..." autocomplete="off">
             </div>
 
             <div class="project-list-table-wrap">
@@ -5351,7 +5240,7 @@
           const toast = document.getElementById('exp-toast');
           if (toast) {
             toast.className = 'toast error';
-            toast.innerHTML = '⚠️ 付款狀態為「未付」時尚未有支票編號，無需且不支援上傳收據。請切換為「已付」後方可上傳。';
+            toast.innerHTML = '付款狀態為「未付」時尚未有支票編號，無需且不支援上傳收據。請切換為「已付」後方可上傳。';
             toast.style.display = 'block';
           }
           return;
@@ -5366,7 +5255,7 @@
             const toast = document.getElementById('edit-toast');
             if (toast) {
               toast.className = 'toast error';
-              toast.innerHTML = '⚠️ 付款狀態為「未付」時尚未有支票編號，不支援上傳收據。請切換為「已付」後方可更換收據。';
+              toast.innerHTML = '付款狀態為「未付」時尚未有支票編號，不支援上傳收據。請切換為「已付」後方可更換收據。';
               toast.style.display = 'block';
             }
             return;
@@ -5385,7 +5274,7 @@
         dz.classList.add('disabled');
         if (textEl) {
           if (!dz._originalText) dz._originalText = textEl.innerHTML;
-          textEl.innerHTML = `🔒 ${disabledReason || '未付記錄無需且不支援上傳收據'}`;
+          textEl.innerHTML = `${disabledReason || '未付記錄無需且不支援上傳收據'}`;
         }
       } else {
         dz.classList.remove('disabled');
@@ -5401,7 +5290,7 @@
 
       // File size validation: hard ceiling at 200 MB (SharePoint REST Files/add limit is 250 MB)
       if (file.size > 200 * 1024 * 1024) {
-        alert(`❌ 檔案過大 (${(file.size / (1024 * 1024)).toFixed(1)} MB)。SharePoint 直傳限制為 200 MB 以內，請壓縮 PDF 或降低掃描解析度後再上傳。`);
+        alert(`檔案過大 (${(file.size / (1024 * 1024)).toFixed(1)} MB)。SharePoint 直傳限制為 200 MB 以內，請壓縮 PDF 或降低掃描解析度後再上傳。`);
         removeFile(type);
         return;
       }
@@ -5453,7 +5342,7 @@
         if (sizeMB > 20) {
           const warnSpan = document.createElement('span');
           warnSpan.style.cssText = 'color:#b45309; font-weight:600; margin-left:6px;';
-          warnSpan.textContent = '(⚠️ 較大檔案，送出時上傳約需 30~60 秒)';
+          warnSpan.textContent = '(較大檔案，送出時上傳約需 30~60 秒)';
           origSpan.appendChild(warnSpan);
         }
       }
@@ -5699,7 +5588,7 @@
           <td>
             <div class="exp-row-proj-box" id="exp-row-proj-box-${r.id}">
               <input type="text" class="exp-row-proj-input" id="exp-row-proj-input-${r.id}"
-                     placeholder="🔍 輸入項目名稱或編號搜尋..."
+                     placeholder="輸入項目名稱或編號搜尋..."
                      value="${escapeHtml(r.projName || '')}"
                      autocomplete="off"
                      onfocus="onExpRowProjFocus(${r.id})"
@@ -5734,8 +5623,8 @@
           </td>
           <td style="text-align: center; white-space: nowrap;">
             <div style="display:flex; gap:4px; justify-content:center;">
-              <button type="button" class="btn-row-action" onclick="duplicateExpenseEntryRow(${r.id})" title="複製此行（保留小類與項目）">📋</button>
-              <button type="button" class="btn-row-action del" onclick="deleteExpenseEntryRow(${r.id})" title="刪除此行" ${isOnlyOne ? 'disabled' : ''}>🗑️</button>
+              <button type="button" class="btn-row-action" onclick="duplicateExpenseEntryRow(${r.id})" title="複製此行（保留小類與項目）">⧉</button>
+              <button type="button" class="btn-row-action del" onclick="deleteExpenseEntryRow(${r.id})" title="刪除此行" ${isOnlyOne ? 'disabled' : ''}>✕</button>
             </div>
           </td>
         </tr>
@@ -5807,7 +5696,7 @@
         const toast = document.getElementById('exp-toast');
         if (toast) {
           toast.className = 'toast error';
-          toast.innerHTML = '⚠️ 請先在第 1 行填寫小類 (例如：Salary、材料款)！';
+          toast.innerHTML = '請先在第 1 行填寫小類 (例如：Salary、材料款)！';
           toast.style.display = 'block';
           setTimeout(() => { toast.style.display = 'none'; }, 4000);
         }
@@ -5825,7 +5714,7 @@
       const toast = document.getElementById('exp-toast');
       if (toast) {
         toast.className = 'toast success';
-        toast.innerHTML = `✅ 已將所有 ${expenseRowList.length} 行的小類同步為「<strong>${escapeHtml(firstSub)}</strong>」！`;
+        toast.innerHTML = `已將所有 ${expenseRowList.length} 行的小類同步為「<strong>${escapeHtml(firstSub)}</strong>」`;
         toast.style.display = 'block';
         setTimeout(() => { toast.style.display = 'none'; }, 3000);
       }
@@ -5887,7 +5776,7 @@
 
       const submitBtn = document.getElementById('exp-submit-btn');
       if (submitBtn && !isSubmittingExpense) {
-        submitBtn.innerHTML = `<span>💾</span> 一鍵儲存支出記錄 (共 ${expenseRowList.length} 筆，合計 ${fmtMoney(totalAmt)})`;
+        submitBtn.innerHTML = `儲存支出記錄 (共 ${expenseRowList.length} 筆，合計 ${fmtMoney(totalAmt)})`;
       }
     }
 
@@ -6039,7 +5928,7 @@
       const dateVal = document.getElementById('exp-date')?.value;
       if (!dateVal) {
         toast.className = 'toast error';
-        toast.innerHTML = '❌ 請選擇交易日期！';
+        toast.innerHTML = '請選擇交易日期！';
         toast.style.display = 'block';
         document.getElementById('exp-date')?.focus();
         return;
@@ -6055,7 +5944,7 @@
       // 2. Validate Row Entries
       if (!expenseRowList || expenseRowList.length === 0) {
         toast.className = 'toast error';
-        toast.innerHTML = '❌ 請至少新增一個工程分攤項目！';
+        toast.innerHTML = '請至少新增一個工程分攤項目！';
         toast.style.display = 'block';
         return;
       }
@@ -6065,7 +5954,7 @@
         const r = expenseRowList[i];
         if (!r.projId) {
           toast.className = 'toast error';
-          toast.innerHTML = `❌ 第 <strong>${i + 1}</strong> 行尚未選取所屬項目！請在輸入框搜尋並點選工程項目。`;
+          toast.innerHTML = `第 <strong>${i + 1}</strong> 行尚未選取所屬項目！請在輸入框搜尋並點選工程項目。`;
           toast.style.display = 'block';
           const inp = document.getElementById(`exp-row-proj-input-${r.id}`);
           if (inp) inp.focus();
@@ -6074,7 +5963,7 @@
         const a = parseAmount(r.amount);
         if (!a || a <= 0) {
           toast.className = 'toast error';
-          toast.innerHTML = `❌ 第 <strong>${i + 1}</strong> 行請輸入大於 0 的有效金額！例如：5750 或 1150.50`;
+          toast.innerHTML = `第 <strong>${i + 1}</strong> 行請輸入大於 0 的有效金額！例如：5750 或 1150.50`;
           toast.style.display = 'block';
           const inp = document.getElementById(`exp-row-amt-${r.id}`);
           if (inp) inp.focus();
@@ -6085,7 +5974,7 @@
 
       isSubmittingExpense = true;
       btn.disabled = true;
-      btn.innerHTML = '<span>⏳</span> 正在取得授權認證...';
+      btn.innerHTML = '正在取得授權認證...';
 
       try {
         await getDigest();
@@ -6096,7 +5985,7 @@
         // Upload receipt file once if attached (only if paid)
         if (currentUploadedFiles.expense && paymentStatus !== '未付') {
           const fSizeMB = (currentUploadedFiles.expense.size / (1024 * 1024)).toFixed(1);
-          btn.innerHTML = `<span>⏳</span> 正在上傳收據/支票檔案 (${fSizeMB} MB，較大檔案請稍候)...`;
+          btn.innerHTML = `正在上傳收據/支票檔案 (${fSizeMB} MB，較大檔案請稍候)...`;
           let folder = '/sites/CHUNKING/DocLib';
           if (prefix === 'CK') folder += '/CK';
           else if (prefix === 'WS') folder += '/WS';
@@ -6124,7 +6013,7 @@
           const expTitle = `EXP-${String(startExpNum + i).padStart(7, '0')}`;
           createdTitles.push(expTitle);
 
-          btn.innerHTML = `<span>⏳</span> 正在儲存第 ${i + 1} / ${count} 筆 (${escapeHtml(r.projName || '項目')})...`;
+          btn.innerHTML = `正在儲存第 ${i + 1} / ${count} 筆 (${escapeHtml(r.projName || '項目')})...`;
 
           const commonRemarks = (document.getElementById('exp-remarks')?.value || '').trim();
           const rowInvoice = cleanInvoiceNoStr(r.invoiceNo || '').trim();
@@ -6175,7 +6064,7 @@
 
         // Sync project costs if paymentStatus is 已付
         if (paymentStatus === '已付') {
-          btn.innerHTML = '<span>⏳</span> 正在同步項目累計已付成本...';
+          btn.innerHTML = '正在同步項目累計已付成本...';
           for (const [pId, pDelta] of Object.entries(projCostMap)) {
             try {
               await updateProjectAmounts(parseInt(pId), pDelta, 'expense');
@@ -6203,7 +6092,7 @@
         toast.className = 'toast success';
         const rangeStr = createdTitles.length > 1 ? `${createdTitles[0]} ～ ${createdTitles[createdTitles.length - 1]}` : createdTitles[0];
         toast.innerHTML = `
-        ✅ <strong>支出分攤記錄已成功建立 (${count} 筆)！</strong><br>
+        <strong>支出分攤記錄已成功建立 (${count} 筆)</strong><br>
         支票編號：<strong>${chqNum || '(無)'}</strong> ｜ 付款狀態：<strong style="color:${paymentStatus === '已付' ? '#059669' : '#d97706'};">${paymentStatus}</strong> ｜ 收款人：${escapeHtml(payee || '-')} ｜ 總金額：<strong style="color:#dc2626;">${fmtMoney(totalAmt)}</strong><br>
         <span style="font-size:12px; opacity:0.95;">已產生交易編號：${rangeStr} ${fileUrl ? '(收據已自動歸檔並關聯全數記錄)' : ''}</span>
       `;
@@ -6226,7 +6115,7 @@
 
       } catch (err) {
         toast.className = 'toast error';
-        toast.innerHTML = `❌ 錯誤：${err.message}`;
+        toast.innerHTML = `錯誤：${err.message}`;
         toast.style.display = 'block';
       } finally {
         isSubmittingExpense = false;
@@ -6249,7 +6138,7 @@
       const toast = document.getElementById('inc-toast');
       isSubmittingIncome = true;
       btn.disabled = true;
-      btn.innerHTML = '<span>⏳</span> 處理中...';
+      btn.innerHTML = '處理中...';
       toast.style.display = 'none';
 
       try {
@@ -6260,11 +6149,11 @@
         const amount = parseAmount(document.getElementById('inc-amount').value);
         if (!amount || amount <= 0) {
           toast.className = 'toast error';
-          toast.innerHTML = '❌ 請輸入大於 0 的有效金額！例如：150000 或 10990.35';
+          toast.innerHTML = '請輸入大於 0 的有效金額！例如：150000 或 10990.35';
           toast.style.display = 'block';
           document.getElementById('inc-amount').focus();
           btn.disabled = false;
-          btn.innerHTML = '<span>💾</span> 儲存收入記錄並上傳收據';
+          btn.innerHTML = '儲存收入記錄';
           isSubmittingIncome = false;
           return;
         }
@@ -6277,7 +6166,7 @@
 
         if (currentUploadedFiles.income) {
           const fSizeMB = (currentUploadedFiles.income.size / (1024 * 1024)).toFixed(1);
-          btn.innerHTML = `<span>⏳</span> 正在上傳收據檔案 (${fSizeMB} MB，較大檔案請稍候)...`;
+          btn.innerHTML = `正在上傳收據檔案 (${fSizeMB} MB，較大檔案請稍候)...`;
           const folder = `/sites/CHUNKING/DocLib/收入/${bank}`;
           const targetName = resolveTargetReceiptFileName('income', currentUploadedFiles.income.name);
           fileName = targetName;
@@ -6327,9 +6216,9 @@
         }
 
         toast.className = 'toast success';
-        let toastMsg = `✅ <strong>收入記錄已成功建立！</strong> 交易編號：${title}，金額：$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${fileUrl ? '(收據已自動歸檔連結)' : ''}`;
+        let toastMsg = `<strong>收入記錄已成功建立</strong> 交易編號：${title}，金額：$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${fileUrl ? '(收據已自動歸檔連結)' : ''}`;
         if (projSyncResult) {
-          toastMsg += `<br><span style="font-size:12px;opacity:0.95;">🔗 所屬項目「已收金額」已自動累加更新為：<strong>$${projSyncResult.income.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></span>`;
+          toastMsg += `<br><span style="font-size:12px;opacity:0.95;">所屬項目「已收金額」已自動累加更新為：<strong>$${projSyncResult.income.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></span>`;
         }
         toast.innerHTML = toastMsg;
         toast.style.display = 'block';
@@ -6353,12 +6242,12 @@
 
       } catch (err) {
         toast.className = 'toast error';
-        toast.innerHTML = `❌ 錯誤：${err.message}`;
+        toast.innerHTML = `錯誤：${err.message}`;
         toast.style.display = 'block';
       } finally {
         isSubmittingIncome = false;
         btn.disabled = false;
-        btn.innerHTML = '<span>💾</span> 儲存收入記錄並上傳收據';
+        btn.innerHTML = '儲存收入記錄';
       }
     }
 
@@ -6376,7 +6265,7 @@
       const toast = document.getElementById('proj-toast');
       isSubmittingProject = true;
       btn.disabled = true;
-      btn.innerHTML = '<span>⏳</span> 建立中...';
+      btn.innerHTML = '建立中...';
       toast.style.display = 'none';
 
       try {
@@ -6395,12 +6284,12 @@
           const dup = (allProjects || []).find(p => (p.code || '').trim().toUpperCase() === code);
           if (dup) {
             toast.className = 'toast error';
-            toast.innerHTML = `❌ <strong>項目編號重複！</strong> 編號「${escapeHtml(code)}」已被項目「${escapeHtml(dup.Title || '其他項目')}」使用，請更換編號！`;
+            toast.innerHTML = `<strong>項目編號重複！</strong> 編號「${escapeHtml(code)}」已被項目「${escapeHtml(dup.Title || '其他項目')}」使用，請更換編號！`;
             toast.style.display = 'block';
             document.getElementById('proj-code').focus();
             isSubmittingProject = false;
             btn.disabled = false;
-            btn.innerHTML = '<span>💾</span> 建立新項目';
+            btn.innerHTML = '建立新項目';
             return;
           }
         }
@@ -6437,7 +6326,7 @@
 
         const created = await res.json();
         toast.className = 'toast success';
-        toast.innerHTML = `✅ <strong>工程項目「${escapeHtml(title)}」已成功建立！</strong> 項目選單已同步更新。`;
+        toast.innerHTML = `<strong>工程項目「${escapeHtml(title)}」已成功建立</strong> 項目選單已同步更新。`;
         toast.style.display = 'block';
 
         // Refresh projects list
@@ -6448,12 +6337,12 @@
 
       } catch (err) {
         toast.className = 'toast error';
-        toast.innerHTML = `❌ 錯誤：${err.message}`;
+        toast.innerHTML = `錯誤：${err.message}`;
         toast.style.display = 'block';
       } finally {
         isSubmittingProject = false;
         btn.disabled = false;
-        btn.innerHTML = '<span>💾</span> 建立新項目';
+        btn.innerHTML = '建立新項目';
       }
     }
 
@@ -6486,7 +6375,7 @@
         if (btnDeduct) { btnDeduct.className = 'vo-toggle-btn active deduct'; }
         if (hint) {
           hint.className = 'vo-calc-hint deduct';
-          hint.textContent = '➖ 此 VO 將扣減項目合約金額 (調減)';
+          hint.textContent = '此 VO 將扣減項目合約金額 (調減)';
         }
         if (amountInput) amountInput.placeholder = '例如：15000 (省減金額)';
       } else {
@@ -6494,7 +6383,7 @@
         if (btnDeduct) { btnDeduct.className = 'vo-toggle-btn deduct'; }
         if (hint) {
           hint.className = 'vo-calc-hint add';
-          hint.textContent = '➕ 此 VO 將增加項目合約金額';
+          hint.textContent = '此 VO 將增加項目合約金額';
         }
         if (amountInput) amountInput.placeholder = '例如：35000 (增加金額)';
       }
@@ -6534,7 +6423,7 @@
       const dup = (allProjects || []).find(p => p.Id !== currentId && (p.code || '').trim().toUpperCase() === val);
       if (dup) {
         msgEl.style.display = 'block';
-        msgEl.innerHTML = `⚠️ 此編號已被項目「${escapeHtml(dup.Title || '')}」使用`;
+        msgEl.innerHTML = `此編號已被項目「${escapeHtml(dup.Title || '')}」使用`;
         codeInp.style.borderColor = '#ef4444';
       } else {
         msgEl.style.display = 'none';
@@ -6664,7 +6553,7 @@
       if (!listEl) return;
 
       if (currentProjectVOs.length === 0) {
-        listEl.innerHTML = '<div class="vo-empty">此工程項目目前尚無後加工程 (VO) 記錄。點擊右上角「➕ 新增後加工程」即可加入。</div>';
+        listEl.innerHTML = '<div class="vo-empty">此工程項目目前尚無後加工程 (VO) 記錄。點擊右上角「+ 新增後加工程」即可加入。</div>';
         return;
       }
 
@@ -6680,17 +6569,17 @@
           html += `
           <div class="vo-card editing" id="vo-card-${vo.id}">
             <div class="vo-form-title">
-              <span>✏️</span> 編輯後加工程內容
+              編輯後加工程內容
               <span class="vo-num-badge">VO ${vo.no}</span>
             </div>
 
             <!-- Edit Type toggle: 加項 vs 減項 -->
             <div class="vo-type-toggle">
               <button type="button" class="vo-toggle-btn ${editType === 'add' ? 'active add' : 'add'}" id="edit-vo-type-add-${vo.id}" onclick="setEditVOType('${vo.id}', 'add')">
-                <span>➕ 加項</span> (增加合約金額)
+                <span>+ 加項</span> (增加合約金額)
               </button>
               <button type="button" class="vo-toggle-btn ${editType === 'deduct' ? 'active deduct' : 'deduct'}" id="edit-vo-type-deduct-${vo.id}" onclick="setEditVOType('${vo.id}', 'deduct')">
-                <span>➖ 減項</span> (扣減合約金額 / 省減)
+                <span>- 減項</span> (扣減合約金額 / 省減)
               </button>
             </div>
 
@@ -6702,7 +6591,7 @@
               <div class="form-group">
                 <label>VO 金額 (HKD) <span class="req">*</span></label>
                 <input type="text" inputmode="decimal" id="edit-vo-amount-${vo.id}" value="${absVal > 0 ? absVal : ''}" placeholder="例如：35000">
-                <div id="edit-vo-calc-hint-${vo.id}" class="vo-calc-hint ${editType === 'deduct' ? 'deduct' : 'add'}">${editType === 'deduct' ? '➖ 此 VO 將扣減項目合約金額 (調減)' : '➕ 此 VO 將增加項目合約金額'}</div>
+                <div id="edit-vo-calc-hint-${vo.id}" class="vo-calc-hint ${editType === 'deduct' ? 'deduct' : 'add'}">${editType === 'deduct' ? '此 VO 將扣減項目合約金額 (調減)' : '此 VO 將增加項目合約金額'}</div>
               </div>
               <div class="form-group">
                 <label>工程／確認日期</label>
@@ -6715,10 +6604,10 @@
             </div>
             <div class="vo-form-actions">
               <button type="button" class="btn-vo-cancel" onclick="cancelEditVO()">
-                ✕ 取消
+                取消
               </button>
               <button type="button" class="btn-vo-submit" onclick="saveEditVO('${vo.id}')">
-                <span>💾</span> 完成修改
+                完成修改
               </button>
             </div>
           </div>
@@ -6736,7 +6625,7 @@
                 <span class="vo-num-badge">VO ${vo.no}</span>
                 ${typeBadge}
                 <span class="vo-item-title">${escapeHtml(vo.title || ('後加工程 ' + vo.no))}</span>
-                ${vo.date ? `<span class="vo-date-badge">📅 ${escapeHtml(vo.date)}</span>` : ''}
+                ${vo.date ? `<span class="vo-date-badge">${escapeHtml(vo.date)}</span>` : ''}
               </div>
               <div class="${amtClass}">
                 ${amtDisplay}
@@ -6749,10 +6638,10 @@
             </div>
             <div class="vo-card-actions" id="vo-card-actions-${vo.id}">
               <button type="button" class="btn-vo-action" onclick="startEditVO('${vo.id}')" title="修改此 VO 的金額與備註">
-                <span>✏️</span> 編輯
+                編輯
               </button>
               <button type="button" class="btn-vo-action btn-vo-delete" onclick="promptDeleteVO('${vo.id}')" title="刪除此 VO">
-                <span>🗑️</span> 刪除
+                刪除
               </button>
             </div>
             <div class="vo-delete-confirm-box" id="vo-delete-confirm-${vo.id}" style="display:none;">
@@ -6784,7 +6673,7 @@
 
       if (shouldOpen) {
         formCard.style.display = 'block';
-        if (btn) btn.innerHTML = '<span>✕</span> 關閉新增表單';
+        if (btn) btn.innerHTML = '關閉新增表單';
         // Reset type to add
         setNewVOType('add');
         // Clear and set defaults
@@ -6801,7 +6690,7 @@
         if (amountInput) amountInput.focus();
       } else {
         formCard.style.display = 'none';
-        if (btn) btn.innerHTML = '<span>➕</span> 新增後加工程 (VO)';
+        if (btn) btn.innerHTML = '+ 新增後加工程 (VO)';
       }
     }
 
@@ -6878,14 +6767,14 @@
 
       if (amountRaw === '' || isNaN(rawAmt) || rawAmt === 0) {
         if (hintEl) {
-          hintEl.textContent = '❌ 請輸入大於 0 的有效金額！';
+          hintEl.textContent = '請輸入大於 0 的有效金額！';
           hintEl.className = 'vo-calc-hint deduct';
         }
         if (amountInput) amountInput.focus();
         const toast = document.getElementById('remarks-toast');
         if (toast) {
           toast.className = 'toast error';
-          toast.innerHTML = '❌ 請輸入有效的後加工程金額！';
+          toast.innerHTML = '請輸入有效的後加工程金額！';
           toast.style.display = 'block';
         }
         return;
@@ -6914,7 +6803,7 @@
       const toast = document.getElementById('remarks-toast');
       if (toast) {
         toast.className = 'toast info';
-        toast.innerHTML = `⏳ 正在將「${escapeHtml(title)}」同步儲存至 SharePoint...`;
+        toast.innerHTML = `正在將「${escapeHtml(title)}」同步儲存至 SharePoint...`;
         toast.style.display = 'block';
       }
 
@@ -6922,7 +6811,7 @@
 
       if (toast) {
         toast.className = 'toast success';
-        toast.innerHTML = `✅ 已成功加入 <strong>${escapeHtml(title)} (${fmtVOMoney(finalAmt, true)})</strong> 並已同步儲存至 SharePoint！`;
+        toast.innerHTML = `已成功加入 <strong>${escapeHtml(title)} (${fmtVOMoney(finalAmt, true)})</strong> 並同步儲存至 SharePoint`;
         toast.style.display = 'block';
       }
     }
@@ -6952,14 +6841,14 @@
         if (btnDeduct) { btnDeduct.className = 'vo-toggle-btn active deduct'; }
         if (hint) {
           hint.className = 'vo-calc-hint deduct';
-          hint.textContent = '➖ 此 VO 將扣減項目合約金額 (調減)';
+          hint.textContent = '此 VO 將扣減項目合約金額 (調減)';
         }
       } else {
         if (btnAdd) { btnAdd.className = 'vo-toggle-btn active add'; }
         if (btnDeduct) { btnDeduct.className = 'vo-toggle-btn deduct'; }
         if (hint) {
           hint.className = 'vo-calc-hint add';
-          hint.textContent = '➕ 此 VO 將增加項目合約金額';
+          hint.textContent = '此 VO 將增加項目合約金額';
         }
       }
     }
@@ -6979,14 +6868,14 @@
 
       if (amountRaw === '' || isNaN(rawAmt) || rawAmt === 0) {
         if (hintEl) {
-          hintEl.textContent = '❌ 請輸入大於 0 的有效金額！';
+          hintEl.textContent = '請輸入大於 0 的有效金額！';
           hintEl.className = 'vo-calc-hint deduct';
         }
         if (amountInput) amountInput.focus();
         const toast = document.getElementById('remarks-toast');
         if (toast) {
           toast.className = 'toast error';
-          toast.innerHTML = '❌ 請輸入有效的 VO 金額！';
+          toast.innerHTML = '請輸入有效的 VO 金額！';
           toast.style.display = 'block';
         }
         return;
@@ -7006,7 +6895,7 @@
       const toast = document.getElementById('remarks-toast');
       if (toast) {
         toast.className = 'toast info';
-        toast.innerHTML = `⏳ 正在更新「${escapeHtml(vo.title)}」至 SharePoint...`;
+        toast.innerHTML = `正在更新「${escapeHtml(vo.title)}」至 SharePoint...`;
         toast.style.display = 'block';
       }
 
@@ -7014,7 +6903,7 @@
 
       if (toast) {
         toast.className = 'toast success';
-        toast.innerHTML = `✅ 已成功更新 <strong>${escapeHtml(vo.title)} (${fmtVOMoney(finalAmt, true)})</strong> 的資訊並已同步儲存至 SharePoint！`;
+        toast.innerHTML = `已成功更新 <strong>${escapeHtml(vo.title)} (${fmtVOMoney(finalAmt, true)})</strong> 的資訊並同步儲存至 SharePoint`;
         toast.style.display = 'block';
       }
     }
@@ -7052,7 +6941,7 @@
       const toast = document.getElementById('remarks-toast');
       if (toast) {
         toast.className = 'toast info';
-        toast.innerHTML = `⏳ 正在將「${escapeHtml(voTitle)}」從 SharePoint 刪除...`;
+        toast.innerHTML = `正在將「${escapeHtml(voTitle)}」從 SharePoint 刪除...`;
         toast.style.display = 'block';
       }
 
@@ -7060,7 +6949,7 @@
 
       if (toast) {
         toast.className = 'toast success';
-        toast.innerHTML = `✅ 已成功刪除「${escapeHtml(voTitle)}」並已同步至 SharePoint！`;
+        toast.innerHTML = `已成功刪除「${escapeHtml(voTitle)}」並同步至 SharePoint`;
         toast.style.display = 'block';
       }
     }
@@ -7078,12 +6967,12 @@
       if (!projId) {
         const toast = document.getElementById('remarks-toast');
         toast.className = 'toast error';
-        toast.innerHTML = '❌ 請先搜尋並選取要編輯的工程項目！';
+        toast.innerHTML = '請先搜尋並選取要編輯的工程項目！';
         toast.style.display = 'block';
         document.getElementById('remarks-project-search').focus();
         const btn = document.getElementById('remarks-submit-btn');
         btn.disabled = false;
-        btn.innerHTML = '<span>💾</span> 儲存並更新項目資訊';
+        btn.innerHTML = '儲存並更新項目資訊';
         return;
       }
 
@@ -7091,7 +6980,7 @@
       const toast = document.getElementById('remarks-toast');
       isSubmittingRemarks = true;
       btn.disabled = true;
-      btn.innerHTML = '<span>⏳</span> 儲存中...';
+      btn.innerHTML = '儲存中...';
       toast.style.display = 'none';
 
       try {
@@ -7108,7 +6997,7 @@
           const dup = (allProjects || []).find(p => p.Id !== currentIdNum && (p.code || '').trim().toUpperCase() === codeVal);
           if (dup) {
             toast.className = 'toast error';
-            toast.innerHTML = `❌ <strong>項目編號重複！</strong> 編號「${escapeHtml(codeVal)}」已被項目「${escapeHtml(dup.Title || '其他項目')}」使用，請更換編號！`;
+            toast.innerHTML = `<strong>項目編號重複！</strong> 編號「${escapeHtml(codeVal)}」已被項目「${escapeHtml(dup.Title || '其他項目')}」使用，請更換編號！`;
             toast.style.display = 'block';
             if (codeInp) {
               codeInp.focus();
@@ -7117,11 +7006,11 @@
             const dupMsgEl = document.getElementById('edit-proj-code-dup-msg');
             if (dupMsgEl) {
               dupMsgEl.style.display = 'block';
-              dupMsgEl.innerHTML = `⚠️ 此編號已被項目「${escapeHtml(dup.Title || '')}」使用，無法儲存`;
+              dupMsgEl.innerHTML = `此編號已被項目「${escapeHtml(dup.Title || '')}」使用，無法儲存`;
             }
             isSubmittingRemarks = false;
             btn.disabled = false;
-            btn.innerHTML = '<span>💾</span> 儲存並更新項目資訊';
+            btn.innerHTML = '儲存並更新項目資訊';
             return;
           }
         }
@@ -7162,7 +7051,7 @@
         const voTotal = currentProjectVOs.reduce((sum, v) => sum + (parseFloat(v.amount) || 0), 0);
         const voNotice = currentProjectVOs.length > 0 ? `，共 ${currentProjectVOs.length} 筆後加工程 (${fmtVOMoney(voTotal, true)})` : '';
         toast.className = 'toast success';
-        toast.innerHTML = `✅ <strong>項目資訊與後加工程已成功更新！</strong> (項目編號、負責人、合約金額${voNotice}與備註已同步存入 SharePoint)`;
+        toast.innerHTML = `<strong>項目資訊與後加工程已成功更新</strong> (項目編號、負責人、合約金額${voNotice}與備註已同步存入 SharePoint)`;
         toast.style.display = 'block';
 
         // Update local cache
@@ -7189,12 +7078,12 @@
 
       } catch (err) {
         toast.className = 'toast error';
-        toast.innerHTML = `❌ 錯誤：${err.message}`;
+        toast.innerHTML = `錯誤：${err.message}`;
         toast.style.display = 'block';
       } finally {
         isSubmittingRemarks = false;
         btn.disabled = false;
-        btn.innerHTML = '<span>💾</span> 儲存並更新項目資訊';
+        btn.innerHTML = '儲存並更新項目資訊';
       }
     }
     // ==========================================
@@ -7228,15 +7117,15 @@
       if (state === 'saved') {
         btn.disabled = true;
         btn.className = 'btn-submit btn-saved';
-        btn.innerHTML = '<span>✅</span> 資料已是最新 (無待儲存變更)';
+        btn.innerHTML = '資料已是最新 (無待儲存變更)';
       } else if (state === 'loading') {
         btn.disabled = true;
         btn.className = 'btn-submit';
-        btn.innerHTML = isBatch ? `<span>⏳</span> 正在批次更新 ${batchCount} 筆記錄中...` : '<span>⏳</span> 儲存修改中...';
+        btn.innerHTML = isBatch ? `正在批次更新 ${batchCount} 筆記錄中...` : '儲存修改中...';
       } else { // 'idle' / 'dirty'
         btn.disabled = false;
         btn.className = 'btn-submit';
-        btn.innerHTML = isBatch ? `<span>💾</span> 一次儲存更新全數分攤記錄 (${batchCount} 筆)` : '<span>💾</span> 儲存修改並同步項目金額';
+        btn.innerHTML = isBatch ? `一次儲存更新全數分攤記錄 (${batchCount} 筆)` : '儲存修改並同步項目金額';
       }
     }
 
@@ -7560,7 +7449,7 @@
         if (dropdown) {
           dropdown.innerHTML = `
           <div class="combobox-empty" style="color:var(--text-muted); font-size:12.5px; padding:14px 16px; line-height:1.5;">
-            💡 請輸入至少 2 個字元以啟動全庫搜尋<br>
+            請輸入至少 2 個字元以啟動全庫搜尋<br>
             <span style="font-size:11.5px; color:#64748b;">(支援交易單號、支票編號、廠商、所屬項目或小類關鍵字)</span>
           </div>
         `;
@@ -7583,7 +7472,7 @@
         dropdown.style.display = 'block';
       }
       const statusEl = document.getElementById('edit-load-status');
-      if (statusEl) statusEl.textContent = `🔍 準備全庫搜尋 "${q}"...`;
+      if (statusEl) statusEl.textContent = `準備全庫搜尋 "${q}"...`;
 
       // 300ms debounce to prevent API throttling
       editTxSearchTimer = setTimeout(() => {
@@ -7601,7 +7490,7 @@
       const statusEl = document.getElementById('edit-load-status');
       const dropdown = document.getElementById('edit-tx-dropdown');
 
-      if (statusEl) statusEl.textContent = `🔍 正在檢索 SharePoint 全庫 "${q}"...`;
+      if (statusEl) statusEl.textContent = `正在檢索 SharePoint 全庫 "${q}"...`;
 
       try {
         await getDigest();
@@ -7739,7 +7628,7 @@
           }
         });
 
-        if (statusEl) statusEl.textContent = `✅ 全庫檢索完成：找到 ${newItems.length} 筆相符記錄`;
+        if (statusEl) statusEl.textContent = `全庫檢索完成：找到 ${newItems.length} 筆相符記錄`;
         renderEditTxResults(newItems, q, true, 'server');
       } catch (err) {
         if (seq !== editTxSearchSeq) return;
@@ -7802,11 +7691,11 @@
             <span style="font-weight:700; color:${isExp ? '#b91c1c' : '#15803d'}; flex-shrink:0; white-space:nowrap; margin-left:8px;">${isExp ? '-' : '+'}${amtStr}</span>
           </div>
           <div class="combobox-item-meta" style="margin-top:3px;">
-            📅 ${escapeHtml(tx.dateDisplay || '')} &nbsp;|&nbsp; 項目: ${escapeHtml(tx.projName || '無')} &nbsp;|&nbsp; ${statusBadge}
+            ${escapeHtml(tx.dateDisplay || '')} &nbsp;|&nbsp; 項目: ${escapeHtml(tx.projName || '無')} &nbsp;|&nbsp; ${statusBadge}
             ${tx.payee ? ` &nbsp;|&nbsp; 收款: ${escapeHtml(tx.payee)}` : ''}
-            ${tx.invoiceNo ? ` &nbsp;|&nbsp; 🧾 發票: ${escapeHtml(tx.invoiceNo)}` : ''}
+            ${tx.invoiceNo ? ` &nbsp;|&nbsp; 發票: ${escapeHtml(tx.invoiceNo)}` : ''}
             ${tx.bank ? ` &nbsp;|&nbsp; 銀行: ${escapeHtml(tx.bank)}` : ''}
-            ${tx.remarks ? ` &nbsp;|&nbsp; 📝 備註: ${escapeHtml(tx.remarks)}` : ''}
+            ${tx.remarks ? ` &nbsp;|&nbsp; 備註: ${escapeHtml(tx.remarks)}` : ''}
           </div>
         `;
 
@@ -7827,12 +7716,12 @@
           summaryDiv.style.color = '#0369a1';
           summaryDiv.style.backgroundColor = '#f0f9ff';
           summaryDiv.style.borderTop = '1px solid #e0f2fe';
-          summaryDiv.textContent = `✅ 已由全庫檢索，共找到 ${filteredEditTransactions.length} 筆相符記錄${filteredEditTransactions.length > 50 ? ' (顯示前 50 筆)' : ''}`;
+          summaryDiv.textContent = `已由全庫檢索，共找到 ${filteredEditTransactions.length} 筆相符記錄${filteredEditTransactions.length > 50 ? ' (顯示前 50 筆)' : ''}`;
         } else {
           summaryDiv.style.color = 'var(--text-muted)';
           summaryDiv.style.backgroundColor = '#f8fafc';
           summaryDiv.style.borderTop = '1px solid #f1f5f9';
-          summaryDiv.textContent = `💡 顯示最新 ${filteredEditTransactions.length} 筆記錄，輸入關鍵字即可全庫檢索`;
+          summaryDiv.textContent = `顯示最新 ${filteredEditTransactions.length} 筆記錄，輸入關鍵字即可全庫檢索`;
         }
         frag.appendChild(summaryDiv);
       }
@@ -7884,7 +7773,7 @@
 
       } catch (err) {
         console.error("loadRecentTransactions error:", err);
-        if (statusEl) statusEl.textContent = `❌ 載入失敗: ${err.message}`;
+        if (statusEl) statusEl.textContent = `載入失敗: ${err.message}`;
       }
     }
 
@@ -8415,7 +8304,7 @@
           <td>
             <div class="exp-row-proj-box" id="edit-batch-proj-box-${idx}">
               <input type="text" class="exp-row-proj-input" id="edit-batch-proj-input-${idx}"
-                     placeholder="🔍 輸入項目名稱或編號搜尋..."
+                     placeholder="輸入項目名稱或編號搜尋..."
                      value="${escapeHtml(curProjName)}"
                      autocomplete="off"
                      onfocus="onEditBatchRowProjFocus(${idx})"
@@ -8451,7 +8340,7 @@
           ${showExtractCol ? `
           <td style="text-align: center; vertical-align: middle;">
             <button type="button" class="btn-row-extract" id="btn-extract-batch-${idx}" onclick="extractSingleUnpaidFromBatch(${idx})" title="將此筆記錄獨立移出本批次">
-              <span>⚡ 移出本批次</span>
+              <span>移出本批次</span>
             </button>
           </td>
           ` : ''}
@@ -8465,8 +8354,7 @@
       <div class="edit-tx-batch-card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
           <div style="display:flex; align-items:center; gap:8px;">
-            <span style="font-size:16px;">📑</span>
-            <strong style="color:#0369a1; font-size:14px;">多項目分攤支出${chqTitlePart}</strong>
+            <strong style="color:#0f172a; font-size:14px;">多項目分攤支出${chqTitlePart}</strong>
           </div>
           <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
             <div style="font-size:13px; color:#475569;">
@@ -8474,7 +8362,7 @@
             </div>
             ${isUnpaidBatch ? `
             <button type="button" class="btn-batch-add-candidate" id="btn-batch-add-candidate" onclick="openAddCandidateModal()" title="尋找並加入相同收款人之其他未付記錄">
-              <span>➕</span> 加入同收款人記錄
+              + 加入同收款人記錄
             </button>
             ` : ''}
           </div>
@@ -8706,13 +8594,13 @@
 
       const btn = document.getElementById(`btn-extract-batch-${idx}`);
       if (btn) {
-        btn.innerHTML = '<span>⏳ 處理中...</span>';
+        btn.innerHTML = '<span>處理中...</span>';
       }
 
       const toast = document.getElementById('edit-tx-toast');
       if (toast) {
         toast.className = 'toast info';
-        toast.innerHTML = `⏳ 正在將「${escapeHtml(targetTitle)}」獨立移出批次並更新 SharePoint...`;
+        toast.innerHTML = `正在將「${escapeHtml(targetTitle)}」獨立移出批次並更新 SharePoint...`;
         toast.style.display = 'block';
       }
 
@@ -8752,7 +8640,7 @@
             if (attempt < maxRetries) {
               console.warn(`[SharePoint Throttling] HTTP ${lastRes.status}. Backing off for ${waitMs}ms (attempt ${attempt + 1}/${maxRetries})...`);
               if (toast) {
-                toast.innerHTML = `⚠️ 伺服器忙碌 (HTTP ${lastRes.status})，自動於 ${Math.ceil(waitMs / 1000)} 秒後重試...`;
+                toast.innerHTML = `伺服器忙碌 (HTTP ${lastRes.status})，自動於 ${Math.ceil(waitMs / 1000)} 秒後重試...`;
               }
               await new Promise(r => setTimeout(r, waitMs));
               continue;
@@ -8788,7 +8676,7 @@
 
         if (toast) {
           toast.className = 'toast success';
-          toast.innerHTML = `✅ <strong>記錄「${escapeHtml(targetTitle)}」已成功獨立移出本批次！</strong><br><span style="font-size:12px;">該筆記錄已標記為獨立記錄，不再受批次連動。</span>`;
+          toast.innerHTML = `<strong>記錄「${escapeHtml(targetTitle)}」已成功獨立移出本批次！</strong><br><span style="font-size:12px;">該筆記錄已標記為獨立記錄，不再受批次連動。</span>`;
           toast.style.display = 'block';
           setTimeout(() => {
             if (toast && toast.className.includes('success')) toast.style.display = 'none';
@@ -8819,7 +8707,7 @@
           const dispIdEl = document.getElementById('edit-display-id');
           if (dispIdEl) dispIdEl.textContent = remainingItem.Title || `ID: ${remainingItem.Id}`;
           const dispTypeEl = document.getElementById('edit-display-type');
-          if (dispTypeEl) dispTypeEl.textContent = '📑 多項目分攤支出';
+          if (dispTypeEl) dispTypeEl.textContent = '多項目分攤支出';
 
           renderEditBatchTable();
         }
@@ -8828,12 +8716,12 @@
         console.error("extractSingleUnpaidFromBatch failed:", err);
         if (toast) {
           toast.className = 'toast error';
-          toast.innerHTML = `❌ 移出本批次失敗：${escapeHtml(err.message)}`;
+          toast.innerHTML = `移出本批次失敗：${escapeHtml(err.message)}`;
           toast.style.display = 'block';
         }
         alert(`移出批次失敗：${err.message}`);
         if (btn) {
-          btn.innerHTML = '<span>⚡ 移出本批次</span>';
+          btn.innerHTML = '<span>移出本批次</span>';
         }
       } finally {
         isExtractingBatchItem = false;
@@ -8872,7 +8760,6 @@
           <div class="batch-modal-card">
             <div class="batch-modal-header">
               <div class="batch-modal-title">
-                <span>➕</span>
                 <span>加入同收款人未付記錄至本批次</span>
               </div>
               <button type="button" class="batch-modal-close" onclick="closeAddCandidateModal()" title="關閉">✕</button>
@@ -8946,7 +8833,6 @@
         if (bodyEl) {
           bodyEl.innerHTML = `
             <div style="padding:24px; text-align:center; color:#dc2626;">
-              <div style="font-size:24px; margin-bottom:8px;">⚠️</div>
               <div style="font-weight:600; font-size:14px;">檢索候選記錄失敗</div>
               <div style="font-size:12px; margin-top:6px; color:#64748b;">${escapeHtml(err.message)}</div>
               <button type="button" class="btn btn-secondary" onclick="openAddCandidateModal()" style="margin-top:14px; font-size:12.5px;">重新嘗試</button>
@@ -8964,7 +8850,6 @@
       if (!candidateTransactionsList || candidateTransactionsList.length === 0) {
         bodyEl.innerHTML = `
           <div style="padding: 36px 20px; text-align: center; color: #64748b;">
-            <div style="font-size: 32px; margin-bottom: 10px;">🔍</div>
             <div style="font-size: 15px; font-weight: 600; color: #1e293b;">未找到收款人「${escapeHtml(payee)}」的其他未付記錄</div>
             <p style="font-size: 12.5px; margin-top: 6px; color: #64748b; line-height: 1.6;">
               目前系統中該收款人的其他未付記錄已全數在當前批次中，或尚無其他登記為未付狀態的支出項目。
@@ -9004,8 +8889,7 @@
       }).join('');
 
       bodyEl.innerHTML = `
-        <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #0369a1;">
-          <span>💡</span>
+        <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px 14px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #334155;">
           <span>收款人：<strong>${escapeHtml(payee)}</strong>（共找到 ${candidateTransactionsList.length} 筆未付記錄）。請勾選欲合併至當前分攤批次的項目：</span>
         </div>
         <div class="exp-entries-table-wrap" style="max-height: 48vh; overflow-y: auto;">
@@ -9113,13 +8997,13 @@
       const origBtnText = confirmBtn ? confirmBtn.innerHTML : '';
       if (confirmBtn) {
         confirmBtn.disabled = true;
-        confirmBtn.innerHTML = '<span>⏳ 正在同步寫入 SharePoint...</span>';
+        confirmBtn.innerHTML = '<span>正在同步寫入 SharePoint...</span>';
       }
 
       const toast = document.getElementById('edit-tx-toast');
       if (toast) {
         toast.className = 'toast info';
-        toast.innerHTML = `⏳ 正在將 ${toAdd.length} 筆記錄加入批次並同步更新至 SharePoint...`;
+        toast.innerHTML = `正在將 ${toAdd.length} 筆記錄加入批次並同步更新至 SharePoint...`;
         toast.style.display = 'block';
       }
 
@@ -9152,7 +9036,7 @@
         for (let i = 0; i < itemsToSync.length; i++) {
           const it = itemsToSync[i];
           if (confirmBtn) {
-            confirmBtn.innerHTML = `<span>⏳</span> 正在寫入第 ${i + 1} / ${itemsToSync.length} 筆 (${it.Title || it.Id})...`;
+            confirmBtn.innerHTML = `正在寫入第 ${i + 1} / ${itemsToSync.length} 筆 (${it.Title || it.Id})...`;
           }
 
           const payload = {
@@ -9186,7 +9070,7 @@
               if (attempt < maxRetries) {
                 console.warn(`[SharePoint Throttling] HTTP ${lastRes.status}. Backing off for ${waitMs}ms (attempt ${attempt + 1}/${maxRetries})...`);
                 if (toast) {
-                  toast.innerHTML = `⚠️ 伺服器忙碌 (HTTP ${lastRes.status})，自動於 ${Math.ceil(waitMs / 1000)} 秒後重試...`;
+                  toast.innerHTML = `伺服器忙碌 (HTTP ${lastRes.status})，自動於 ${Math.ceil(waitMs / 1000)} 秒後重試...`;
                 }
                 await new Promise(r => setTimeout(r, waitMs));
                 continue;
@@ -9274,7 +9158,7 @@
         // Display success toast
         if (toast) {
           toast.className = 'toast success';
-          toast.innerHTML = `✅ <strong>已成功將 ${toAdd.length} 筆記錄加入當前批次！</strong><br><span style="font-size:12px;">批次識別碼「${targetBatchId}」與分組屬性 (IsIndependent=false) 已成功寫入 SharePoint 清單。</span>`;
+          toast.innerHTML = `<strong>已成功將 ${toAdd.length} 筆記錄加入當前批次！</strong><br><span style="font-size:12px;">批次識別碼「${targetBatchId}」與分組屬性 (IsIndependent=false) 已成功寫入 SharePoint 清單。</span>`;
           toast.style.display = 'block';
           setTimeout(() => {
             if (toast && toast.className.includes('success')) toast.style.display = 'none';
@@ -9285,7 +9169,7 @@
         console.error("confirmAddCandidatesToBatch error:", err);
         if (toast) {
           toast.className = 'toast error';
-          toast.innerHTML = `❌ 加入批次同步寫入 SharePoint 失敗：${escapeHtml(err.message)}`;
+          toast.innerHTML = `加入批次同步寫入 SharePoint 失敗：${escapeHtml(err.message)}`;
           toast.style.display = 'block';
         }
         alert(`加入批次失敗：${err.message}`);
@@ -9365,7 +9249,7 @@
         const dispIdEl = document.getElementById('edit-display-id');
         if (dispIdEl) dispIdEl.textContent = isMulti ? `${rangeText} (共 ${selectedEditBatch.length} 筆)` : (tx.Title || `ID: ${tx.Id}`);
         const dispTypeEl = document.getElementById('edit-display-type');
-        if (dispTypeEl) dispTypeEl.textContent = tx.cheque ? `📑 多項目分攤支出 (${tx.cheque})` : '📑 多項目分攤支出';
+        if (dispTypeEl) dispTypeEl.textContent = tx.cheque ? `多項目分攤支出 (${tx.cheque})` : '多項目分攤支出';
         const dispModEl = document.getElementById('edit-display-modified');
         if (dispModEl) dispModEl.textContent = tx.modifiedDisplay ? `最後修改: ${tx.modifiedDisplay}` : '';
 
@@ -9417,7 +9301,7 @@
         const dispIdEl = document.getElementById('edit-display-id');
         if (dispIdEl) dispIdEl.textContent = tx.Title || `ID: ${tx.Id}`;
         const dispTypeEl = document.getElementById('edit-display-type');
-        if (dispTypeEl) dispTypeEl.textContent = '💰 收入記錄';
+        if (dispTypeEl) dispTypeEl.textContent = '收入記錄';
         const dispModEl = document.getElementById('edit-display-modified');
         if (dispModEl) dispModEl.textContent = tx.modifiedDisplay ? `最後修改: ${tx.modifiedDisplay}` : '';
       }
@@ -9659,7 +9543,7 @@
       // 1. Guard against unchanged submissions
       if (checkIsEditTxUnchanged()) {
         toast.className = 'toast info';
-        toast.innerHTML = 'ℹ️ <strong>目前內容未有任何變更</strong>，項目金額與資料均已保持最新狀態，無需重複儲存。';
+        toast.innerHTML = '<strong>目前內容未有任何變更</strong>，項目金額與資料均已保持最新狀態，無需重複儲存。';
         toast.style.display = 'block';
         setEditSubmitButtonState('saved');
         return;
@@ -9687,7 +9571,7 @@
           if (currentUploadedFiles.edit && editPayStatus !== '未付') {
             const fSizeMB = (currentUploadedFiles.edit.size / (1024 * 1024)).toFixed(1);
             const btn = document.getElementById('edit-submit-btn');
-            if (btn) btn.innerHTML = `<span>⏳</span> 正在上傳收據檔案 (${fSizeMB} MB，較大檔案請稍候)...`;
+            if (btn) btn.innerHTML = `正在上傳收據檔案 (${fSizeMB} MB，較大檔案請稍候)...`;
             let folder = '/sites/CHUNKING/DocLib';
             let prefix = 'CK';
             if (chqNum.startsWith('WS')) prefix = 'WS';
@@ -9708,7 +9592,7 @@
             const amt = parseAmount(it.amount);
             if (!amt || amt <= 0) {
               toast.className = 'toast error';
-              toast.innerHTML = `❌ 請為第 ${i + 1} 筆分攤項目輸入大於 0 的有效金額！`;
+              toast.innerHTML = `請為第 ${i + 1} 筆分攤項目輸入大於 0 的有效金額！`;
               toast.style.display = 'block';
               const amtInp = document.getElementById(`edit-batch-amt-${i}`);
               if (amtInp) amtInp.focus();
@@ -9743,7 +9627,7 @@
             const rowInvoice = cleanInvoiceNoStr(item.invoiceNo || '').trim();
 
             if (submitBtn) {
-              submitBtn.innerHTML = `<span>⏳</span> 正在更新第 ${i + 1} / ${count} 筆 (${item.Title})...`;
+              submitBtn.innerHTML = `正在更新第 ${i + 1} / ${count} 筆 (${item.Title})...`;
             }
 
             const payload = {
@@ -9797,7 +9681,7 @@
                 if (attempt < maxRetries) {
                   console.warn(`[SharePoint Throttling] HTTP ${lastRes.status}. Backing off for ${waitMs}ms (attempt ${attempt + 1}/${maxRetries})...`);
                   if (submitBtn) {
-                    submitBtn.innerHTML = `<span>⏳</span> 伺服器忙碌，${Math.ceil(waitMs / 1000)} 秒後重試第 ${i + 1} 筆...`;
+                    submitBtn.innerHTML = `伺服器忙碌，${Math.ceil(waitMs / 1000)} 秒後重試第 ${i + 1} 筆...`;
                   }
                   await new Promise(r => setTimeout(r, waitMs));
                   continue;
@@ -9910,20 +9794,20 @@
 
           toast.className = 'toast success';
           let msg = count > 1 
-            ? `✅ <strong>全數分攤記錄（共 ${count} 筆）已成功更新！</strong><br>`
-            : `✅ <strong>記錄「${escapeHtml(selectedEditBatch[0]?.Title || '')}」已成功更新！</strong><br>`;
+            ? `<strong>全數分攤記錄（共 ${count} 筆）已成功更新！</strong><br>`
+            : `<strong>記錄「${escapeHtml(selectedEditBatch[0]?.Title || '')}」已成功更新！</strong><br>`;
           msg += `付款狀態：<strong style="color:${editPayStatus === '已付' ? '#059669' : '#d97706'};">${editPayStatus}</strong> ｜ 支票編號：<strong>${chqNum || '(無)'}</strong> ｜ 轉賬銀行：${escapeHtml(bankVal)}<br>`;
           if (newFileUrl) {
             msg += count > 1 
-              ? `<span style="font-size:12px;">📄 新收據檔案已自動關聯至全數 ${count} 筆記錄。</span><br>`
-              : `<span style="font-size:12px;">📄 新收據檔案已成功關聯。</span><br>`;
+              ? `<span style="font-size:12px;">新收據檔案已自動關聯至全數 ${count} 筆記錄。</span><br>`
+              : `<span style="font-size:12px;">新收據檔案已成功關聯。</span><br>`;
           }
           if (syncResults.length > 0) {
             syncResults.forEach(sr => {
               const p = allProjects.find(item => item.Id === sr.projId);
               const pName = p ? p.Title : `#${sr.projId}`;
               const deltaSign = sr.delta > 0 ? `+${sr.delta}` : `${sr.delta}`;
-              msg += `<span style="font-size:12px;opacity:0.95;">🔗 項目「${escapeHtml(pName)}」累計成本變動：<strong>${deltaSign}</strong> (更新後：成本=$${sr.res.cost?.toLocaleString() || '-'})</span><br>`;
+              msg += `<span style="font-size:12px;opacity:0.95;">項目「${escapeHtml(pName)}」累計成本變動：<strong>${deltaSign}</strong> (更新後：成本=$${sr.res.cost?.toLocaleString() || '-'})</span><br>`;
             });
           }
           toast.innerHTML = msg;
@@ -9933,7 +9817,7 @@
 
         } catch (err) {
           toast.className = 'toast error';
-          toast.innerHTML = `❌ 批次更新錯誤：${err.message}`;
+          toast.innerHTML = `批次更新錯誤：${err.message}`;
           toast.style.display = 'block';
           setEditSubmitButtonState('idle');
         } finally {
@@ -9955,7 +9839,7 @@
         const newAmount = parseAmount(document.getElementById('edit-amount').value);
         if (!newAmount || newAmount <= 0) {
           toast.className = 'toast error';
-          toast.innerHTML = '❌ 請輸入大於 0 的有效金額！例如：10990.35 或 25000';
+          toast.innerHTML = '請輸入大於 0 的有效金額！例如：10990.35 或 25000';
           toast.style.display = 'block';
           document.getElementById('edit-amount').focus();
           setEditSubmitButtonState('idle');
@@ -9973,7 +9857,7 @@
         if (currentUploadedFiles.edit && (!isExp || editPayStatus !== '未付')) {
           const fSizeMB = (currentUploadedFiles.edit.size / (1024 * 1024)).toFixed(1);
           const btn = document.getElementById('edit-submit-btn');
-          if (btn) btn.innerHTML = `<span>⏳</span> 正在上傳收據檔案 (${fSizeMB} MB，較大檔案請稍候)...`;
+          if (btn) btn.innerHTML = `正在上傳收據檔案 (${fSizeMB} MB，較大檔案請稍候)...`;
           let folder = '/sites/CHUNKING/DocLib';
           if (isExp) {
             const chq = (document.getElementById('edit-cheque')?.value || '').trim();
@@ -10121,16 +10005,16 @@
         }
 
         toast.className = 'toast success';
-        let msg = `✅ <strong>記錄「${selectedEditTx.Title}」已成功更新！</strong>`;
+        let msg = `<strong>記錄「${selectedEditTx.Title}」已成功更新！</strong>`;
         if (newFileUrl) {
-          msg += `<br><span style="font-size:12px;">📄 收據檔案已成功替換並重新連結。</span>`;
+          msg += `<br><span style="font-size:12px;">收據檔案已成功替換並重新連結。</span>`;
         }
         if (syncResults.length > 0) {
           syncResults.forEach(sr => {
             const p = allProjects.find(item => item.Id === sr.projId);
             const pName = p ? p.Title : `#${sr.projId}`;
             const deltaSign = sr.delta > 0 ? `+${sr.delta}` : `${sr.delta}`;
-            msg += `<br><span style="font-size:12px;opacity:0.95;">🔗 項目「${escapeHtml(pName)}」金額變動：<strong>${deltaSign}</strong> (更新後：成本=$${sr.res.cost?.toLocaleString() || '-'}, 收入=$${sr.res.income?.toLocaleString() || '-'})</span>`;
+            msg += `<br><span style="font-size:12px;opacity:0.95;">項目「${escapeHtml(pName)}」金額變動：<strong>${deltaSign}</strong> (更新後：成本=$${sr.res.cost?.toLocaleString() || '-'}, 收入=$${sr.res.income?.toLocaleString() || '-'})</span>`;
           });
         }
         toast.innerHTML = msg;
@@ -10141,7 +10025,7 @@
 
       } catch (err) {
         toast.className = 'toast error';
-        toast.innerHTML = `❌ 錯誤：${err.message}`;
+        toast.innerHTML = `錯誤：${err.message}`;
         toast.style.display = 'block';
         setEditSubmitButtonState('idle');
       } finally {
@@ -10435,8 +10319,8 @@
       const chqSafe = escapeHtml(item.cheque || '').replace(/'/g, "\\'");
 
       const editBtn = isUnpaid
-        ? `<button type="button" class="btn-quick-update-pay" onclick="event.stopPropagation(); goToEditTx('${titleSafe}', ${idSafe}, '${txType}', '${chqSafe}')" title="編輯此記錄 (未付)">✏️</button>`
-        : `<button type="button" class="btn-quick-edit" onclick="event.stopPropagation(); goToEditTx('${titleSafe}', ${idSafe}, '${txType}', '${chqSafe}')" title="編輯此記錄">✏️</button>`;
+        ? `<button type="button" class="btn-quick-update-pay" onclick="event.stopPropagation(); goToEditTx('${titleSafe}', ${idSafe}, '${txType}', '${chqSafe}')" title="編輯此記錄 (未付)">編輯</button>`
+        : `<button type="button" class="btn-quick-edit" onclick="event.stopPropagation(); goToEditTx('${titleSafe}', ${idSafe}, '${txType}', '${chqSafe}')" title="編輯此記錄">編輯</button>`;
 
       if (isUnpaid) {
         return `<div style="display:flex; align-items:center; gap:5px; flex-wrap:nowrap;">${editBtn} <span class="proj-tx-status unpaid" style="font-size:11px; margin-left:0; flex-shrink:0;">未付</span></div>`;
@@ -10445,7 +10329,7 @@
       let contentHtml;
       if (item.receipt) {
         const fullUrl = item.receipt.startsWith('/') ? origin + item.receipt : item.receipt;
-        const label = (item.cheque && item.cheque.trim()) ? escapeHtml(item.cheque.trim()) : '📄 憑證';
+        const label = (item.cheque && item.cheque.trim()) ? escapeHtml(item.cheque.trim()) : '查看憑證';
         const descText = item.receiptDesc || '查看憑證';
         contentHtml = `<a href="${encodeURI(fullUrl)}" target="_blank" rel="noopener" class="proj-tx-receipt-link" title="${escapeHtml(descText)}">${label} ↗</a>`;
       } else if (isExp && item.cheque && item.cheque.trim()) {
@@ -10516,7 +10400,6 @@
         if (emptyEl) emptyEl.style.display = 'none';
 
         const isPayee = currentPeriodTxSubtotal === 'payee';
-        const modeIcon = isPayee ? '👤' : '🏷️';
         const modeLabel = isPayee ? '收款人小計' : '小類小計';
         const unitLabel = isPayee ? '個收款人小計' : '個小類';
 
@@ -10614,7 +10497,7 @@
         // Update Summary Bar
         if (summaryBar) {
           summaryBar.style.display = 'flex';
-          if (summaryBadge) summaryBadge.textContent = `${modeIcon} ${modeLabel}`;
+          if (summaryBadge) summaryBadge.textContent = modeLabel;
           if (summaryText) {
             summaryText.innerHTML = `共 <strong>${groups.length}</strong> ${unitLabel}，支出總計 <strong style="color:#dc2626;">-${fmtMoney(totalExpAmt)}</strong> (共 <strong>${expItems.length}</strong> 筆)`;
           }
@@ -10637,7 +10520,6 @@
               <div class="proj-tx-group-bar">
                 <div class="proj-tx-group-left">
                   <span class="proj-tx-group-arrow" id="period-group-arrow-${groupId}">${isExpanded ? '▼' : '▶'}</span>
-                  <span style="font-size:12px;">${modeIcon}</span>
                   <span class="proj-tx-group-name" title="${escapeHtml(g.name)}">${escapeHtml(g.name)}</span>
                   <span class="proj-tx-group-count">${g.items.length} 筆</span>
                   ${unpaidBadgeHtml}
@@ -10682,7 +10564,7 @@
 
             html += `
             <tr class="${childRowClass}">
-              <td style="text-align: center;"><span class="proj-tx-tag exp">💸 支出</span></td>
+              <td style="text-align: center;"><span class="proj-tx-tag exp">支出</span></td>
               <td style="color:#475569; font-weight:500; white-space: nowrap;">${item.date || '-'}</td>
               <td class="td-amt" style="text-align: right; white-space: nowrap;"><span class="proj-tx-amt exp" title="-${fmtMoney(item.amt)}">-${fmtMoney(item.amt)}</span></td>
               <td style="white-space: nowrap;">${projHtml}</td>
@@ -10700,7 +10582,7 @@
         return;
       }
 
-      // Default Flat List View (currentPeriodTxSubtotal === 'none' / 📋 明細)
+      // Default Flat List View (currentPeriodTxSubtotal === 'none' / 明細)
       if (summaryBar) summaryBar.style.display = 'none';
 
       if (filtered.length === 0) {
@@ -10727,8 +10609,8 @@
         const isExp = item.type === 'expense';
         const isUnpaid = isExp && item.paymentStatus === '未付';
         const tagHtml = isExp
-          ? `<span class="proj-tx-tag exp">💸 支出</span>`
-          : `<span class="proj-tx-tag inc">💰 收入</span>`;
+          ? `<span class="proj-tx-tag exp">支出</span>`
+          : `<span class="proj-tx-tag inc">收入</span>`;
 
         const amtSign = isExp ? '-' : '+';
         const amtClass = isExp ? 'exp' : 'inc';
@@ -10807,7 +10689,7 @@
       const netBadgeEl = document.getElementById('hero-net-badge');
       if (netBadgeEl) netBadgeEl.className = "status-badge neutral";
       const statusTextEl = document.getElementById('hero-net-status-text');
-      if (statusTextEl) statusTextEl.textContent = "⏳ 即時計算中...";
+      if (statusTextEl) statusTextEl.textContent = "即時計算中...";
 
       const incTotalEl = document.getElementById('stat-inc-total');
       if (incTotalEl) incTotalEl.innerHTML = '<span class="skeleton-loading" style="width:110px; height:20px;"></span>';
@@ -11001,17 +10883,17 @@
           netEl.textContent = `+${fmtMoney(data.net)}`;
           netEl.className = "balance-value positive";
           badgeEl.className = "status-badge positive";
-          statusTextEl.textContent = "🟢 盈餘 (淨現金流入)";
+          statusTextEl.textContent = "盈餘 (淨現金流入)";
         } else if (data.net < 0) {
           netEl.textContent = `-${fmtMoney(Math.abs(data.net))}`;
           netEl.className = "balance-value negative";
           badgeEl.className = "status-badge negative";
-          statusTextEl.textContent = "🔴 虧損 (淨現金流出)";
+          statusTextEl.textContent = "虧損 (淨現金流出)";
         } else {
           netEl.textContent = fmtMoney(0);
           netEl.className = "balance-value";
           badgeEl.className = "status-badge neutral";
-          statusTextEl.textContent = "⚪ 收支平衡";
+          statusTextEl.textContent = "收支平衡";
         }
       }
 
@@ -11434,17 +11316,17 @@
           netValEl.textContent = `+${fmtMoney(net)}`;
           netValEl.className = "balance-value positive";
           netBadgeEl.className = "status-badge positive";
-          netStatusText.textContent = `🟢 實收盈餘 (利潤率 ${marginPct}%)`;
+          netStatusText.textContent = `實收盈餘 (利潤率 ${marginPct}%)`;
         } else if (net < 0) {
           netValEl.textContent = `-${fmtMoney(Math.abs(net))}`;
           netValEl.className = "balance-value negative";
           netBadgeEl.className = "status-badge negative";
-          netStatusText.textContent = "🔴 成本超支 (待追補款)";
+          netStatusText.textContent = "成本超支 (待追補款)";
         } else {
           netValEl.textContent = fmtMoney(0);
           netValEl.className = "balance-value";
           netBadgeEl.className = "status-badge neutral";
-          netStatusText.textContent = "⚪ 收支打平";
+          netStatusText.textContent = "收支打平";
         }
       }
 
@@ -11496,7 +11378,7 @@
       if (outVal) outVal.textContent = fmtCompact(outstanding);
 
       const recvVal = document.getElementById('proj-recv-val');
-      if (recvVal) recvVal.textContent = `已收: ${fmtCompact(recvNum)}`;
+      if (recvVal) recvVal.textContent = fmtCompact(recvNum);
 
       const totalCostVal = document.getElementById('proj-cost-total-val');
       const paidCostVal = document.getElementById('proj-cost-paid-val');
@@ -11506,14 +11388,14 @@
       const displayTotal = p.totalCost !== undefined ? p.totalCost : costNum;
       const displayUnpaid = p.unpaidCost !== undefined ? p.unpaidCost : Math.max(0, displayTotal - displayPaid);
 
-      if (totalCostVal) totalCostVal.textContent = `成本 (已付＋未付): ${fmtCompact(displayTotal)}`;
-      if (paidCostVal) paidCostVal.textContent = `成本 (只計已付): ${fmtCompact(displayPaid)}`;
+      if (totalCostVal) totalCostVal.textContent = fmtCompact(displayTotal);
+      if (paidCostVal) paidCostVal.textContent = fmtCompact(displayPaid);
       if (costVal) costVal.textContent = `成本: ${fmtCompact(displayPaid)}`;
 
       const marginRate = document.getElementById('proj-margin-rate');
       if (marginRate) {
         const marginPctTotal = recvNum > 0 ? Math.round(((recvNum - displayTotal) / recvNum) * 1000) / 10 : 0;
-        marginRate.textContent = `毛利率 (已付＋未付): ${marginPctTotal}%`;
+        marginRate.textContent = `${marginPctTotal}%`;
       }
 
       const progPct = document.getElementById('proj-progress-pct');
@@ -11550,8 +11432,8 @@
 
         div.innerHTML = `
         <div class="project-opt-title" style="display:flex; justify-content:space-between; align-items:baseline; gap:8px;">
-          <span>${escapeHtml(p.title)} ${p.code ? `<span style="font-size:10px; color:#0284c7;">(${escapeHtml(p.code)})</span>` : ''}</span>
-          ${dateStr ? `<span style="font-size:10px; font-weight:500; color:#0284c7; white-space:nowrap; background:#f0f9ff; padding:1px 5px; border-radius:4px; border:1px solid #bae6fd;">📅 ${dateStr}</span>` : ''}
+          <span>${escapeHtml(p.title)} ${p.code ? `<span style="font-size:10px; color:#64748b;">(${escapeHtml(p.code)})</span>` : ''}</span>
+          ${dateStr ? `<span style="font-size:11px; font-weight:500; color:#64748b; white-space:nowrap;">${dateStr}</span>` : ''}
         </div>
         <div class="project-opt-sub">
           <span>合約: ${fmtCompact(p.contract || p.amt || 0)}</span>
@@ -11805,8 +11687,8 @@
       const costVal = document.getElementById('proj-cost-val');
       const marginRate = document.getElementById('proj-margin-rate');
 
-      if (totalCostVal) totalCostVal.textContent = `成本 (已付＋未付): ${fmtCompact(selectedDashProject.totalCost)}`;
-      if (paidCostVal) paidCostVal.textContent = `成本 (只計已付): ${fmtCompact(selectedDashProject.paidCost)}`;
+      if (totalCostVal) totalCostVal.textContent = fmtCompact(selectedDashProject.totalCost);
+      if (paidCostVal) paidCostVal.textContent = fmtCompact(selectedDashProject.paidCost);
       if (costVal) costVal.textContent = `成本: ${fmtCompact(selectedDashProject.paidCost)}`;
 
       const recvNum = parseFloat(selectedDashProject.recv || 0) || 0;
@@ -11814,7 +11696,7 @@
       const marginPctTotal = recvNum > 0 ? Math.round((netTotal / recvNum) * 1000) / 10 : 0;
 
       if (marginRate) {
-        marginRate.textContent = `毛利率 (已付＋未付): ${marginPctTotal}%`;
+        marginRate.textContent = `${marginPctTotal}%`;
       }
 
       const netValEl = document.getElementById('proj-net-val');
@@ -11825,17 +11707,17 @@
           netValEl.textContent = `+${fmtMoney(netTotal)}`;
           netValEl.className = "balance-value positive";
           netBadgeEl.className = "status-badge positive";
-          netStatusText.textContent = `🟢 實收盈餘 (利潤率 ${marginPctTotal}%)`;
+          netStatusText.textContent = `實收盈餘 (利潤率 ${marginPctTotal}%)`;
         } else if (netTotal < 0) {
           netValEl.textContent = `-${fmtMoney(Math.abs(netTotal))}`;
           netValEl.className = "balance-value negative";
           netBadgeEl.className = "status-badge negative";
-          netStatusText.textContent = "🔴 成本超支 (待追補款)";
+          netStatusText.textContent = "成本超支 (待追補款)";
         } else {
           netValEl.textContent = fmtMoney(0);
           netValEl.className = "balance-value";
           netBadgeEl.className = "status-badge neutral";
-          netStatusText.textContent = "⚪ 收支打平";
+          netStatusText.textContent = "收支打平";
         }
       }
     }
@@ -12149,7 +12031,6 @@
         if (emptyEl) emptyEl.style.display = 'none';
 
         const isPayee = currentProjTxSubtotal === 'payee';
-        const modeIcon = isPayee ? '👤' : '🏷️';
         const modeLabel = isPayee ? '收款人小計' : '小類小計';
         const unitLabel = isPayee ? '個收款人小計' : '個小類';
 
@@ -12250,7 +12131,7 @@
         // Update Summary Bar
         if (summaryBar) {
           summaryBar.style.display = 'flex';
-          if (summaryBadge) summaryBadge.textContent = `${modeIcon} ${modeLabel}`;
+          if (summaryBadge) summaryBadge.textContent = modeLabel;
           if (summaryText) {
             summaryText.innerHTML = `共 <strong>${groups.length}</strong> ${unitLabel}，支出總計 <strong style="color:#dc2626;">-${fmtMoney(totalExpAmt)}</strong> (共 <strong>${expItems.length}</strong> 筆)`;
           }
@@ -12273,7 +12154,6 @@
               <div class="proj-tx-group-bar">
                 <div class="proj-tx-group-left">
                   <span class="proj-tx-group-arrow" id="group-arrow-${groupId}">${isExpanded ? '▼' : '▶'}</span>
-                  <span style="font-size:12px;">${modeIcon}</span>
                   <span class="proj-tx-group-name" title="${escapeHtml(g.name)}">${escapeHtml(g.name)}</span>
                   <span class="proj-tx-group-count">${g.items.length} 筆</span>
                   ${unpaidBadgeHtml}
@@ -12315,7 +12195,7 @@
 
             html += `
             <tr class="${childRowClass}">
-              <td style="text-align: center;"><span class="proj-tx-tag exp">💸 支出</span></td>
+              <td style="text-align: center;"><span class="proj-tx-tag exp">支出</span></td>
               <td style="color:#475569; font-weight:500; white-space: nowrap;">${item.date || '-'}</td>
               <td class="td-amt" style="text-align: right; white-space: nowrap;"><span class="proj-tx-amt exp" title="-${fmtMoney(item.amt)}">-${fmtMoney(item.amt)}</span></td>
               <td class="td-subitem">${subitemHtml}</td>
@@ -12359,8 +12239,8 @@
         const isExp = item.type === 'expense';
         const isUnpaid = isExp && item.paymentStatus === '未付';
         const tagHtml = isExp
-          ? `<span class="proj-tx-tag exp">💸 支出</span>`
-          : `<span class="proj-tx-tag inc">💰 收入</span>`;
+          ? `<span class="proj-tx-tag exp">支出</span>`
+          : `<span class="proj-tx-tag inc">收入</span>`;
 
         const amtSign = isExp ? '-' : '+';
         const amtClass = isExp ? 'exp' : 'inc';
