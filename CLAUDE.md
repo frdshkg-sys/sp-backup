@@ -134,6 +134,14 @@ mitigation/
 2. **Do Not Touch `_archive/`**:
    Files in `_archive/` are historical logs, data migration checkpoints, and superseded scripts. They must not be modified or imported into production flows.
 3. **Session Credentials in `cookies.json`**:
-   `cookies.json` stores live session cookies. If API calls return `401 Unauthorized` or redirect to login pages, prompt the user to refresh `cookies.json` from their browser's developer tools.
+   `cookies.json` stores live session cookies (`FedAuth` and `rtFa`). If API calls return `401 Unauthorized` or `403 Forbidden`, refresh `cookies.json`:
+   1. In Chrome, log in to `https://k35n.sharepoint.com/sites/CHUNKING` and open DevTools (`Cmd + Option + I` on macOS / `F12` on Windows).
+   2. Open the **Application** tab (click `>>` if hidden) $\rightarrow$ **Storage** $\rightarrow$ **Cookies** $\rightarrow$ `https://k35n.sharepoint.com` *(Note: the Network tab often hides `Cookie` headers on cached/ServiceWorker requests)*.
+   3. Copy the **Value** of `FedAuth` (and `rtFa` if present) from the table and run:
+      ```bash
+      python3 update_cookies.py "FedAuth=PASTE_FEDAUTH_HERE; rtFa=PASTE_RTFA_HERE"
+      ```
+      *(Or save `{"FedAuth": "...", "rtFa": "..."}` directly to `cookies.json`).*
+   4. Restart `server.py` if it is already running so it reloads `cookies.json`.
 4. **Preserve Compatibility**:
    When updating `deploy_app_to_sharepoint.py`, always ensure both `/SiteAssets/forms/app.html` (for existing Quick Links and web parts) and `/SiteAssets/app/` (for UI visibility) are maintained.

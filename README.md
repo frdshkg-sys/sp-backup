@@ -75,7 +75,22 @@ mitigation/
   ```bash
   pip install requests
   ```
-* 確保 `cookies.json` 包含有效的 SharePoint 登入憑證（可由瀏覽器開發人員工具中複製 SharePoint 網站之 Cookie）。
+* 確保 `cookies.json` 包含有效的 SharePoint 登入憑證（`FedAuth` 與 `rtFa`）：
+  1. 在 Chrome 登入 `https://k35n.sharepoint.com/sites/CHUNKING`，開啟開發人員工具（macOS: `Cmd + Option + I` / Windows: `F12`）。
+  2. 切換至頂部的 **Application（應用程式）** 分頁（若未顯示可點選 `>>` 展開）。
+  3. 在左側選單 **Storage > Cookies** 下點選 `https://k35n.sharepoint.com`。
+  4. 在右側表格中找到 **`FedAuth`** 與 **`rtFa`**，雙擊複製其 **Value（值）**。
+  5. 透過 `update_cookies.py` 自動驗證並生成 `cookies.json`：
+     ```bash
+     python3 update_cookies.py "FedAuth=貼上FedAuth值; rtFa=貼上rtFa值"
+     ```
+     或直接手動建立 `cookies.json`：
+     ```json
+     {
+       "FedAuth": "貼上FedAuth值",
+       "rtFa": "貼上rtFa值"
+     }
+     ```
 
 ### 2. 啟動伺服器
 * **方式 A（推薦）**：滑鼠雙擊 `start_app.bat`。

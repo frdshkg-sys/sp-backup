@@ -1,3 +1,13 @@
+"""
+Utility to validate and save SharePoint Online session cookies (`FedAuth` & `rtFa`) to `cookies.json`.
+
+How to obtain cookies in Chrome:
+1. Open https://k35n.sharepoint.com/sites/CHUNKING and open DevTools (Cmd+Option+I / F12).
+2. Go to the "Application" tab -> Storage -> Cookies -> https://k35n.sharepoint.com.
+3. Copy the "Value" of `FedAuth` (and `rtFa` if present) and run:
+   python3 update_cookies.py "FedAuth=YOUR_FEDAUTH_VALUE; rtFa=YOUR_RTFA_VALUE"
+"""
+
 import os
 import sys
 import json
