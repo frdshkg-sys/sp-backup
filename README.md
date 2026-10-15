@@ -1,6 +1,6 @@
 # CHUN KING 業務智慧表單與財務看板系統
 
-本專案為 **CHUN KING** 量身打造的高效能 SharePoint Online 業務整合系統，集成了「新增支出記錄（多項目分攤）」、「新增收入記錄」、「編輯收支記錄（全庫即時搜尋與批次分攤編輯）」、「工程項目管理」、「工程備忘錄」及「財務即時看板」等全流程功能。
+本專案為 **CHUN KING** 量身打造的高效能 SharePoint Online 業務整合系統，集成了「新增支出記錄（多項目分攤）」、「新增收入記錄」、「工程項目建立」、「項目備註編輯」、「編輯收支記錄（全庫即時搜尋與批次分攤編輯）」及「財務即時看板」等六個核心功能頁面。
 
 本系統支援 **本地開發環境**（透過 Python 智慧代理連線至 SharePoint 線上資料庫）與 **SharePoint 線上正式環境**（透過 SiteAssets 內嵌與自動通信橋樑）無縫雙軌運作。
 
@@ -39,7 +39,11 @@
 * **收據更換與鎖定**：
   * 支援更換收據並自動更名為支票編號；未付狀態下同樣嚴格鎖定上傳區塊。
 
-### 4. 財務看板與工程統計 (Dashboard & Project Sync)
+### 4. 項目管理備註 (Project Management & Remarks)
+* **新增項目 (`#project`)**：建立新工程項目，填入合約金額、施工日期等基礎資料。
+* **編輯備註 (`#remarks`)**：搜尋工程項目（支援編號/名稱關鍵字），直接編輯項目備註與注意事項。
+
+### 5. 財務總覽看板 (Financial Dashboard)
 * **合約金額與成本動態同步**：每次新增、編輯、分攤或作廢交易時，自動增量計算並同步更新工程項目的累計成本與累計收入。
 * **變更工程 (VO) 動態統計**：完整追蹤合約金額調整與預算執行情況。
 
@@ -48,18 +52,37 @@
 ## 📂 專案目錄結構
 
 ```text
-mitigation/
+$REPO_ROOT/
 ├── smart_forms_app.html            # 核心單頁應用程式 (表單中心 + 財務看板)
 ├── server.py                       # 本地開發代理伺服器 (反向代理 SharePoint REST API)
 ├── start_app.bat                   # 本地一鍵啟動腳本
-├── deploy_app_to_sharepoint.py     # 全系統自動化 SharePoint 部署腳本 (包含表單中心與看板)
+├── deploy_app_to_sharepoint.py     # 全系統自動化 SharePoint 部署腳本
+├── update_cookies.py               # Cookie 更新輔助工具
 ├── sharepoint-bridge.user.js       # Tampermonkey 自動通信與路由橋樑腳本
 ├── cookies.json                    # SharePoint 認證 Cookies (本機連線憑證)
+├── SHAREPOINT_GUID_MAPPING.md      # OData 欄位對照表 (Chinese <-> Hex internal names)
+├── CLAUDE.md                       # AI 開發者指引
+├── CHUN_KING_表單中心與財務看板使用指引.pdf # 操作指引手冊
+├── guide_assets/                   # PDF 指引的截圖資源 (~30 PNG)
+├── 支出小類精簡與映射對照表_CHUN_KING.xlsx  # 支出小類映射對照表
+│
 ├── chrome-extension/               # Chrome 擴充功能 (SharePoint Forms Auto-Bridge)
 │   ├── manifest.json
 │   ├── content.js
 │   └── 使用說明.txt
-├── CHUN_KING_表單中心與財務看板使用指引.pdf # 操作指引手冊
+│
+├── backup/                         # SharePoint to Google Drive 自動化備份引擎
+│   ├── backup_sharepoint_to_gdrive.py
+│   ├── sharepoint_client.py
+│   ├── gdrive_client.py
+│   ├── service_account.json        # (OAuth tokens / service account key)
+│   └── requirements.txt
+│
+├── .github/workflows/
+│   └── weekly_backup.yml           # GitHub Actions 每週自動備份 Cron
+│
+├── _archive/                       # 歷史腳本與遷移記錄 (DO NOT EDIT)
+│
 └── README.md                       # 專案說明文件 (本文件)
 ```
 
@@ -101,10 +124,12 @@ mitigation/
 伺服器將在 `http://localhost:8080` 啟動，並自動在瀏覽器中開啟表單。
 
 ### 3. 本地測試頁面
-* 支出表記錄：`http://localhost:8080/smart_forms_app.html#expense`
-* 收入表記錄：`http://localhost:8080/smart_forms_app.html#income`
-* 編輯收支表記錄：`http://localhost:8080/smart_forms_app.html#edit-tx`
-* 財務看板：`http://localhost:8080/smart_forms_app.html#dashboard`
+* 新增支出記錄：`http://localhost:8080/smart_forms_app.html#expense`
+* 新增收入記錄：`http://localhost:8080/smart_forms_app.html#income`
+* 新增項目：`http://localhost:8080/smart_forms_app.html#project`
+* 編輯項目備註：`http://localhost:8080/smart_forms_app.html#remarks`
+* 編輯收支記錄：`http://localhost:8080/smart_forms_app.html#edit-tx`
+* 財務總覽看板：`http://localhost:8080/smart_forms_app.html#dashboard`
 
 ---
 
@@ -119,13 +144,9 @@ python deploy_app_to_sharepoint.py
 
 ### 2. 部署流程
 1. 自動讀取 `cookies.json` 並向 SharePoint 請求最新 `FormDigestValue`（包含 429 速率限制重試機制）。
-2. 將 `smart_forms_app.html` 同步上傳至雙重路徑（兼具現有連結相容性與 SharePoint 介面視覺可見性）：
-   * **視覺可見目錄（SharePoint 網站資產介面直接瀏覽）**：
-     * `/sites/CHUNKING/SiteAssets/app/smart_forms_app.html`
-     * `/sites/CHUNKING/SiteAssets/app/app.html`
-   * **現有系統目錄（確保既有 Web Part 連結不受影響）**：
-     * `/sites/CHUNKING/SiteAssets/forms/app.html`
-     * `/sites/CHUNKING/SiteAssets/forms/smart_forms_app.html`
+2. 將 `smart_forms_app.html` 同步上傳至 **4 個目標路徑**（兩個資料夾各兩檔，兼具現有連結相容性與 SharePoint 介面視覺可見性）：
+   - `/sites/CHUNKING/SiteAssets/forms/app.html` & `/sites/CHUNKING/SiteAssets/forms/smart_forms_app.html`
+   - `/sites/CHUNKING/SiteAssets/app/app.html` & `/sites/CHUNKING/SiteAssets/app/smart_forms_app.html`
 3. 執行二進位大小驗證，確保線上檔案與本機完全一致。
 
 ### 3. SharePoint 線上正式入口
@@ -140,11 +161,10 @@ python deploy_app_to_sharepoint.py
 
 | 項目類型 | 名稱 / GUID | 儲存路徑 / 說明 |
 | :--- | :--- | :--- |
-| **支出記錄** | `Transactions` / `GUID_EXPENSE` | 記錄所有分攤支出記錄、支票號碼、付款狀態、收據 URL |
-| **收入記錄** | `List` / `GUID_INCOME` | 記錄所有收入傳票、金額、入賬銀行、收據 URL |
-| **工程項目** | `Projects` / `GUID_PROJECT` | 記錄工程合約、累計已付成本、累計收入、變更工程 (VO) |
-| **支出收據文件庫** | `DocLib` | `/sites/CHUNKING/DocLib/{CK\|WS\|CHQ\|DBS\|TEST}/{支票號碼}.{ext}` |
-| **收入收據文件庫** | `DocLib` | `/sites/CHUNKING/DocLib/收入/{銀行名稱}/{單號}.{ext}` |
+| **支出記錄** | `Transactions` / `GUID_EXPENSE` | 記錄所有分攤支出、支票號碼、付款狀態、收據 URL |
+| **收入記錄** | `交易記錄-收入` / `GUID_INCOME` | 記錄所有收入傳票、金額、入賬銀行、收據 URL |
+| **工程項目** | `Projects` / `GUID_PROJECTS` | 記錄工程合約、累計已付成本、累計收入、變更工程 (VO) |
+| **收據文件庫** | `DocLib`（支票收據）/ `441ac1bf-...` | `/sites/CHUNKING/DocLib/{CK\|WS\|CHQ\|DBS\|TEST}/{支票號碼}.{ext}`（支出）及 `/DocLib/收入/{銀行}/{單號}.{ext}`（收入） |
 
 ---
 
