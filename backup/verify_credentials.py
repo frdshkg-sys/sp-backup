@@ -20,7 +20,9 @@ SITE_URL = os.environ.get("SP_SITE_URL", "https://k35n.sharepoint.com/sites/CHUN
 
 def verify_sharepoint() -> bool:
     print("\n--- [1/2] 正在驗證 SharePoint Cookies ---")
-    import requests
+    import urllib.parse
+    import urllib.request
+    import urllib.error
 
     # 1. 取得 Cookies (優先讀取環境變數，若無則讀取本地 cookies.json)
     env_cookies = os.environ.get("SP_COOKIES_JSON")
@@ -39,7 +41,6 @@ def verify_sharepoint() -> bool:
                 print(f"[!] 無法將 SP_COOKIES_JSON 解析為 JSON: {e}")
         else:
             try:
-                import urllib.parse
                 raw = env_cookies[7:].strip() if env_cookies.lower().startswith("cookie:") else env_cookies
                 for part in raw.split(";"):
                     if "=" in part:
@@ -65,26 +66,31 @@ def verify_sharepoint() -> bool:
         print("[X] Cookies 內容為空！")
         return False
 
-    session = requests.Session()
-    session.trust_env = False
-    session.cookies.update(cookies)
-    session.headers.update({
-        "Accept": "application/json;odata=verbose",
-        "User-Agent": "NONISV|ChunKing|WeeklyBackup/1.0"
-    })
+    cookie_header = "; ".join(f"{k}={v}" for k, v in cookies.items())
+    req = urllib.request.Request(
+        f"{SITE_URL}/_api/contextinfo",
+        data=b"",
+        headers={
+            "Accept": "application/json;odata=verbose",
+            "User-Agent": "NONISV|ChunKing|WeeklyBackup/1.0",
+            "Cookie": cookie_header,
+            "Content-Length": "0"
+        },
+        method="POST"
+    )
 
     try:
-        res = session.post(f"{SITE_URL}/_api/contextinfo", timeout=12)
-        if res.status_code == 200:
-            digest = res.json().get("d", {}).get("GetContextWebInformation", {}).get("FormDigestValue", "")
-            print(f"[OK] SharePoint 驗證成功！(HTTP 200)")
+        with urllib.request.urlopen(req, timeout=12) as res:
+            body = json.loads(res.read().decode("utf-8"))
+            digest = body.get("d", {}).get("GetContextWebInformation", {}).get("FormDigestValue", "")
+            print(f"[OK] SharePoint 驗證成功！(HTTP {res.status})")
             print(f"     FormDigest: {digest[:24]}...")
             return True
-        else:
-            print(f"[X] SharePoint 驗證失敗: HTTP {res.status_code}")
-            if res.status_code in (401, 403):
-                print("     原因: Cookies 已過期或權限不足，請重新登入複製。")
-            return False
+    except urllib.error.HTTPError as e:
+        print(f"[X] SharePoint 驗證失敗: HTTP {e.code}")
+        if e.code in (401, 403):
+            print("     原因: Cookies 已過期或權限不足，請重新登入複製。")
+        return False
     except Exception as e:
         print(f"[X] 連線至 SharePoint 時發生錯誤: {e}")
         return False
@@ -92,13 +98,9 @@ def verify_sharepoint() -> bool:
 
 def verify_gdrive() -> bool:
     print("\n--- [2/2] 正在驗證 Google Drive OAuth 憑證 ---")
-    try:
-        from google.oauth2.credentials import Credentials
-        from google.auth.transport.requests import Request
-        from googleapiclient.discovery import build
-    except ImportError:
-        print("[!] 尚未安裝 Google API 用戶端套件 (請執行: pip install google-api-python-client google-auth-oauthlib)")
-        return False
+    import urllib.parse
+    import urllib.request
+    import urllib.error
 
     token_data = None
     env_oauth = os.environ.get("GDRIVE_OAUTH_TOKEN_JSON")
@@ -121,22 +123,40 @@ def verify_gdrive() -> bool:
         print("[X] OAuth Token 資料為空！")
         return False
 
+    token_uri = token_data.get("token_uri", "https://oauth2.googleapis.com/token")
+    refresh_token = token_data.get("refresh_token")
+    client_id = token_data.get("client_id")
+    client_secret = token_data.get("client_secret")
+    access_token = token_data.get("token")
+
     try:
-        creds = Credentials(
-            token=token_data.get("token"),
-            refresh_token=token_data.get("refresh_token"),
-            token_uri=token_data.get("token_uri", "https://oauth2.googleapis.com/token"),
-            client_id=token_data.get("client_id"),
-            client_secret=token_data.get("client_secret"),
-            scopes=["https://www.googleapis.com/auth/drive"]
+        if refresh_token and client_id and client_secret:
+            print("[*] 正在透過 refresh_token 測試刷新存取金鑰...")
+            form_data = urllib.parse.urlencode({
+                "client_id": client_id,
+                "client_secret": client_secret,
+                "refresh_token": refresh_token,
+                "grant_type": "refresh_token"
+            }).encode("utf-8")
+            token_req = urllib.request.Request(
+                token_uri,
+                data=form_data,
+                headers={"Content-Type": "application/x-www-form-urlencoded"},
+                method="POST"
+            )
+            with urllib.request.urlopen(token_req, timeout=12) as res:
+                refresh_resp = json.loads(res.read().decode("utf-8"))
+                access_token = refresh_resp.get("access_token", access_token)
+
+        about_url = "https://www.googleapis.com/drive/v3/about?fields=user,storageQuota"
+        about_req = urllib.request.Request(
+            about_url,
+            headers={"Authorization": f"Bearer {access_token}"},
+            method="GET"
         )
+        with urllib.request.urlopen(about_req, timeout=12) as res:
+            about = json.loads(res.read().decode("utf-8"))
 
-        if not creds.valid and creds.refresh_token:
-            print("[*] 正在透過 refresh_token 刷新存取金鑰...")
-            creds.refresh(Request())
-
-        service = build("drive", "v3", credentials=creds)
-        about = service.about().get(fields="user, storageQuota").execute()
         user_email = about.get("user", {}).get("emailAddress", "未知")
         limit = int(about.get("storageQuota", {}).get("limit", 0)) / (1024 ** 3)
         usage = int(about.get("storageQuota", {}).get("usage", 0)) / (1024 ** 3)
@@ -151,12 +171,27 @@ def verify_gdrive() -> bool:
         folder_id = os.environ.get("GDRIVE_FOLDER_ID")
         if folder_id:
             try:
-                folder_meta = service.files().get(fileId=folder_id, fields="id, name").execute()
+                folder_url = f"https://www.googleapis.com/drive/v3/files/{folder_id}?fields=id,name&supportsAllDrives=true"
+                folder_req = urllib.request.Request(
+                    folder_url,
+                    headers={"Authorization": f"Bearer {access_token}"},
+                    method="GET"
+                )
+                with urllib.request.urlopen(folder_req, timeout=12) as res:
+                    folder_meta = json.loads(res.read().decode("utf-8"))
                 print(f"[OK] 目標資料夾已確認: {folder_meta.get('name')} (ID: {folder_id})")
             except Exception as e:
                 print(f"[!] 無法存取目標資料夾 ID {folder_id}: {e}")
 
         return True
+    except urllib.error.HTTPError as e:
+        err_body = ""
+        try:
+            err_body = e.read().decode("utf-8")
+        except Exception:
+            pass
+        print(f"[X] Google Drive 驗證失敗 (HTTP {e.code}): {err_body or e}")
+        return False
     except Exception as e:
         print(f"[X] Google Drive 驗證失敗: {e}")
         return False

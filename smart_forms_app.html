@@ -2365,6 +2365,7 @@
       box-sizing: border-box;
     }
 
+    .proj-tx-table tbody td.td-proj,
     .proj-tx-table tbody td.td-invoice,
     .proj-tx-table tbody td.td-subitem,
     .proj-tx-table tbody td.td-payee {
@@ -2609,10 +2610,12 @@
 
     .period-tx-proj {
       display: inline-block;
-      max-width: 140px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      max-width: 100%;
+      white-space: normal;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      line-height: 1.35;
+      vertical-align: middle;
       font-weight: 600;
       color: #1e293b;
       font-size: 12.5px;
@@ -3947,7 +3950,7 @@
               <table class="proj-tx-table">
                 <colgroup>
                   <col style="width: 58px;">
-                  <col style="width: 82px;">
+                  <col style="width: 100px;">
                   <col style="width: 130px;">
                   <col style="width: auto;">
                   <col style="width: 85px;">
@@ -4131,7 +4134,7 @@
               <table class="proj-tx-table">
                 <colgroup>
                   <col style="width: 58px;">
-                  <col style="width: 82px;">
+                  <col style="width: 100px;">
                   <col style="width: 130px;">
                   <col style="width: 85px;">
                   <col style="width: auto;">
@@ -10567,7 +10570,7 @@
               <td style="text-align: center;"><span class="proj-tx-tag exp">支出</span></td>
               <td style="color:#475569; font-weight:500; white-space: nowrap;">${item.date || '-'}</td>
               <td class="td-amt" style="text-align: right; white-space: nowrap;"><span class="proj-tx-amt exp" title="-${fmtMoney(item.amt)}">-${fmtMoney(item.amt)}</span></td>
-              <td style="white-space: nowrap;">${projHtml}</td>
+              <td class="td-proj">${projHtml}</td>
               <td class="td-subitem">${subitemHtml}</td>
               <td class="td-payee">${payeeHtml}</td>
               <td class="td-invoice">${invoiceHtml}</td>
@@ -10652,7 +10655,7 @@
           <td style="text-align: center;">${tagHtml}</td>
           <td style="color:#475569; font-weight:500; white-space: nowrap;">${item.date || '-'}</td>
           <td class="td-amt" style="text-align: right; white-space: nowrap;">${amtHtml}</td>
-          <td style="white-space: nowrap;">${projHtml}</td>
+          <td class="td-proj">${projHtml}</td>
           <td class="td-subitem">${subitemHtml}</td>
           <td class="td-payee">${payeeHtml}</td>
           <td class="td-invoice">${invoiceHtml}</td>
