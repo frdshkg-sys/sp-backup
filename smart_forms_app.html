@@ -4266,7 +4266,7 @@
                   <thead>
                     <tr>
                       <th style="text-align:left;">項目</th>
-                      <th id="pl-sort-header" style="text-align:left; cursor:pointer;" title="右鍵切換排序：最早支出時間 ↔ 施工日期">施工日期 ▾</th>
+                      <th style="text-align:left;">施工日期</th>
                       <th style="text-align:right;">合約總額（含 VO）</th>
                       <th style="text-align:right;">已收</th>
                       <th style="text-align:right;">成本（已付＋未付）</th>
@@ -4363,85 +4363,8 @@
       return isNaN(t) ? 0 : t;
     }
 
-    // Earliest expense date per project ID (Unix timestamp in ms, for sort comparison)
-    // Populated by batch-fetching Transactions grouped by 所屬項目
-    async function fetchAllProjectFirstExpenseDates() {
-      try {
-        if (!digestValue) {
-          try { await getDigest(); } catch(e) {}
-        }
-        const postHeaders = {
-          'Accept': 'application/json;odata=verbose',
-          'Content-Type': 'application/json;odata=verbose'
-        };
-        if (digestValue) postHeaders['X-RequestDigest'] = digestValue;
-
-        // Fetch ALL active transactions with project ID + transaction time, ordered ASC by tx time
-        // First row per project already has earliest date due to OrderBy ASC
-        const caml = `<View><Query>
-          <Where><Neq><FieldRef Name='RecordStatus' /><Value Type='Choice'>作廢</Value></Neq></Where>
-          <OrderBy><FieldRef Name='_x4ea4__x6613__x6642__x9593_' Ascending='TRUE' /></OrderBy>
-        </Query><RowLimit>5000</RowLimit></View>`;
-
-        const res = await spFetch(`${SITE_URL}/_api/web/lists(guid'${GUID_EXPENSE}')/RenderListDataAsStream`, {
-          method: 'POST',
-          headers: postHeaders,
-          body: JSON.stringify({ parameters: { RenderOptions: 2, ViewXml: caml } })
-        });
-
-        if (!res || !res.ok) {
-          console.warn('Expense date fetch non-ok:', res && res.status);
-          return;
-        }
-
-        const data = await res.json();
-        const rows = (data && data.Row) ? data.Row : ((data && data.d && data.d.Row) ? data.d.Row : []);
-
-        for (const r of rows) {
-          const rawPid = r['_x6240__x5c6c__x9805__x76ee_.'];
-          if (!rawPid || !rawPid.indexOf) continue; // not a lookup string like "123;#abc"
-          const pidStr = rawPid.split(';#')[0];
-          const pid = parseInt(pidStr, 10);
-          if (isNaN(pid)) continue;
-          if (projectEarliestExpenseTime[pid]) continue; // already have earlier date for this project
-
-          const txTime = r['_x4ea4__x6613__x6642__x9593_'];
-          if (!txTime) continue;
-          const d = new Date(txTime);
-          if (!isNaN(d.getTime())) {
-            projectEarliestExpenseTime[pid] = d.getTime();
-          } else if (typeof txTime === 'string' && txTime.includes('-')) {
-            projectEarliestExpenseTime[pid] = new Date(txTime).getTime();
-          }
-        }
-      } catch (err) {
-        console.warn('fetchAllProjectFirstExpenseDates error:', err);
-      }
-    }
-
     function sortDashboardProjects(list) {
       if (!list || !Array.isArray(list)) return list;
-
-      if (projectListSortByExpenseDate) {
-        // Sort by earliest expense date: most recent first, no-expense projects at bottom
-        return list.sort((a, b) => {
-          const idA = Number(a.id !== undefined ? a.id : a.Id);
-          const idB = Number(b.id !== undefined ? b.id : b.Id);
-          const timeA = projectEarliestExpenseTime[idA] || 0;
-          const timeB = projectEarliestExpenseTime[idB] || 0;
-
-          if (timeA > 0 && timeB === 0) return -1; // A has expense, B doesn't → A first
-          if (timeA === 0 && timeB > 0) return 1;  // A no expense, B does → B first
-          if (timeA > 0 && timeB > 0) {
-            if (timeB !== timeA) return timeB - timeA; // both have: newest first
-            return (a.title || a.Title || '').localeCompare(b.title || b.Title || '', 'zh-HK');
-          }
-          // Both no-expense: sort by name
-          return (a.title || a.Title || '').localeCompare(b.title || b.Title || '', 'zh-HK');
-        });
-      }
-
-      // Default 施工日期 sort logic: newest first, no-start-date at bottom
       return list.sort((a, b) => {
         const timeA = getProjectStartTime(a);
         const timeB = getProjectStartTime(b);
@@ -10230,10 +10153,6 @@
     let projectUnpaidPromises = new Map(); // pid -> in-flight fetch promise (shared across awaits)
     let projectListVOOpen = new Set();    // pids whose VO panel is expanded
     let projectListRenderSeq = 0;         // guards against superseded renders
-    let projectListSortByExpenseDate = false; // false = sort by 施工日期 (default), true = sort by earliest expense date
-    const PROJECT_LIST_ALL_EXPENSE_FETCHED = new Set(); // tracks whether session-wide expense-date batch fetch completed
-
-    let projectEarliestExpenseTime = {}; // pid -> Unix ms, earliest transaction time from expense records
 
     let projectTxCache = {
       228: [
@@ -11307,15 +11226,6 @@
           (p.code && String(p.code).toLowerCase().includes(q))
         );
       }
-      // Fetch earliest expense dates if in expense-date sort mode and not yet fetched this session
-      if (projectListSortByExpenseDate && PROJECT_LIST_ALL_EXPENSE_FETCHED.size === 0) {
-        try {
-          await fetchAllProjectFirstExpenseDates();
-          PROJECT_LIST_ALL_EXPENSE_FETCHED.add('done');
-        } catch (err) {
-          console.warn('renderProjectList: expense date fetch failed, falling back to cached sort');
-        }
-      }
       sortDashboardProjects(list);
 
       if (list.length === 0) {
@@ -11727,11 +11637,6 @@
         projectListFilterUnderReceived = false;
         const underRecvCheck = document.getElementById('project-list-undrecv-filter');
         if (underRecvCheck) underRecvCheck.checked = false;
-        // 重置排序模式為預設，並清除上次快取以便下次重新拉取
-        projectListSortByExpenseDate = false;
-        PROJECT_LIST_ALL_EXPENSE_FETCHED.clear();
-        const thDateEl = document.getElementById('pl-sort-header');
-        if (thDateEl) thDateEl.textContent = '施工日期 ▾';
         showPeriodSkeleton(currentPeriod);
         if (selectedDashProject) {
           const curPid = selectedDashProject.id !== undefined ? selectedDashProject.id : selectedDashProject.Id;
@@ -11842,20 +11747,6 @@
         const underRecvCheck = document.getElementById('project-list-undrecv-filter');
         if (underRecvCheck) {
           underRecvCheck.checked = projectListFilterUnderReceived;
-        }
-
-        // 項目清單總表 header: 右鍵切換排序模式 (施工日期 ↔ 最早支出)
-        const thDate = document.getElementById('pl-sort-header');
-        if (thDate) {
-          thDate.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
-            projectListSortByExpenseDate = !projectListSortByExpenseDate;
-            // Toggle header text to show active mode
-            const label = projectListSortByExpenseDate ? '最早支出' : '施工日期';
-            thDate.textContent = label + ' ▾';
-            projectListPage = 1;
-            renderProjectList();
-          });
         }
 
         // 3. 背景靜默拉取最新 SharePoint 資料
