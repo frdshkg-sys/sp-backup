@@ -1399,8 +1399,22 @@
       font-variant-numeric: tabular-nums;
     }
 
+    .project-list-date-th {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .project-list-date-th:hover {
+      color: var(--primary);
+    }
+
+    .project-list-date-fallback {
+      color: #94a3b8;
+      font-weight: 400;
+    }
+
     .project-list-vo-toggle {
-      margin-left: 8px;
+      margin-right: 8px;
       font-size: 11px;
       color: var(--primary);
       cursor: pointer;
@@ -4266,7 +4280,8 @@
                   <thead>
                     <tr>
                       <th style="text-align:left;">項目</th>
-                      <th style="text-align:left;">施工日期</th>
+                      <th id="project-list-date-th" class="project-list-date-th" style="text-align:left;"
+                        title="點擊切換排序：最早支出 ↔ 施工日期（預設最早支出，最新者先）">最早支出 ▾</th>
                       <th style="text-align:right;">合約總額（含 VO）</th>
                       <th style="text-align:right;">已收</th>
                       <th style="text-align:right;">成本（已付＋未付）</th>
@@ -4378,6 +4393,42 @@
 
         // Both do not have 預計施工日期: sort by name
         return (a.title || a.Title || '').localeCompare(b.title || b.Title || '', 'zh-HK');
+      });
+    }
+
+    function compareProjectsByStartDateDesc(a, b) {
+      const timeA = getProjectStartTime(a);
+      const timeB = getProjectStartTime(b);
+
+      if (timeA > 0 && timeB > 0) {
+        if (timeB !== timeA) return timeB - timeA; // newest to oldest
+        return (a.title || a.Title || '').localeCompare(b.title || b.Title || '', 'zh-HK');
+      }
+      if (timeA > 0 && timeB <= 0) return -1;
+      if (timeA <= 0 && timeB > 0) return 1;
+
+      return (a.title || a.Title || '').localeCompare(b.title || b.Title || '', 'zh-HK');
+    }
+
+    // Table-only sort. Never used by the 🏗️ dropdown, which keeps sortDashboardProjects.
+    // mode: 'expense' | 'date'; expenseMap: Map<projectId, earliest expense epoch ms>
+    function sortProjectList(list, mode, expenseMap) {
+      if (!Array.isArray(list)) return list;
+      const useExpense = mode === 'expense' && expenseMap instanceof Map && expenseMap.size > 0;
+      return list.sort((a, b) => {
+        if (useExpense) {
+          const idA = Number(a.id !== undefined ? a.id : a.Id);
+          const idB = Number(b.id !== undefined ? b.id : b.Id);
+          const expA = expenseMap.get(idA) || 0;
+          const expB = expenseMap.get(idB) || 0;
+          if (expA > 0 && expB > 0) {
+            if (expB !== expA) return expB - expA; // most recent first expense first
+            return (a.title || a.Title || '').localeCompare(b.title || b.Title || '', 'zh-HK');
+          }
+          if (expA > 0 && expB <= 0) return -1;
+          if (expA <= 0 && expB > 0) return 1;
+        }
+        return compareProjectsByStartDateDesc(a, b); // no expense (or fallback)
       });
     }
 
@@ -10153,6 +10204,11 @@
     let projectUnpaidPromises = new Map(); // pid -> in-flight fetch promise (shared across awaits)
     let projectListVOOpen = new Set();    // pids whose VO panel is expanded
     let projectListRenderSeq = 0;         // guards against superseded renders
+    let projectListDateMode = 'expense';  // date column sort: 'expense' (default) | 'date'
+    let projectListFirstExpense = new Map();     // pid -> earliest non-void expense epoch ms
+    let projectListFirstExpenseStatus = 'idle';  // 'idle' | 'loading' | 'done' | 'error'
+    let projectListFirstExpensePromise = null;   // shared in-flight load (dedupe)
+    let projectListExpenseFetchGen = 0;          // invalidates in-flight loads after manual refresh
 
     let projectTxCache = {
       228: [
@@ -11022,6 +11078,7 @@
             liveList = liveList.concat(results.map(p => {
               let parsedVOs = [];
               const rawVOs = p.VariationOrders;
+              const existing = (typeof allProjects !== 'undefined' && allProjects) ? allProjects.find(x => x.Id === p.Id) : null;
               if (rawVOs) {
                 try {
                   parsedVOs = typeof rawVOs === 'string' ? JSON.parse(rawVOs) : rawVOs;
@@ -11030,7 +11087,6 @@
                   parsedVOs = [];
                 }
               } else {
-                const existing = (typeof allProjects !== 'undefined' && allProjects) ? allProjects.find(x => x.Id === p.Id) : null;
                 if (existing && existing.vos) parsedVOs = existing.vos;
               }
               const voTotal = parsedVOs.reduce((sum, v) => sum + (parseFloat(v.amount) || 0), 0);
@@ -11158,6 +11214,112 @@
       await Promise.all(waitFor);
     }
 
+    function parseExpenseDateMs(v) {
+      if (v === null || v === undefined || v === '') return 0;
+      if (v instanceof Date) { const t = v.getTime(); return isNaN(t) ? 0 : t; }
+      if (typeof v === 'number') return v > 0 ? v : 0;
+      const s = String(v).trim();
+      if (!s) return 0;
+      const t = new Date(s).getTime();
+      if (!isNaN(t)) return t;
+      const m = s.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+      if (m) return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]), 12).getTime();
+      return 0;
+    }
+
+    // Scan the Transactions list once and keep the earliest non-void expense date per project.
+    // Keyset paging on the indexed Id column avoids the 5,000 list-view threshold and keeps
+    // every URL relative to SITE_URL (so the localhost proxy works too).
+    async function fetchProjectFirstExpenseDates() {
+      const PAGE_SIZE = 2000;
+      const SELECT = 'Id,RecordStatus,OData__x4ea4__x6613__x6642__x9593_,OData__x5b50__x9805__x76ee_,OData__x6240__x5c6c__x9805__x76ee_Id';
+      const map = new Map();
+      let lastId = 0;
+
+      for (let page = 0; page < 100; page++) { // hard cap: 200k rows
+        const pageStartId = lastId;
+        const url = `${SITE_URL}/_api/web/lists(guid'${GUID_EXPENSE}')/items`
+          + `?$select=${SELECT}`
+          + `&$filter=Id%20gt%20${lastId}`
+          + `&$orderby=Id%20asc`
+          + `&$top=${PAGE_SIZE}`;
+
+        let res = null;
+        for (let attempt = 0; attempt <= 3; attempt++) {
+          try {
+            res = await spFetch(url, { headers: { 'Accept': 'application/json;odata=verbose' } });
+          } catch (e) {
+            if (attempt === 3) throw e;
+            await new Promise(r => setTimeout(r, 1500 * Math.pow(2, attempt)));
+            continue;
+          }
+          if (res && (res.status === 429 || res.status === 503) && attempt < 3) {
+            const ra = (res.headers && res.headers.get) ? parseInt(res.headers.get('Retry-After'), 10) : NaN;
+            const waitMs = Math.max(2000 * Math.pow(2, attempt), !isNaN(ra) ? ra * 1000 : 0)
+              + Math.floor(Math.random() * 500);
+            await new Promise(r => setTimeout(r, waitMs));
+            continue;
+          }
+          break;
+        }
+        if (!res || !res.ok) throw new Error('first-expense HTTP ' + (res ? res.status : 'unknown'));
+
+        const data = await res.json();
+        const rows = (data && data.d && data.d.results) || [];
+        for (const r of rows) {
+          const rowId = parseInt(r.Id !== undefined ? r.Id : r.ID, 10) || 0;
+          if (rowId > lastId) lastId = rowId;
+
+          const status = String(r.RecordStatus || '').trim();
+          if (status === '作廢' || status === '作废') continue;
+
+          const sub = String(r.OData__x5b50__x9805__x76ee_ || r._x5b50__x9805__x76ee_ || '')
+            .trim().replace(/内/g, '內').replace(/帳/g, '賬');
+          if (sub === '內部轉賬') continue;
+
+          const pid = getProjectLookupId(r);
+          if (!pid) continue;
+
+          const rawDate = r.OData__x4ea4__x6613__x6642__x9593_
+            || r['_x4ea4__x6613__x6642__x9593_']
+            || r['OData__x4ea4__x6613__x6642__x9593_.']
+            || r['_x4ea4__x6613__x6642__x9593_.'];
+          const t = parseExpenseDateMs(rawDate);
+          if (!t) continue;
+
+          const prev = map.get(pid);
+          if (prev === undefined || t < prev) map.set(pid, t);
+        }
+        if (rows.length < PAGE_SIZE || lastId <= pageStartId) break; // no progress guard
+      }
+      return map;
+    }
+
+    async function ensureProjectFirstExpenseDates() {
+      if (projectListFirstExpenseStatus === 'done') return projectListFirstExpense;
+      if (projectListFirstExpenseStatus === 'error') return projectListFirstExpense; // no auto-retry
+      if (projectListFirstExpensePromise) return projectListFirstExpensePromise;
+
+      const gen = projectListExpenseFetchGen;
+      projectListFirstExpenseStatus = 'loading';
+      projectListFirstExpensePromise = (async () => {
+        try {
+          const map = await fetchProjectFirstExpenseDates();
+          if (gen === projectListExpenseFetchGen) {
+            projectListFirstExpense = map;
+            projectListFirstExpenseStatus = 'done';
+          }
+        } catch (err) {
+          console.warn('項目清單：最早支出日期載入失敗，暫按施工日期排序', err);
+          if (gen === projectListExpenseFetchGen) projectListFirstExpenseStatus = 'error';
+        } finally {
+          if (gen === projectListExpenseFetchGen) projectListFirstExpensePromise = null;
+        }
+        return projectListFirstExpense;
+      })();
+      return projectListFirstExpensePromise;
+    }
+
     function fmtListDate(pStartDate) {
       if (!pStartDate) return '—';
       const d = new Date(pStartDate);
@@ -11226,8 +11388,6 @@
           (p.code && String(p.code).toLowerCase().includes(q))
         );
       }
-      sortDashboardProjects(list);
-
       if (list.length === 0) {
         setProjectListLoading(false);
         if (empty) {
@@ -11241,6 +11401,21 @@
         if (pager) pager.style.display = 'none';
         return;
       }
+
+      // The default 'expense' mode needs one session-wide scan of the Transactions list.
+      // 'date' mode never fetches; a failed scan falls back to the 施工日期 order and is
+      // only retried by a manual refresh.
+      if (projectListDateMode === 'expense'
+          && projectListFirstExpenseStatus !== 'done'
+          && projectListFirstExpenseStatus !== 'error') {
+        setProjectListLoading(true);
+        await ensureProjectFirstExpenseDates();
+        if (seq !== projectListRenderSeq) return; // superseded by a newer render
+        updateProjectListDateHeader();            // reflect error state in the tooltip
+      }
+
+      list = sortProjectList(list, projectListDateMode, projectListFirstExpense);
+
       if (empty) {
         empty.textContent = '尚無項目資料';
         empty.style.display = 'none';
@@ -11313,12 +11488,26 @@
         else if (anyFailed) costCell = '<span class="project-list-pending" title="未付成本載入失敗，請按右上角重新整理">—</span>';
         else costCell = '<span class="project-list-pending">…</span>';
 
+        const startRaw = p.startDate || p.OData__x9810__x8a08__x65bd__x5de5__x65 || p._x9810__x8a08__x65bd__x5de5__x65;
+        let dateCellHtml;
+        if (projectListDateMode === 'expense') {
+          const firstTs = projectListFirstExpense.get(id) || 0;
+          if (firstTs > 0) {
+            dateCellHtml = `<td class="project-list-date" style="text-align:left;">${fmtListDate(firstTs)}</td>`;
+          } else {
+            dateCellHtml = `<td class="project-list-date project-list-date-fallback" style="text-align:left;"
+                title="尚無支出記錄，顯示預計施工日期">施工 ${escapeHtml(fmtListDate(startRaw))}</td>`;
+          }
+        } else {
+          dateCellHtml = `<td class="project-list-date" style="text-align:left;">${fmtListDate(startRaw)}</td>`;
+        }
+
         const mainRow = `<tr>
           <td style="text-align:left;">
             <span class="project-list-name" onclick="openProjectFromList(${id})">${escapeHtml(title)}</span>
           </td>
-          <td class="project-list-date" style="text-align:left;">${fmtListDate(p.startDate || p.OData__x9810__x8a08__x65bd__x5de5__x65 || p._x9810__x8a08__x65bd__x5de5__x65)}</td>
-          <td class="num">${fmtMoney(contractTotal)}${voToggleHtml}</td>
+          ${dateCellHtml}
+          <td class="num">${voToggleHtml}${fmtMoney(contractTotal)}</td>
           <td class="num">${fmtMoney(recv)}</td>
           <td class="num">${costCell}</td>
           <td class="num">${fmtMoney(paid)}</td>
@@ -11349,6 +11538,27 @@
     function toggleProjectListUnderRecvFilter(on) {
       projectListFilterUnderReceived = on;
       projectListPage = 1;
+      renderProjectList();
+    }
+
+    function updateProjectListDateHeader() {
+      const th = document.getElementById('project-list-date-th');
+      if (!th) return;
+      const isExpense = projectListDateMode === 'expense';
+      th.textContent = isExpense ? '最早支出 ▾' : '施工日期 ▾';
+      if (!isExpense) {
+        th.title = '按施工日期排序（最新者先）；點擊切換為最早支出';
+      } else if (projectListFirstExpenseStatus === 'error') {
+        th.title = '最早支出載入失敗，暫按施工日期排序；點擊切換排序';
+      } else {
+        th.title = '按最早支出日期排序（最新者先）；點擊切換為施工日期';
+      }
+    }
+
+    function toggleProjectListDateMode() {
+      projectListDateMode = projectListDateMode === 'expense' ? 'date' : 'expense';
+      projectListPage = 1;
+      updateProjectListDateHeader();
       renderProjectList();
     }
 
@@ -11637,6 +11847,13 @@
         projectListFilterUnderReceived = false;
         const underRecvCheck = document.getElementById('project-list-undrecv-filter');
         if (underRecvCheck) underRecvCheck.checked = false;
+        // 重置日期欄排序與最早支出快取，讓本次刷新重新掃描
+        projectListDateMode = 'expense';
+        projectListFirstExpense = new Map();
+        projectListFirstExpenseStatus = 'idle';
+        projectListFirstExpensePromise = null;
+        projectListExpenseFetchGen++; // discard any in-flight old scan
+        updateProjectListDateHeader();
         showPeriodSkeleton(currentPeriod);
         if (selectedDashProject) {
           const curPid = selectedDashProject.id !== undefined ? selectedDashProject.id : selectedDashProject.Id;
@@ -11650,7 +11867,8 @@
         await Promise.all([
           fetchPeriodData(currentPeriod),
           loadDashboardProjects(),
-          (curPid && needFetchTx) ? fetchProjectTransactions(curPid) : Promise.resolve()
+          (curPid && needFetchTx) ? fetchProjectTransactions(curPid) : Promise.resolve(),
+          isManual ? ensureProjectFirstExpenseDates() : Promise.resolve()
         ]);
       } finally {
         if (btn) {
@@ -11681,6 +11899,7 @@
     }
 
     function initDashboardTab() {
+      updateProjectListDateHeader();
       switchDashboardView(currentDashboardView);
       // 1. 渲染預設項目
       if (!selectedDashProject && dashboardProjectsList.length > 0) {
@@ -11747,6 +11966,17 @@
         const underRecvCheck = document.getElementById('project-list-undrecv-filter');
         if (underRecvCheck) {
           underRecvCheck.checked = projectListFilterUnderReceived;
+        }
+
+        // 項目清單總表：日期欄點擊切換排序（最早支出 ↔ 施工日期）
+        const listDateTh = document.getElementById('project-list-date-th');
+        if (listDateTh) {
+          const toggleDateSort = (e) => {
+            e.preventDefault();
+            toggleProjectListDateMode();
+          };
+          listDateTh.addEventListener('click', toggleDateSort);
+          listDateTh.addEventListener('contextmenu', toggleDateSort); // keep right-click working
         }
 
         // 3. 背景靜默拉取最新 SharePoint 資料
