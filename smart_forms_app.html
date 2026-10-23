@@ -1350,7 +1350,7 @@
       border-collapse: collapse;
       table-layout: fixed;
       font-size: 13px;
-      min-width: 920px;
+      min-width: 1300px;
     }
 
     .project-list-table th,
@@ -1364,6 +1364,12 @@
     .project-list-table tbody tr:hover {
       background: #f8fafc;
     }
+
+    /* Profit-based row tint: pale green when profitable, pale red when at a loss */
+    .project-list-table tbody tr.project-list-row-profit { background: #f0fdf4; }
+    .project-list-table tbody tr.project-list-row-loss { background: #fef2f2; }
+    .project-list-table tbody tr.project-list-row-profit:hover { background: #dcfce7; }
+    .project-list-table tbody tr.project-list-row-loss:hover { background: #fee2e2; }
 
     .project-list-table thead th {
       position: sticky;
@@ -1393,14 +1399,82 @@
       text-decoration: underline;
     }
 
+    .project-list-mgr {
+      color: #64748b;
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .project-list-table th.project-list-note-th,
+    .project-list-table td.project-list-note {
+      padding-left: 6px;
+      padding-right: 6px;
+      text-align: center;
+    }
+
+    .project-list-table td.project-list-note[data-note] {
+      cursor: help;
+    }
+
+    .project-list-note-tip {
+      display: none;
+      position: fixed;
+      z-index: 10000;
+      max-width: 360px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      background: #1e293b;
+      color: #f8fafc;
+      font-size: 12px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.25);
+      pointer-events: none;
+    }
+
+    .project-list-note-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #e0f2fe;
+      color: #0369a1;
+      font-size: 11px;
+      font-weight: 700;
+      font-style: normal;
+      line-height: 1;
+      vertical-align: middle;
+      cursor: help;
+      pointer-events: none;
+    }
+
     .project-list-date {
       color: #64748b;
       white-space: nowrap;
       font-variant-numeric: tabular-nums;
     }
 
+    .project-list-date-th {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .project-list-date-th:hover {
+      color: var(--primary);
+    }
+
+    .project-list-date-fallback {
+      color: #94a3b8;
+      font-weight: 400;
+    }
+
     .project-list-vo-toggle {
-      margin-left: 8px;
+      margin-right: 8px;
       font-size: 11px;
       color: var(--primary);
       cursor: pointer;
@@ -4244,7 +4318,7 @@
           <div>
             <div class="card-top" style="justify-content: flex-end; gap: 14px;">
               <label class="underrecv-filter-label">
-                <input type="checkbox" id="project-list-undrecv-filter"
+                <input type="checkbox" id="project-list-undrecv-filter" checked
                   onchange="toggleProjectListUnderRecvFilter(this.checked)">
                 <span>僅未足收款</span>
               </label>
@@ -4256,21 +4330,30 @@
               <div class="project-list-table-wrap" id="project-list-table-wrap">
                 <table class="project-list-table">
                   <colgroup>
-                    <col style="width: 26%;">
-                    <col style="width: 12%;">
-                    <col style="width: 18%;">
-                    <col style="width: 14%;">
-                    <col style="width: 16%;">
-                    <col style="width: 14%;">
+                    <col style="width: 14.5%;">
+                    <col style="width: 7%;">
+                    <col style="width: 10.5%;">
+                    <col style="width: 11.5%;">
+                    <col style="width: 11%;">
+                    <col style="width: 10.5%;">
+                    <col style="width: 11.5%;">
+                    <col style="width: 10.5%;">
+                    <col style="width: 10%;">
+                    <col style="width: 3%;">
                   </colgroup>
                   <thead>
                     <tr>
                       <th style="text-align:left;">項目</th>
-                      <th id="pl-sort-header" style="text-align:left; cursor:pointer;" title="右鍵切換排序：最早支出時間 ↔ 施工日期">施工日期 ▾</th>
-                      <th style="text-align:right;">合約總額（含 VO）</th>
+                      <th style="text-align:left;">負責人</th>
+                      <th id="project-list-date-th" class="project-list-date-th" style="text-align:left;"
+                        title="點擊切換排序：最早支出 ↔ 施工日期（預設最早支出，最新者先）">最早支出 ▾</th>
+                      <th style="text-align:right;">合約總額</th>
                       <th style="text-align:right;">已收</th>
+                      <th style="text-align:right;">未收</th>
                       <th style="text-align:right;">成本（已付＋未付）</th>
                       <th style="text-align:right;">成本（只計已付）</th>
+                      <th style="text-align:right;">利潤</th>
+                      <th class="project-list-note-th" style="text-align:center;" title="備註"></th>
                     </tr>
                   </thead>
                   <tbody id="project-list-tbody"></tbody>
@@ -4363,85 +4446,8 @@
       return isNaN(t) ? 0 : t;
     }
 
-    // Earliest expense date per project ID (Unix timestamp in ms, for sort comparison)
-    // Populated by batch-fetching Transactions grouped by 所屬項目
-    async function fetchAllProjectFirstExpenseDates() {
-      try {
-        if (!digestValue) {
-          try { await getDigest(); } catch(e) {}
-        }
-        const postHeaders = {
-          'Accept': 'application/json;odata=verbose',
-          'Content-Type': 'application/json;odata=verbose'
-        };
-        if (digestValue) postHeaders['X-RequestDigest'] = digestValue;
-
-        // Fetch ALL active transactions with project ID + transaction time, ordered ASC by tx time
-        // First row per project already has earliest date due to OrderBy ASC
-        const caml = `<View><Query>
-          <Where><Neq><FieldRef Name='RecordStatus' /><Value Type='Choice'>作廢</Value></Neq></Where>
-          <OrderBy><FieldRef Name='_x4ea4__x6613__x6642__x9593_' Ascending='TRUE' /></OrderBy>
-        </Query><RowLimit>5000</RowLimit></View>`;
-
-        const res = await spFetch(`${SITE_URL}/_api/web/lists(guid'${GUID_EXPENSE}')/RenderListDataAsStream`, {
-          method: 'POST',
-          headers: postHeaders,
-          body: JSON.stringify({ parameters: { RenderOptions: 2, ViewXml: caml } })
-        });
-
-        if (!res || !res.ok) {
-          console.warn('Expense date fetch non-ok:', res && res.status);
-          return;
-        }
-
-        const data = await res.json();
-        const rows = (data && data.Row) ? data.Row : ((data && data.d && data.d.Row) ? data.d.Row : []);
-
-        for (const r of rows) {
-          const rawPid = r['_x6240__x5c6c__x9805__x76ee_.'];
-          if (!rawPid || !rawPid.indexOf) continue; // not a lookup string like "123;#abc"
-          const pidStr = rawPid.split(';#')[0];
-          const pid = parseInt(pidStr, 10);
-          if (isNaN(pid)) continue;
-          if (projectEarliestExpenseTime[pid]) continue; // already have earlier date for this project
-
-          const txTime = r['_x4ea4__x6613__x6642__x9593_'];
-          if (!txTime) continue;
-          const d = new Date(txTime);
-          if (!isNaN(d.getTime())) {
-            projectEarliestExpenseTime[pid] = d.getTime();
-          } else if (typeof txTime === 'string' && txTime.includes('-')) {
-            projectEarliestExpenseTime[pid] = new Date(txTime).getTime();
-          }
-        }
-      } catch (err) {
-        console.warn('fetchAllProjectFirstExpenseDates error:', err);
-      }
-    }
-
     function sortDashboardProjects(list) {
       if (!list || !Array.isArray(list)) return list;
-
-      if (projectListSortByExpenseDate) {
-        // Sort by earliest expense date: most recent first, no-expense projects at bottom
-        return list.sort((a, b) => {
-          const idA = Number(a.id !== undefined ? a.id : a.Id);
-          const idB = Number(b.id !== undefined ? b.id : b.Id);
-          const timeA = projectEarliestExpenseTime[idA] || 0;
-          const timeB = projectEarliestExpenseTime[idB] || 0;
-
-          if (timeA > 0 && timeB === 0) return -1; // A has expense, B doesn't → A first
-          if (timeA === 0 && timeB > 0) return 1;  // A no expense, B does → B first
-          if (timeA > 0 && timeB > 0) {
-            if (timeB !== timeA) return timeB - timeA; // both have: newest first
-            return (a.title || a.Title || '').localeCompare(b.title || b.Title || '', 'zh-HK');
-          }
-          // Both no-expense: sort by name
-          return (a.title || a.Title || '').localeCompare(b.title || b.Title || '', 'zh-HK');
-        });
-      }
-
-      // Default 施工日期 sort logic: newest first, no-start-date at bottom
       return list.sort((a, b) => {
         const timeA = getProjectStartTime(a);
         const timeB = getProjectStartTime(b);
@@ -4455,6 +4461,42 @@
 
         // Both do not have 預計施工日期: sort by name
         return (a.title || a.Title || '').localeCompare(b.title || b.Title || '', 'zh-HK');
+      });
+    }
+
+    function compareProjectsByStartDateDesc(a, b) {
+      const timeA = getProjectStartTime(a);
+      const timeB = getProjectStartTime(b);
+
+      if (timeA > 0 && timeB > 0) {
+        if (timeB !== timeA) return timeB - timeA; // newest to oldest
+        return (a.title || a.Title || '').localeCompare(b.title || b.Title || '', 'zh-HK');
+      }
+      if (timeA > 0 && timeB <= 0) return -1;
+      if (timeA <= 0 && timeB > 0) return 1;
+
+      return (a.title || a.Title || '').localeCompare(b.title || b.Title || '', 'zh-HK');
+    }
+
+    // Table-only sort. Never used by the 🏗️ dropdown, which keeps sortDashboardProjects.
+    // mode: 'expense' | 'date'; expenseMap: Map<projectId, earliest expense epoch ms>
+    function sortProjectList(list, mode, expenseMap) {
+      if (!Array.isArray(list)) return list;
+      const useExpense = mode === 'expense' && expenseMap instanceof Map && expenseMap.size > 0;
+      return list.sort((a, b) => {
+        if (useExpense) {
+          const idA = Number(a.id !== undefined ? a.id : a.Id);
+          const idB = Number(b.id !== undefined ? b.id : b.Id);
+          const expA = expenseMap.get(idA) || 0;
+          const expB = expenseMap.get(idB) || 0;
+          if (expA > 0 && expB > 0) {
+            if (expB !== expA) return expB - expA; // most recent first expense first
+            return (a.title || a.Title || '').localeCompare(b.title || b.Title || '', 'zh-HK');
+          }
+          if (expA > 0 && expB <= 0) return -1;
+          if (expA <= 0 && expB > 0) return 1;
+        }
+        return compareProjectsByStartDateDesc(a, b); // no expense (or fallback)
       });
     }
 
@@ -5176,6 +5218,7 @@
               contract: p.amt || 0,
               recv: p.recv || 0,
               cost: p.cost || 0,
+              rem: p.rem || '',
               vos: p.vos || [],
               voTotal: p.voTotal || 0,
               modified: p.modified || '',
@@ -6516,14 +6559,14 @@
     let currentEditVOTypes = {}; // voId -> 'add' | 'deduct'
 
     // Helper for formatting VO money with exact single prefix and correct +/- sign
-    function fmtVOMoney(amount, showSign = true) {
+    function fmtVOMoney(amount, showSign = true, symbol = 'HK$') {
       const num = Number(amount) || 0;
       const isNeg = num < 0;
       const absStr = Math.abs(num).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       if (showSign) {
-        return isNeg ? `-HK$ ${absStr}` : `+HK$ ${absStr}`;
+        return isNeg ? `-${symbol} ${absStr}` : `+${symbol} ${absStr}`;
       }
-      return isNeg ? `-HK$ ${absStr}` : `HK$ ${absStr}`;
+      return isNeg ? `-${symbol} ${absStr}` : `${symbol} ${absStr}`;
     }
 
     function setNewVOType(type) {
@@ -10211,6 +10254,7 @@
       title: p.Title || p.title || '未命名項目',
       code: p.code || '',
       mgr: p.mgr || '',
+      rem: p.rem || '',
       contract: p.contract !== undefined ? p.contract : (p.amt || 0),
       recv: p.recv || 0,
       cost: p.cost || 0,
@@ -10223,17 +10267,18 @@
     const PROJECT_LIST_PAGE_SIZE = 20;
     let projectListPage = 1;
     let projectListQuery = '';            // current 項目清單總表 search filter (name/code)
-    let projectListFilterUnderReceived = false;  // toggle: show only recv < contractTotal
+    let projectListFilterUnderReceived = true;   // default on: show only recv < contractTotal
     let projectUnpaidMap = {};            // pid -> unpaid cost
     let projectUnpaidFetched = new Set(); // pids successfully queried
     let projectUnpaidFailed = new Set();  // pids whose query failed
     let projectUnpaidPromises = new Map(); // pid -> in-flight fetch promise (shared across awaits)
     let projectListVOOpen = new Set();    // pids whose VO panel is expanded
     let projectListRenderSeq = 0;         // guards against superseded renders
-    let projectListSortByExpenseDate = false; // false = sort by 施工日期 (default), true = sort by earliest expense date
-    const PROJECT_LIST_ALL_EXPENSE_FETCHED = new Set(); // tracks whether session-wide expense-date batch fetch completed
-
-    let projectEarliestExpenseTime = {}; // pid -> Unix ms, earliest transaction time from expense records
+    let projectListDateMode = 'expense';  // date column sort: 'expense' (default) | 'date'
+    let projectListFirstExpense = new Map();     // pid -> earliest non-void expense epoch ms
+    let projectListFirstExpenseStatus = 'idle';  // 'idle' | 'loading' | 'done' | 'error'
+    let projectListFirstExpensePromise = null;   // shared in-flight load (dedupe)
+    let projectListExpenseFetchGen = 0;          // invalidates in-flight loads after manual refresh
 
     let projectTxCache = {
       228: [
@@ -10280,9 +10325,9 @@
     let currentProjTxSubtotal = 'none'; // 'none' | 'payee' | 'subitem'
     let projTxExpandedGroups = new Set();
 
-    function fmtMoney(amount) {
+    function fmtMoney(amount, symbol = 'HK$') {
       const num = Number(amount) || 0;
-      return 'HK$ ' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      return symbol + ' ' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
     function fmtCompact(amount) {
@@ -11090,7 +11135,7 @@
 
     async function loadDashboardProjects() {
       try {
-        let url = `${SITE_URL}/_api/web/lists(guid'${GUID_PROJECTS}')/items?$select=Id,Title,OData__x9805__x76ee__x7de8__x865f_,OData__x8ca0__x8cac__x4eba_,OData__x5408__x7d04__x50f9__x9322_,OData__x5df2__x6536__x91d1__x984d_,OData__x5df2__x4ed8__x6210__x672c_,VariationOrders,Modified,OData__x9810__x8a08__x65bd__x5de5__x65&$top=500`;
+        let url = `${SITE_URL}/_api/web/lists(guid'${GUID_PROJECTS}')/items?$select=Id,Title,OData__x9805__x76ee__x7de8__x865f_,OData__x8ca0__x8cac__x4eba_,OData__x5408__x7d04__x50f9__x9322_,OData__x5df2__x6536__x91d1__x984d_,OData__x5df2__x4ed8__x6210__x672c_,OData__x5099__x8a3b_,VariationOrders,Modified,OData__x9810__x8a08__x65bd__x5de5__x65&$top=500`;
         let liveList = [];
         while (url) {
           const res = await spFetch(url, {
@@ -11103,6 +11148,7 @@
             liveList = liveList.concat(results.map(p => {
               let parsedVOs = [];
               const rawVOs = p.VariationOrders;
+              const existing = (typeof allProjects !== 'undefined' && allProjects) ? allProjects.find(x => x.Id === p.Id) : null;
               if (rawVOs) {
                 try {
                   parsedVOs = typeof rawVOs === 'string' ? JSON.parse(rawVOs) : rawVOs;
@@ -11111,7 +11157,6 @@
                   parsedVOs = [];
                 }
               } else {
-                const existing = (typeof allProjects !== 'undefined' && allProjects) ? allProjects.find(x => x.Id === p.Id) : null;
                 if (existing && existing.vos) parsedVOs = existing.vos;
               }
               const voTotal = parsedVOs.reduce((sum, v) => sum + (parseFloat(v.amount) || 0), 0);
@@ -11120,6 +11165,7 @@
                 title: p.Title || '未命名項目',
                 code: p.OData__x9805__x76ee__x7de8__x865f_ || p._x9805__x76ee__x7de8__x865f_ || '',
                 mgr: p.OData__x8ca0__x8cac__x4eba_ || p._x8ca0__x8cac__x4eba_ || '',
+                rem: p.OData__x5099__x8a3b_ || p._x5099__x8a3b_ || (existing ? existing.rem : '') || '',
                 contract: parseFloat(p.OData__x5408__x7d04__x50f9__x9322_ || p._x5408__x7d04__x50f9__x9322_) || 0,
                 recv: parseFloat(p.OData__x5df2__x6536__x91d1__x984d_ || p._x5df2__x6536__x91d1__x984d_) || 0,
                 cost: parseFloat(p.OData__x5df2__x4ed8__x6210__x672c_ || p._x5df2__x4ed8__x6210__x672c_) || 0,
@@ -11239,6 +11285,112 @@
       await Promise.all(waitFor);
     }
 
+    function parseExpenseDateMs(v) {
+      if (v === null || v === undefined || v === '') return 0;
+      if (v instanceof Date) { const t = v.getTime(); return isNaN(t) ? 0 : t; }
+      if (typeof v === 'number') return v > 0 ? v : 0;
+      const s = String(v).trim();
+      if (!s) return 0;
+      const t = new Date(s).getTime();
+      if (!isNaN(t)) return t;
+      const m = s.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+      if (m) return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]), 12).getTime();
+      return 0;
+    }
+
+    // Scan the Transactions list once and keep the earliest non-void expense date per project.
+    // Keyset paging on the indexed Id column avoids the 5,000 list-view threshold and keeps
+    // every URL relative to SITE_URL (so the localhost proxy works too).
+    async function fetchProjectFirstExpenseDates() {
+      const PAGE_SIZE = 2000;
+      const SELECT = 'Id,RecordStatus,OData__x4ea4__x6613__x6642__x9593_,OData__x5b50__x9805__x76ee_,OData__x6240__x5c6c__x9805__x76ee_Id';
+      const map = new Map();
+      let lastId = 0;
+
+      for (let page = 0; page < 100; page++) { // hard cap: 200k rows
+        const pageStartId = lastId;
+        const url = `${SITE_URL}/_api/web/lists(guid'${GUID_EXPENSE}')/items`
+          + `?$select=${SELECT}`
+          + `&$filter=Id%20gt%20${lastId}`
+          + `&$orderby=Id%20asc`
+          + `&$top=${PAGE_SIZE}`;
+
+        let res = null;
+        for (let attempt = 0; attempt <= 3; attempt++) {
+          try {
+            res = await spFetch(url, { headers: { 'Accept': 'application/json;odata=verbose' } });
+          } catch (e) {
+            if (attempt === 3) throw e;
+            await new Promise(r => setTimeout(r, 1500 * Math.pow(2, attempt)));
+            continue;
+          }
+          if (res && (res.status === 429 || res.status === 503) && attempt < 3) {
+            const ra = (res.headers && res.headers.get) ? parseInt(res.headers.get('Retry-After'), 10) : NaN;
+            const waitMs = Math.max(2000 * Math.pow(2, attempt), !isNaN(ra) ? ra * 1000 : 0)
+              + Math.floor(Math.random() * 500);
+            await new Promise(r => setTimeout(r, waitMs));
+            continue;
+          }
+          break;
+        }
+        if (!res || !res.ok) throw new Error('first-expense HTTP ' + (res ? res.status : 'unknown'));
+
+        const data = await res.json();
+        const rows = (data && data.d && data.d.results) || [];
+        for (const r of rows) {
+          const rowId = parseInt(r.Id !== undefined ? r.Id : r.ID, 10) || 0;
+          if (rowId > lastId) lastId = rowId;
+
+          const status = String(r.RecordStatus || '').trim();
+          if (status === '作廢' || status === '作废') continue;
+
+          const sub = String(r.OData__x5b50__x9805__x76ee_ || r._x5b50__x9805__x76ee_ || '')
+            .trim().replace(/内/g, '內').replace(/帳/g, '賬');
+          if (sub === '內部轉賬') continue;
+
+          const pid = getProjectLookupId(r);
+          if (!pid) continue;
+
+          const rawDate = r.OData__x4ea4__x6613__x6642__x9593_
+            || r['_x4ea4__x6613__x6642__x9593_']
+            || r['OData__x4ea4__x6613__x6642__x9593_.']
+            || r['_x4ea4__x6613__x6642__x9593_.'];
+          const t = parseExpenseDateMs(rawDate);
+          if (!t) continue;
+
+          const prev = map.get(pid);
+          if (prev === undefined || t < prev) map.set(pid, t);
+        }
+        if (rows.length < PAGE_SIZE || lastId <= pageStartId) break; // no progress guard
+      }
+      return map;
+    }
+
+    async function ensureProjectFirstExpenseDates() {
+      if (projectListFirstExpenseStatus === 'done') return projectListFirstExpense;
+      if (projectListFirstExpenseStatus === 'error') return projectListFirstExpense; // no auto-retry
+      if (projectListFirstExpensePromise) return projectListFirstExpensePromise;
+
+      const gen = projectListExpenseFetchGen;
+      projectListFirstExpenseStatus = 'loading';
+      projectListFirstExpensePromise = (async () => {
+        try {
+          const map = await fetchProjectFirstExpenseDates();
+          if (gen === projectListExpenseFetchGen) {
+            projectListFirstExpense = map;
+            projectListFirstExpenseStatus = 'done';
+          }
+        } catch (err) {
+          console.warn('項目清單：最早支出日期載入失敗，暫按施工日期排序', err);
+          if (gen === projectListExpenseFetchGen) projectListFirstExpenseStatus = 'error';
+        } finally {
+          if (gen === projectListExpenseFetchGen) projectListFirstExpensePromise = null;
+        }
+        return projectListFirstExpense;
+      })();
+      return projectListFirstExpensePromise;
+    }
+
     function fmtListDate(pStartDate) {
       if (!pStartDate) return '—';
       const d = new Date(pStartDate);
@@ -11265,7 +11417,7 @@
       overlay.style.display = on ? 'flex' : 'none';
       // First render only: keep a visible area under the header for the overlay.
       if (on && tbody && tbody.children.length === 0) {
-        tbody.innerHTML = '<tr class="project-list-spacer" aria-hidden="true"><td colspan="6"></td></tr>';
+        tbody.innerHTML = '<tr class="project-list-spacer" aria-hidden="true"><td colspan="10"></td></tr>';
       }
     }
 
@@ -11287,6 +11439,7 @@
 
     async function renderProjectList() {
       const seq = ++projectListRenderSeq;
+      hideProjectListNote();
       const tbody = document.getElementById('project-list-tbody');
       const empty = document.getElementById('project-list-empty');
       const pager = document.getElementById('project-list-pager');
@@ -11307,17 +11460,6 @@
           (p.code && String(p.code).toLowerCase().includes(q))
         );
       }
-      // Fetch earliest expense dates if in expense-date sort mode and not yet fetched this session
-      if (projectListSortByExpenseDate && PROJECT_LIST_ALL_EXPENSE_FETCHED.size === 0) {
-        try {
-          await fetchAllProjectFirstExpenseDates();
-          PROJECT_LIST_ALL_EXPENSE_FETCHED.add('done');
-        } catch (err) {
-          console.warn('renderProjectList: expense date fetch failed, falling back to cached sort');
-        }
-      }
-      sortDashboardProjects(list);
-
       if (list.length === 0) {
         setProjectListLoading(false);
         if (empty) {
@@ -11331,6 +11473,21 @@
         if (pager) pager.style.display = 'none';
         return;
       }
+
+      // The default 'expense' mode needs one session-wide scan of the Transactions list.
+      // 'date' mode never fetches; a failed scan falls back to the 施工日期 order and is
+      // only retried by a manual refresh.
+      if (projectListDateMode === 'expense'
+          && projectListFirstExpenseStatus !== 'done'
+          && projectListFirstExpenseStatus !== 'error') {
+        setProjectListLoading(true);
+        await ensureProjectFirstExpenseDates();
+        if (seq !== projectListRenderSeq) return; // superseded by a newer render
+        updateProjectListDateHeader();            // reflect error state in the tooltip
+      }
+
+      list = sortProjectList(list, projectListDateMode, projectListFirstExpense);
+
       if (empty) {
         empty.textContent = '尚無項目資料';
         empty.style.display = 'none';
@@ -11373,14 +11530,24 @@
         const paid = p.cost !== undefined ? p.cost : 0;
         const unpaid = projectUnpaidMap[id] || 0;
         const total = paid + unpaid;
+        const outstanding = contractTotal - recv; // 未收
+        const profit = contractTotal - total;     // 利潤
 
         const title = p.title || p.Title || '未命名項目';
+        const mgr = p.mgr || '';
+        const note = String(p.rem || '').trim();
+        const noteCellHtml = note
+          ? `<td class="project-list-note" data-note="${escapeHtml(note)}" onmouseenter="showProjectListNote(this)" onmouseleave="hideProjectListNote()"><span class="project-list-note-icon" aria-hidden="true">i</span></td>`
+          : '<td class="project-list-note"></td>';
         const vos = Array.isArray(p.vos) ? p.vos : [];
         const isOpen = projectListVOOpen.has(id);
+        const rowToneClass = allResolved
+          ? (profit < 0 ? 'project-list-row-loss' : 'project-list-row-profit')
+          : '';
 
         let voRows = '';
         if (vos.length > 0) {
-          voRows = `<div class="project-list-vo-row orig"><span><span class="tag orig">原合約</span></span><span class="val">${fmtMoney(base)}</span></div>`;
+          voRows = `<div class="project-list-vo-row orig"><span><span class="tag orig">原合約</span></span><span class="val">${fmtMoney(base, '$')}</span></div>`;
           vos.forEach((vo, i) => {
             const vNo = vo.no || (i + 1);
             const vAmt = parseFloat(vo.amount) || 0;
@@ -11390,32 +11557,55 @@
             if (displayTitle.toLowerCase() === `vo ${vNo}`.toLowerCase() || displayTitle.toLowerCase() === `vo${vNo}`.toLowerCase() || displayTitle === `後加工程 ${vNo}`) {
               displayTitle = '';
             }
-            voRows += `<div class="project-list-vo-row vo"><span><span class="tag ${isNeg ? 'vo-deduct' : 'vo'}">VO ${vNo}</span>${displayTitle ? `<span class="vo-name">${escapeHtml(displayTitle)}</span>` : ''}</span><span class="val ${isNeg ? 'deduct' : 'add'}">${fmtVOMoney(vAmt, true)}</span></div>`;
+            voRows += `<div class="project-list-vo-row vo"><span><span class="tag ${isNeg ? 'vo-deduct' : 'vo'}">VO ${vNo}</span>${displayTitle ? `<span class="vo-name">${escapeHtml(displayTitle)}</span>` : ''}</span><span class="val ${isNeg ? 'deduct' : 'add'}">${fmtVOMoney(vAmt, true, '$')}</span></div>`;
           });
         }
 
         const voToggleHtml = vos.length > 0
-          ? `<span class="project-list-vo-toggle" id="plvotgl-${id}" data-count="${vos.length}" onclick="toggleProjectListVO(${id})">${vos.length} 項 VO ${isOpen ? '▴' : '▸'}</span>`
+          ? `<span class="project-list-vo-toggle" id="plvotgl-${id}" data-count="${vos.length}" title="${vos.length} 項 VO" onclick="toggleProjectListVO(${id})">VO ${isOpen ? '▴' : '▸'}</span>`
           : '';
 
         let costCell;
-        if (allResolved) costCell = fmtMoney(total);
+        if (allResolved) costCell = fmtMoney(total, '$');
         else if (anyFailed) costCell = '<span class="project-list-pending" title="未付成本載入失敗，請按右上角重新整理">—</span>';
         else costCell = '<span class="project-list-pending">…</span>';
 
-        const mainRow = `<tr>
+        let profitCell;
+        if (allResolved) profitCell = fmtMoney(profit, '$');
+        else if (anyFailed) profitCell = '<span class="project-list-pending" title="未付成本載入失敗，請按右上角重新整理">—</span>';
+        else profitCell = '<span class="project-list-pending">…</span>';
+
+        const startRaw = p.startDate || p.OData__x9810__x8a08__x65bd__x5de5__x65 || p._x9810__x8a08__x65bd__x5de5__x65;
+        let dateCellHtml;
+        if (projectListDateMode === 'expense') {
+          const firstTs = projectListFirstExpense.get(id) || 0;
+          if (firstTs > 0) {
+            dateCellHtml = `<td class="project-list-date" style="text-align:left;">${fmtListDate(firstTs)}</td>`;
+          } else {
+            dateCellHtml = `<td class="project-list-date project-list-date-fallback" style="text-align:left;"
+                title="尚無支出記錄，顯示預計施工日期">施工 ${escapeHtml(fmtListDate(startRaw))}</td>`;
+          }
+        } else {
+          dateCellHtml = `<td class="project-list-date" style="text-align:left;">${fmtListDate(startRaw)}</td>`;
+        }
+
+        const mainRow = `<tr class="${rowToneClass}">
           <td style="text-align:left;">
             <span class="project-list-name" onclick="openProjectFromList(${id})">${escapeHtml(title)}</span>
           </td>
-          <td class="project-list-date" style="text-align:left;">${fmtListDate(p.startDate || p.OData__x9810__x8a08__x65bd__x5de5__x65 || p._x9810__x8a08__x65bd__x5de5__x65)}</td>
-          <td class="num">${fmtMoney(contractTotal)}${voToggleHtml}</td>
-          <td class="num">${fmtMoney(recv)}</td>
+          <td class="project-list-mgr" style="text-align:left;" title="${escapeHtml(mgr)}">${escapeHtml(mgr || '—')}</td>
+          ${dateCellHtml}
+          <td class="num">${voToggleHtml} ${fmtMoney(contractTotal, '$')}</td>
+          <td class="num">${fmtMoney(recv, '$')}</td>
+          <td class="num">${fmtMoney(outstanding, '$')}</td>
           <td class="num">${costCell}</td>
-          <td class="num">${fmtMoney(paid)}</td>
+          <td class="num">${fmtMoney(paid, '$')}</td>
+          <td class="num">${profitCell}</td>
+          ${noteCellHtml}
         </tr>`;
 
         const detailRow = vos.length > 0
-          ? `<tr class="project-list-vodetail${isOpen ? ' open' : ''}" id="plvo-${id}"><td colspan="6"><div class="project-list-vo-breakdown">${voRows}</div></td></tr>`
+          ? `<tr class="project-list-vodetail${isOpen ? ' open' : ''}" id="plvo-${id}"><td colspan="10"><div class="project-list-vo-breakdown">${voRows}</div></td></tr>`
           : '';
 
         return mainRow + detailRow;
@@ -11442,6 +11632,65 @@
       renderProjectList();
     }
 
+    function updateProjectListDateHeader() {
+      const th = document.getElementById('project-list-date-th');
+      if (!th) return;
+      const isExpense = projectListDateMode === 'expense';
+      th.textContent = isExpense ? '最早支出 ▾' : '施工日期 ▾';
+      if (!isExpense) {
+        th.title = '按施工日期排序（最新者先）；點擊切換為最早支出';
+      } else if (projectListFirstExpenseStatus === 'error') {
+        th.title = '最早支出載入失敗，暫按施工日期排序；點擊切換排序';
+      } else {
+        th.title = '按最早支出日期排序（最新者先）；點擊切換為施工日期';
+      }
+    }
+
+    function toggleProjectListDateMode() {
+      projectListDateMode = projectListDateMode === 'expense' ? 'date' : 'expense';
+      projectListPage = 1;
+      updateProjectListDateHeader();
+      renderProjectList();
+    }
+
+    function getProjectListNoteTip() {
+      let tip = document.getElementById('project-list-note-tip');
+      if (!tip) {
+        tip = document.createElement('div');
+        tip.id = 'project-list-note-tip';
+        tip.className = 'project-list-note-tip';
+        tip.setAttribute('role', 'tooltip');
+        document.body.appendChild(tip);
+      }
+      return tip;
+    }
+
+    function showProjectListNote(cell) {
+      if (!cell) return;
+      const note = cell.getAttribute('data-note') || '';
+      if (!note) return;
+      const tip = getProjectListNoteTip();
+      tip.textContent = note;
+      tip.style.display = 'block';
+
+      const rect = cell.getBoundingClientRect();
+      const tipRect = tip.getBoundingClientRect();
+      const gap = 8;
+      let left = rect.left - tipRect.width - gap; // prefer the left side
+      if (left < 8) {
+        left = Math.min(window.innerWidth - tipRect.width - 8, rect.right + gap);
+      }
+      let top = rect.top + rect.height / 2 - tipRect.height / 2;
+      top = Math.max(8, Math.min(top, window.innerHeight - tipRect.height - 8));
+      tip.style.left = Math.max(8, left) + 'px';
+      tip.style.top = top + 'px';
+    }
+
+    function hideProjectListNote() {
+      const tip = document.getElementById('project-list-note-tip');
+      if (tip) tip.style.display = 'none';
+    }
+
     function toggleProjectListVO(id) {
       const key = Number(id);
       const el = document.getElementById('plvo-' + id);
@@ -11450,8 +11699,7 @@
       if (open) projectListVOOpen.add(key); else projectListVOOpen.delete(key);
       const tgl = document.getElementById('plvotgl-' + id);
       if (tgl) {
-        const n = tgl.getAttribute('data-count') || '0';
-        tgl.textContent = `${n} 項 VO ${open ? '▴' : '▸'}`;
+        tgl.textContent = `VO ${open ? '▴' : '▸'}`;
       }
     }
 
@@ -11724,14 +11972,16 @@
         projectUnpaidPromises = new Map();
         projectListPage = 1;
         projectListRenderSeq++; // invalidate any in-flight list render
-        projectListFilterUnderReceived = false;
+        projectListFilterUnderReceived = true;
         const underRecvCheck = document.getElementById('project-list-undrecv-filter');
-        if (underRecvCheck) underRecvCheck.checked = false;
-        // 重置排序模式為預設，並清除上次快取以便下次重新拉取
-        projectListSortByExpenseDate = false;
-        PROJECT_LIST_ALL_EXPENSE_FETCHED.clear();
-        const thDateEl = document.getElementById('pl-sort-header');
-        if (thDateEl) thDateEl.textContent = '施工日期 ▾';
+        if (underRecvCheck) underRecvCheck.checked = true;
+        // 重置日期欄排序與最早支出快取，讓本次刷新重新掃描
+        projectListDateMode = 'expense';
+        projectListFirstExpense = new Map();
+        projectListFirstExpenseStatus = 'idle';
+        projectListFirstExpensePromise = null;
+        projectListExpenseFetchGen++; // discard any in-flight old scan
+        updateProjectListDateHeader();
         showPeriodSkeleton(currentPeriod);
         if (selectedDashProject) {
           const curPid = selectedDashProject.id !== undefined ? selectedDashProject.id : selectedDashProject.Id;
@@ -11745,7 +11995,8 @@
         await Promise.all([
           fetchPeriodData(currentPeriod),
           loadDashboardProjects(),
-          (curPid && needFetchTx) ? fetchProjectTransactions(curPid) : Promise.resolve()
+          (curPid && needFetchTx) ? fetchProjectTransactions(curPid) : Promise.resolve(),
+          isManual ? ensureProjectFirstExpenseDates() : Promise.resolve()
         ]);
       } finally {
         if (btn) {
@@ -11776,6 +12027,7 @@
     }
 
     function initDashboardTab() {
+      updateProjectListDateHeader();
       switchDashboardView(currentDashboardView);
       // 1. 渲染預設項目
       if (!selectedDashProject && dashboardProjectsList.length > 0) {
@@ -11844,19 +12096,20 @@
           underRecvCheck.checked = projectListFilterUnderReceived;
         }
 
-        // 項目清單總表 header: 右鍵切換排序模式 (施工日期 ↔ 最早支出)
-        const thDate = document.getElementById('pl-sort-header');
-        if (thDate) {
-          thDate.addEventListener('contextmenu', (e) => {
+        // 項目清單總表：日期欄點擊切換排序（最早支出 ↔ 施工日期）
+        const listDateTh = document.getElementById('project-list-date-th');
+        if (listDateTh) {
+          const toggleDateSort = (e) => {
             e.preventDefault();
-            projectListSortByExpenseDate = !projectListSortByExpenseDate;
-            // Toggle header text to show active mode
-            const label = projectListSortByExpenseDate ? '最早支出' : '施工日期';
-            thDate.textContent = label + ' ▾';
-            projectListPage = 1;
-            renderProjectList();
-          });
+            toggleProjectListDateMode();
+          };
+          listDateTh.addEventListener('click', toggleDateSort);
+          listDateTh.addEventListener('contextmenu', toggleDateSort); // keep right-click working
         }
+
+        // 備註 tooltip：捲動或視窗大小改變時隱藏
+        window.addEventListener('scroll', hideProjectListNote, true);
+        window.addEventListener('resize', hideProjectListNote);
 
         // 3. 背景靜默拉取最新 SharePoint 資料
         refreshDashboard(false);
