@@ -3148,6 +3148,15 @@
       font-variant-numeric: tabular-nums;
       letter-spacing: -0.2px;
     }
+    /* Filter checkbox: compact inline label next to search */
+    .underrecv-filter-label {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 12px; color: var(--text-secondary, #64748b); cursor: pointer; white-space: nowrap;
+    }
+    .underrecv-filter-label input[type="checkbox"] {
+      margin: 0; width: auto; height: auto; accent-color: #3b82f6;
+    }
+
   </style>
 </head>
 
@@ -4233,7 +4242,12 @@
         <!-- Panel 3: 項目清單總表 -->
         <div class="dash-card" id="card-project-list" style="display: none;">
           <div>
-            <div class="card-top" style="justify-content: flex-end;">
+            <div class="card-top" style="justify-content: flex-end; gap: 14px;">
+              <label class="underrecv-filter-label">
+                <input type="checkbox" id="project-list-undrecv-filter"
+                  onchange="toggleProjectListUnderRecvFilter(this.checked)">
+                <span>僅未足收款</span>
+              </label>
               <input type="text" id="project-list-search" class="project-list-search"
                 placeholder="搜尋項目名稱或編號..." autocomplete="off">
             </div>
@@ -10132,6 +10146,7 @@
     const PROJECT_LIST_PAGE_SIZE = 20;
     let projectListPage = 1;
     let projectListQuery = '';            // current 項目清單總表 search filter (name/code)
+    let projectListFilterUnderReceived = false;  // toggle: show only recv < contractTotal
     let projectUnpaidMap = {};            // pid -> unpaid cost
     let projectUnpaidFetched = new Set(); // pids successfully queried
     let projectUnpaidFailed = new Set();  // pids whose query failed
@@ -11201,6 +11216,9 @@
       let list = (dashboardProjectsList || [])
         .filter(p => !/test/i.test(p.title || p.Title || ''))
         .slice();
+      if (projectListFilterUnderReceived) {
+        list = list.filter(p => (p.recv || 0) < ((p.contract !== undefined ? p.contract : (p.amt || 0)) + (p.voTotal || 0)));
+      }
       if (projectListQuery) {
         const q = projectListQuery.toLowerCase();
         list = list.filter(p =>
@@ -11325,6 +11343,12 @@
       const next = projectListPage + delta;
       if (next < 1) return;
       projectListPage = next;
+      renderProjectList();
+    }
+
+    function toggleProjectListUnderRecvFilter(on) {
+      projectListFilterUnderReceived = on;
+      projectListPage = 1;
       renderProjectList();
     }
 
@@ -11610,6 +11634,9 @@
         projectUnpaidPromises = new Map();
         projectListPage = 1;
         projectListRenderSeq++; // invalidate any in-flight list render
+        projectListFilterUnderReceived = false;
+        const underRecvCheck = document.getElementById('project-list-undrecv-filter');
+        if (underRecvCheck) underRecvCheck.checked = false;
         showPeriodSkeleton(currentPeriod);
         if (selectedDashProject) {
           const curPid = selectedDashProject.id !== undefined ? selectedDashProject.id : selectedDashProject.Id;
@@ -11714,6 +11741,12 @@
             projectListPage = 1;
             renderProjectList();
           });
+        }
+
+        // 項目清單總表 僅未足收款 checkbox（恢復狀態）
+        const underRecvCheck = document.getElementById('project-list-undrecv-filter');
+        if (underRecvCheck) {
+          underRecvCheck.checked = projectListFilterUnderReceived;
         }
 
         // 3. 背景靜默拉取最新 SharePoint 資料
