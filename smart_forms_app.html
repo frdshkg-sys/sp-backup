@@ -1286,6 +1286,65 @@
       border-radius: 6px;
     }
 
+    /* Overlay lives OUTSIDE the horizontal scroller, so it is always centered in the
+       visible area regardless of the table's 920px min-width / scroll position. */
+    .project-list-view {
+      position: relative;
+      width: 100%;
+      min-width: 0;
+    }
+
+    .project-list-loading-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      display: none;
+      background: rgba(255, 255, 255, 0.72);
+      border-radius: 6px;
+      pointer-events: none;
+    }
+
+    /* Sticky so the spinner stays within the viewport even when the table is taller
+       than the window; left/right centering still follows the visible scrollport. */
+    .project-list-loading-content {
+      position: sticky;
+      top: calc(50vh - 20px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      height: 40px;
+      color: #475569;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .project-list-spinner {
+      width: 18px;
+      height: 18px;
+      flex: 0 0 auto;
+      border: 2px solid #0284c7;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .project-list-table tbody {
+      transition: opacity 0.15s ease;
+    }
+
+    .project-list-view.is-loading .project-list-table tbody {
+      opacity: 0.45;
+      pointer-events: none;
+    }
+
+    .project-list-spacer td {
+      height: 280px;
+      padding: 0;
+      border-bottom: 0;
+    }
+
     .project-list-table {
       width: 100%;
       border-collapse: collapse;
@@ -1505,6 +1564,8 @@
       color: #64748b;
       padding: 24px 12px;
       font-size: 13px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
     }
 
     .dashboard-panels-container {
@@ -4177,29 +4238,37 @@
                 placeholder="搜尋項目名稱或編號..." autocomplete="off">
             </div>
 
-            <div class="project-list-table-wrap">
-              <table class="project-list-table">
-                <colgroup>
-                  <col style="width: 26%;">
-                  <col style="width: 12%;">
-                  <col style="width: 18%;">
-                  <col style="width: 14%;">
-                  <col style="width: 16%;">
-                  <col style="width: 14%;">
-                </colgroup>
-                <thead>
-                  <tr>
-                    <th style="text-align:left;">項目</th>
-                    <th style="text-align:left;">施工日期</th>
-                    <th style="text-align:right;">合約總額（含 VO）</th>
-                    <th style="text-align:right;">已收</th>
-                    <th style="text-align:right;">成本（已付＋未付）</th>
-                    <th style="text-align:right;">成本（只計已付）</th>
-                  </tr>
-                </thead>
-                <tbody id="project-list-tbody"></tbody>
-              </table>
+            <div class="project-list-view" id="project-list-view" aria-busy="false">
+              <div class="project-list-table-wrap" id="project-list-table-wrap">
+                <table class="project-list-table">
+                  <colgroup>
+                    <col style="width: 26%;">
+                    <col style="width: 12%;">
+                    <col style="width: 18%;">
+                    <col style="width: 14%;">
+                    <col style="width: 16%;">
+                    <col style="width: 14%;">
+                  </colgroup>
+                  <thead>
+                    <tr>
+                      <th style="text-align:left;">項目</th>
+                      <th style="text-align:left;">施工日期</th>
+                      <th style="text-align:right;">合約總額（含 VO）</th>
+                      <th style="text-align:right;">已收</th>
+                      <th style="text-align:right;">成本（已付＋未付）</th>
+                      <th style="text-align:right;">成本（只計已付）</th>
+                    </tr>
+                  </thead>
+                  <tbody id="project-list-tbody"></tbody>
+                </table>
+              </div>
               <div id="project-list-empty" class="project-list-empty" style="display: none;">尚無項目資料</div>
+              <div id="project-list-loading" class="project-list-loading-overlay" role="status" aria-live="polite" style="display: none;">
+                <div class="project-list-loading-content">
+                  <span class="project-list-spinner" aria-hidden="true"></span>
+                  <span>載入中…</span>
+                </div>
+              </div>
             </div>
 
             <div class="project-list-pager" id="project-list-pager" style="display: none;">
@@ -11090,11 +11159,42 @@
       switchDashboardView('project');
     }
 
+    function setProjectListLoading(on) {
+      const view = document.getElementById('project-list-view');
+      const overlay = document.getElementById('project-list-loading');
+      const tbody = document.getElementById('project-list-tbody');
+      if (!view || !overlay) return;
+      view.classList.toggle('is-loading', !!on);
+      view.setAttribute('aria-busy', on ? 'true' : 'false');
+      overlay.style.display = on ? 'flex' : 'none';
+      // First render only: keep a visible area under the header for the overlay.
+      if (on && tbody && tbody.children.length === 0) {
+        tbody.innerHTML = '<tr class="project-list-spacer" aria-hidden="true"><td colspan="6"></td></tr>';
+      }
+    }
+
+    function updateProjectListPager(page, pageCount, total, loading) {
+      const pager = document.getElementById('project-list-pager');
+      if (!pager) return;
+      if (pageCount <= 1) {
+        pager.style.display = 'none';
+        return;
+      }
+      pager.style.display = 'flex';
+      const info = document.getElementById('pl-pager-info');
+      if (info) info.textContent = `第 ${page} / ${pageCount} 頁（共 ${total} 個項目）`;
+      const prev = document.getElementById('pl-pager-prev');
+      const next = document.getElementById('pl-pager-next');
+      if (prev) prev.disabled = !!loading || page <= 1;
+      if (next) next.disabled = !!loading || page >= pageCount;
+    }
+
     async function renderProjectList() {
       const seq = ++projectListRenderSeq;
       const tbody = document.getElementById('project-list-tbody');
       const empty = document.getElementById('project-list-empty');
       const pager = document.getElementById('project-list-pager');
+      const wrap = document.getElementById('project-list-table-wrap');
       if (!tbody) return;
 
       // List only (does not mutate dashboardProjectsList, which feeds the 🏗️ dropdown).
@@ -11111,12 +11211,14 @@
       sortDashboardProjects(list);
 
       if (list.length === 0) {
+        setProjectListLoading(false);
         if (empty) {
           empty.textContent = projectListQuery
             ? `找不到符合「${projectListQuery}」的項目`
             : '尚無項目資料';
           empty.style.display = 'block';
         }
+        if (wrap) wrap.style.display = 'none';
         tbody.innerHTML = '';
         if (pager) pager.style.display = 'none';
         return;
@@ -11125,6 +11227,7 @@
         empty.textContent = '尚無項目資料';
         empty.style.display = 'none';
       }
+      if (wrap) wrap.style.display = '';
 
       const pageCount = Math.max(1, Math.ceil(list.length / PROJECT_LIST_PAGE_SIZE));
       projectListPage = Math.min(Math.max(1, projectListPage), pageCount);
@@ -11134,12 +11237,20 @@
         .map(p => Number(p.id !== undefined ? p.id : p.Id))
         .filter(id => id > 0);
 
-      // Await the page's 未付 costs before painting, so all columns appear together.
+      // The target page is reflected in the pager immediately. Old rows stay in place
+      // (dimmed) under an overlay pinned to the visible area, so there is no height collapse.
       const needFetch = pageIds.some(id => !projectUnpaidFetched.has(id) && !projectUnpaidFailed.has(id));
+      updateProjectListPager(projectListPage, pageCount, list.length, needFetch);
       if (needFetch) {
-        tbody.innerHTML = '<tr><td colspan="6" class="project-list-loading">載入中…</td></tr>';
-        await fetchUnpaidCostsForPage(pageIds);
+        setProjectListLoading(true);
+        try {
+          await fetchUnpaidCostsForPage(pageIds);
+        } catch (err) {
+          console.warn('renderProjectList: unpaid fetch failed', err);
+        }
         if (seq !== projectListRenderSeq) return; // superseded by a newer navigation/refresh
+      } else {
+        setProjectListLoading(false); // cached page: render instantly, clear any stale overlay
       }
 
       const allResolved = pageIds.every(id => projectUnpaidFetched.has(id));
@@ -11202,20 +11313,11 @@
         return mainRow + detailRow;
       }).join('');
 
-      tbody.innerHTML = rowsHtml;
-
-      if (pager) {
-        if (pageCount <= 1) {
-          pager.style.display = 'none';
-        } else {
-          pager.style.display = 'flex';
-          const info = document.getElementById('pl-pager-info');
-          if (info) info.textContent = `第 ${projectListPage} / ${pageCount} 頁（共 ${list.length} 個項目）`;
-          const prev = document.getElementById('pl-pager-prev');
-          const next = document.getElementById('pl-pager-next');
-          if (prev) prev.disabled = projectListPage <= 1;
-          if (next) next.disabled = projectListPage >= pageCount;
-        }
+      try {
+        tbody.innerHTML = rowsHtml;
+      } finally {
+        setProjectListLoading(false);
+        updateProjectListPager(projectListPage, pageCount, list.length, false);
       }
     }
 
@@ -11507,6 +11609,7 @@
         projectUnpaidFailed = new Set();
         projectUnpaidPromises = new Map();
         projectListPage = 1;
+        projectListRenderSeq++; // invalidate any in-flight list render
         showPeriodSkeleton(currentPeriod);
         if (selectedDashProject) {
           const curPid = selectedDashProject.id !== undefined ? selectedDashProject.id : selectedDashProject.Id;

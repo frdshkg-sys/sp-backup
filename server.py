@@ -58,12 +58,13 @@ class SharePointProxyHandler(http.server.SimpleHTTPRequestHandler):
             if val:
                 headers[h] = val
 
-        data = None
-        content_length = int(self.headers.get("Content-Length", 0))
-        if content_length > 0:
-            data = self.rfile.read(content_length)
-
+        headers_sent = False
         try:
+            data = None
+            content_length = int(self.headers.get("Content-Length", 0))
+            if content_length > 0:
+                data = self.rfile.read(content_length)
+
             r = session.request(method, url, headers=headers, data=data)
             if r.status_code in (401, 403) and not SharePointProxyHandler.warned_auth:
                 print(f"\n⚠️  [SharePoint Authentication Expired] HTTP {r.status_code} received!")
@@ -73,14 +74,28 @@ class SharePointProxyHandler(http.server.SimpleHTTPRequestHandler):
                 SharePointProxyHandler.warned_auth = False
 
             self.send_response(r.status_code)
+            headers_sent = True
             for k, v in r.headers.items():
                 if k.lower() not in ["content-encoding", "transfer-encoding", "content-length"]:
                     self.send_header(k, v)
             self.send_header("Content-Length", str(len(r.content)))
             self.end_headers()
             self.wfile.write(r.content)
+        except (ConnectionResetError, BrokenPipeError) as e:
+            # The browser reloaded/navigated away (or closed the tab) while this request
+            # was in flight. Expected during dev; nothing left to send.
+            print(f"[proxy] client disconnected before response completed: {method} {self.path} ({e})")
+            self.close_connection = True
         except Exception as e:
-            self.send_error(500, f"Proxy Error: {e}")
+            # Once the status line is out we can no longer report an error on the wire.
+            if headers_sent:
+                print(f"[proxy] error after headers were sent: {e}")
+                self.close_connection = True
+                return
+            try:
+                self.send_error(500, f"Proxy Error: {e}")
+            except (ConnectionResetError, BrokenPipeError):
+                self.close_connection = True
 
 if __name__ == "__main__":
     os.chdir(BASE_DIR)
