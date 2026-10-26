@@ -1370,6 +1370,8 @@
     .project-list-table tbody tr.project-list-row-loss { background: #fef2f2; }
     .project-list-table tbody tr.project-list-row-profit:hover { background: #dcfce7; }
     .project-list-table tbody tr.project-list-row-loss:hover { background: #fee2e2; }
+    .project-list-table tbody tr.project-list-row-unpaid { background: #fefce8; }
+    .project-list-table tbody tr.project-list-row-unpaid:hover { background: #fef9c3; }
 
     .project-list-table thead th {
       position: sticky;
@@ -1509,6 +1511,22 @@
     }
 
     .project-list-search:focus {
+      border-color: var(--primary);
+    }
+
+    .project-list-color-select {
+      height: 32px;
+      padding: 0 8px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      background: var(--card-bg);
+      color: var(--text-main);
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .project-list-color-select:focus {
+      outline: none;
       border-color: var(--primary);
     }
 
@@ -4317,6 +4335,15 @@
         <div class="dash-card" id="card-project-list" style="display: none;">
           <div>
             <div class="card-top" style="justify-content: flex-end; gap: 14px;">
+              <label class="underrecv-filter-label">
+                <span>底色</span>
+                <select id="project-list-color-mode" class="project-list-color-select"
+                  onchange="setProjectListColorMode(this.value)">
+                  <option value="none" selected>無底色</option>
+                  <option value="profit">利潤（綠／紅）</option>
+                  <option value="unpaid">未付支出（黃）</option>
+                </select>
+              </label>
               <label class="underrecv-filter-label">
                 <input type="checkbox" id="project-list-undrecv-filter" checked
                   onchange="toggleProjectListUnderRecvFilter(this.checked)">
@@ -10275,6 +10302,7 @@
     let projectListVOOpen = new Set();    // pids whose VO panel is expanded
     let projectListRenderSeq = 0;         // guards against superseded renders
     let projectListDateMode = 'expense';  // date column sort: 'expense' (default) | 'date'
+    let projectListColorMode = 'none';  // row tint: 'none' (default) | 'profit' | 'unpaid'
     let projectListFirstExpense = new Map();     // pid -> earliest non-void expense epoch ms
     let projectListFirstExpenseStatus = 'idle';  // 'idle' | 'loading' | 'done' | 'error'
     let projectListFirstExpensePromise = null;   // shared in-flight load (dedupe)
@@ -11541,9 +11569,14 @@
           : '<td class="project-list-note"></td>';
         const vos = Array.isArray(p.vos) ? p.vos : [];
         const isOpen = projectListVOOpen.has(id);
-        const rowToneClass = allResolved
-          ? (profit < 0 ? 'project-list-row-loss' : 'project-list-row-profit')
-          : '';
+        let rowToneClass = '';
+        if (allResolved) {
+          if (projectListColorMode === 'profit') {
+            rowToneClass = profit < 0 ? 'project-list-row-loss' : 'project-list-row-profit';
+          } else if (projectListColorMode === 'unpaid' && unpaid > 0) {
+            rowToneClass = 'project-list-row-unpaid';
+          }
+        }
 
         let voRows = '';
         if (vos.length > 0) {
@@ -11629,6 +11662,11 @@
     function toggleProjectListUnderRecvFilter(on) {
       projectListFilterUnderReceived = on;
       projectListPage = 1;
+      renderProjectList();
+    }
+
+    function setProjectListColorMode(mode) {
+      projectListColorMode = (mode === 'none' || mode === 'unpaid') ? mode : 'profit';
       renderProjectList();
     }
 
@@ -12094,6 +12132,12 @@
         const underRecvCheck = document.getElementById('project-list-undrecv-filter');
         if (underRecvCheck) {
           underRecvCheck.checked = projectListFilterUnderReceived;
+        }
+
+        // 項目清單總表 底色模式（恢復狀態）
+        const colorModeSel = document.getElementById('project-list-color-mode');
+        if (colorModeSel) {
+          colorModeSel.value = projectListColorMode;
         }
 
         // 項目清單總表：日期欄點擊切換排序（最早支出 ↔ 施工日期）
