@@ -1514,6 +1514,10 @@
       border-color: var(--primary);
     }
 
+    .project-list-mgr-search {
+      width: 150px;
+    }
+
     .project-list-color-select {
       height: 32px;
       padding: 0 8px;
@@ -4349,6 +4353,9 @@
                   onchange="toggleProjectListUnderRecvFilter(this.checked)">
                 <span>僅未足收款</span>
               </label>
+              <input type="text" id="project-list-mgr-search"
+                class="project-list-search project-list-mgr-search"
+                placeholder="搜尋負責人..." aria-label="搜尋負責人" autocomplete="off">
               <input type="text" id="project-list-search" class="project-list-search"
                 placeholder="搜尋項目名稱或編號..." autocomplete="off">
             </div>
@@ -10294,6 +10301,7 @@
     const PROJECT_LIST_PAGE_SIZE = 20;
     let projectListPage = 1;
     let projectListQuery = '';            // current 項目清單總表 search filter (name/code)
+    let projectListMgrQuery = '';         // 項目清單總表：負責人文字篩選
     let projectListFilterUnderReceived = true;   // default on: show only recv < contractTotal
     let projectUnpaidMap = {};            // pid -> unpaid cost
     let projectUnpaidFetched = new Set(); // pids successfully queried
@@ -11481,6 +11489,10 @@
       if (projectListFilterUnderReceived) {
         list = list.filter(p => (p.recv || 0) < ((p.contract !== undefined ? p.contract : (p.amt || 0)) + (p.voTotal || 0)));
       }
+      if (projectListMgrQuery) {
+        const mq = projectListMgrQuery.toLowerCase();
+        list = list.filter(p => String(p.mgr || '').toLowerCase().includes(mq));
+      }
       if (projectListQuery) {
         const q = projectListQuery.toLowerCase();
         list = list.filter(p =>
@@ -11491,9 +11503,15 @@
       if (list.length === 0) {
         setProjectListLoading(false);
         if (empty) {
-          empty.textContent = projectListQuery
-            ? `找不到符合「${projectListQuery}」的項目`
-            : '尚無項目資料';
+          let emptyMsg = '尚無項目資料';
+          if (projectListMgrQuery && projectListQuery) {
+            emptyMsg = `找不到負責人為「${projectListMgrQuery}」且符合「${projectListQuery}」的項目`;
+          } else if (projectListMgrQuery) {
+            emptyMsg = `找不到負責人為「${projectListMgrQuery}」的項目`;
+          } else if (projectListQuery) {
+            emptyMsg = `找不到符合「${projectListQuery}」的項目`;
+          }
+          empty.textContent = emptyMsg;
           empty.style.display = 'block';
         }
         if (wrap) wrap.style.display = 'none';
@@ -12115,6 +12133,17 @@
             if (wrap && !wrap.contains(e.target)) {
               closeDashDropdown();
             }
+          });
+        }
+
+        // 項目清單總表搜尋（負責人）
+        const mgrSearch = document.getElementById('project-list-mgr-search');
+        if (mgrSearch) {
+          mgrSearch.value = projectListMgrQuery;
+          mgrSearch.addEventListener('input', (e) => {
+            projectListMgrQuery = e.target.value.trim();
+            projectListPage = 1;
+            renderProjectList();
           });
         }
 
