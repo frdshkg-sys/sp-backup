@@ -1281,7 +1281,10 @@
 
     .project-list-table-wrap {
       width: 100%;
-      overflow-x: auto;
+      max-height: 65vh;
+      overflow-x: hidden;
+      overflow-y: auto;
+      scrollbar-gutter: stable;
       border: 1px solid var(--border);
       border-radius: 6px;
     }
@@ -1349,16 +1352,16 @@
       width: 100%;
       border-collapse: collapse;
       table-layout: fixed;
-      font-size: 13px;
-      min-width: 1300px;
+      font-size: 12px;
     }
 
     .project-list-table th,
     .project-list-table td {
-      padding: 10px 14px;
+      padding: 9px 8px;
       border-bottom: 1px solid #f1f5f9;
       text-align: right;
       vertical-align: top;
+      overflow: hidden;
     }
 
     .project-list-table tbody tr:hover {
@@ -1376,6 +1379,7 @@
     .project-list-table thead th {
       position: sticky;
       top: 0;
+      z-index: 1;
       background: #f8fafc;
       color: #475569;
       font-size: 12px;
@@ -1394,6 +1398,8 @@
       font-weight: 600;
       color: var(--text-main);
       cursor: pointer;
+      word-break: break-word;
+      overflow-wrap: anywhere;
     }
 
     .project-list-name:hover {
@@ -1476,7 +1482,7 @@
     }
 
     .project-list-vo-toggle {
-      margin-right: 8px;
+      margin-right: 4px;
       font-size: 11px;
       color: var(--primary);
       cursor: pointer;
@@ -1559,48 +1565,6 @@
       white-space: normal;
     }
 
-    .project-list-pager {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 12px;
-      padding-top: 12px;
-    }
-
-    .pl-pager-info {
-      font-size: 12px;
-      color: #64748b;
-      font-weight: 500;
-    }
-
-    .pl-pager-btns {
-      display: flex;
-      gap: 8px;
-    }
-
-    .pl-pager-btn {
-      border: 1px solid #cbd5e1;
-      background: var(--card-bg);
-      color: var(--text-main);
-      font-size: 12px;
-      font-weight: 500;
-      padding: 5px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background 0.15s, border-color 0.15s;
-    }
-
-    .pl-pager-btn:hover:not(:disabled) {
-      background: #f8fafc;
-      border-color: #94a3b8;
-    }
-
-    .pl-pager-btn:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-    }
 
     .project-list-vo-row {
       display: flex;
@@ -3043,6 +3007,34 @@
       cursor: not-allowed;
     }
 
+    .btn-row-void {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 4px 9px;
+      background: #fff5f5;
+      border: 1px solid #fecaca;
+      border-radius: 5px;
+      font-size: 11.5px;
+      color: #dc2626;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .btn-row-void:hover:not(:disabled) {
+      background: #fee2e2;
+      border-color: #fca5a5;
+      color: #b91c1c;
+    }
+
+    .btn-row-void:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
     .btn-batch-add-candidate {
       display: inline-flex;
       align-items: center;
@@ -3770,7 +3762,7 @@
           <div class="combobox-container" id="edit-tx-combobox">
             <div class="combobox-input-wrap">
               <input type="text" class="combobox-input" id="edit-tx-search"
-                placeholder="輸入單號 (如 EXP-08162)、支票、廠商、小類或項目關鍵字全庫檢索..." autocomplete="off">
+                placeholder="輸入支票編號、廠商、發票號碼、小類或項目關鍵字全庫檢索..." autocomplete="off">
               <div class="combobox-actions">
                 <button type="button" class="combobox-clear" id="edit-tx-clear" title="清除選取">✕</button>
                 <span class="combobox-arrow">▼</span>
@@ -3791,7 +3783,7 @@
         <form id="form-edit-tx" onsubmit="event.preventDefault(); submitEditTransaction(event); return false;">
           <div class="edit-header-info" style="display:none !important;">
             <div class="tx-badge-group">
-              <span class="badge-tx-id" id="edit-display-id">EXP-00000</span>
+              <span class="badge-tx-id" id="edit-display-id"></span>
               <span class="badge-type" id="edit-display-type">支出記錄</span>
             </div>
             <span style="font-size:12px; color:var(--text-muted);" id="edit-display-modified"></span>
@@ -3951,7 +3943,7 @@
       <!-- Empty State Hint -->
       <div id="edit-tx-empty-hint" style="text-align:center; padding:36px 20px; color:var(--text-muted); border:1px dashed #cbd5e1; border-radius:6px; background:#f8fafc;">
         <p style="font-size:14px; font-weight:500; color:#475569;">請先由上方搜尋或選取要修改的交易記錄</p>
-        <p style="font-size:12.5px; margin-top:6px;">支援依交易編號、支票號碼、廠商名稱或項目名稱關鍵字即時篩選</p>
+        <p style="font-size:12.5px; margin-top:6px;">支援依支票編號、廠商名稱、發票號碼或項目名稱關鍵字即時篩選</p>
       </div>
     </div>
 
@@ -4364,15 +4356,15 @@
               <div class="project-list-table-wrap" id="project-list-table-wrap">
                 <table class="project-list-table">
                   <colgroup>
-                    <col style="width: 14.5%;">
+                    <col style="width: 15%;">
                     <col style="width: 7%;">
+                    <col style="width: 9.5%;">
+                    <col style="width: 12%;">
                     <col style="width: 10.5%;">
+                    <col style="width: 10%;">
                     <col style="width: 11.5%;">
                     <col style="width: 11%;">
                     <col style="width: 10.5%;">
-                    <col style="width: 11.5%;">
-                    <col style="width: 10.5%;">
-                    <col style="width: 10%;">
                     <col style="width: 3%;">
                   </colgroup>
                   <thead>
@@ -4402,15 +4394,6 @@
               </div>
             </div>
 
-            <div class="project-list-pager" id="project-list-pager" style="display: none;">
-              <span class="pl-pager-info" id="pl-pager-info"></span>
-              <div class="pl-pager-btns">
-                <button type="button" class="pl-pager-btn" id="pl-pager-prev"
-                  onclick="goProjectListPage(-1)">‹ 上一頁</button>
-                <button type="button" class="pl-pager-btn" id="pl-pager-next"
-                  onclick="goProjectListPage(1)">下一頁 ›</button>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -6242,6 +6225,7 @@
         let startExpNum = maxNumbers.exp + 1;
         let createdTitles = [];
         let projCostMap = {}; // projId -> sum amount for syncing
+        const newBatchId = count > 1 ? `BATCH-EXP-${String(startExpNum).padStart(7, '0')}` : '';
 
         for (let i = 0; i < count; i++) {
           const r = expenseRowList[i];
@@ -6271,7 +6255,9 @@
             "OData__x5b50__x9805__x76ee_": r.subitem ? r.subitem.trim() : '其他',
             "RecordStatus": recordStatus,
             "OData__x4ed8__x6b3e__x72c0__x614b_": paymentStatus,
-            "Remarks": commonRemarks
+            "Remarks": commonRemarks,
+            "BatchId": newBatchId,
+            "IsIndependent": false
           };
 
           if (fileUrl) {
@@ -6595,12 +6581,15 @@
     // Helper for formatting VO money with exact single prefix and correct +/- sign
     function fmtVOMoney(amount, showSign = true, symbol = 'HK$') {
       const num = Number(amount) || 0;
-      const isNeg = num < 0;
+      const isNeg = num < -0.0001;
       const absStr = Math.abs(num).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      if (showSign) {
-        return isNeg ? `-${symbol} ${absStr}` : `+${symbol} ${absStr}`;
+      if (isNeg) {
+        return `(${symbol} ${absStr})`;
       }
-      return isNeg ? `-${symbol} ${absStr}` : `${symbol} ${absStr}`;
+      if (showSign) {
+        return `+${symbol} ${absStr}`;
+      }
+      return `${symbol} ${absStr}`;
     }
 
     function setNewVOType(type) {
@@ -7369,12 +7358,69 @@
       }
     }
 
+    function syncSharedFieldsToBatchInMemory() {
+      if (currentEditType !== 'expense' || !selectedEditBatch || selectedEditBatch.length === 0) return;
+      const newStatus = document.getElementById('edit-status')?.value || '有效';
+      const newDateVal = document.getElementById('edit-date')?.value || '';
+      const currentPayStatus = document.getElementById('edit-payment-status')?.value || '已付';
+      const currentCheque = currentPayStatus === '未付' ? '' : (document.getElementById('edit-cheque')?.value || '').trim();
+      const currentBank = getBankValue('edit-exp');
+      const currentPayee = (document.getElementById('edit-payee')?.value || '').trim();
+      const currentRemarks = (document.getElementById('edit-remarks')?.value || '').trim();
+
+      selectedEditBatch.forEach(item => {
+        item.status = newStatus;
+        item.dateIso = newDateVal;
+        if (newDateVal) item.dateDisplay = newDateVal;
+        item.paymentStatus = currentPayStatus;
+        item.cheque = currentCheque;
+        item.bank = currentBank;
+        item.payee = currentPayee;
+        item.remarks = currentRemarks;
+      });
+
+      if (selectedEditTx) {
+        selectedEditTx.status = newStatus;
+        selectedEditTx.dateIso = newDateVal;
+        if (newDateVal) selectedEditTx.dateDisplay = newDateVal;
+        selectedEditTx.paymentStatus = currentPayStatus;
+        selectedEditTx.cheque = currentCheque;
+        selectedEditTx.bank = currentBank;
+        selectedEditTx.payee = currentPayee;
+        selectedEditTx.remarks = currentRemarks;
+      }
+
+      const headerTitleEl = document.getElementById('edit-batch-header-title');
+      if (headerTitleEl) {
+        const chqPart = currentCheque
+          ? `（支票：${currentCheque}，共 ${selectedEditBatch.length} 筆項目）`
+          : `（共 ${selectedEditBatch.length} 筆項目）`;
+        headerTitleEl.textContent = `多項目分攤支出${chqPart}`;
+      }
+    }
+
     function initEditTxFormWatchers() {
       const form = document.getElementById('form-edit-tx');
       if (!form) return;
-      const markDirty = () => setEditSubmitButtonState('idle');
-      form.addEventListener('input', markDirty);
-      form.addEventListener('change', markDirty);
+      const onFormMutate = (e) => {
+        const targetId = e && e.target ? e.target.id : '';
+        if (
+          targetId === 'edit-status' ||
+          targetId === 'edit-date' ||
+          targetId === 'edit-cheque' ||
+          targetId === 'edit-chq-prefix' ||
+          targetId === 'edit-exp-bank' ||
+          targetId === 'edit-exp-bank-custom' ||
+          targetId === 'edit-payee' ||
+          targetId === 'edit-payment-status' ||
+          targetId === 'edit-remarks'
+        ) {
+          syncSharedFieldsToBatchInMemory();
+        }
+        setEditSubmitButtonState('idle');
+      };
+      form.addEventListener('input', onFormMutate);
+      form.addEventListener('change', onFormMutate);
     }
 
     function checkIsEditTxUnchanged() {
@@ -7386,28 +7432,35 @@
 
       const currentPayee = isExp ? (document.getElementById('edit-payee').value || '').trim() : '';
       const currentSubitem = isExp ? (document.getElementById('edit-subitem').value || '').trim() : '';
-      const currentCheque = isExp ? (document.getElementById('edit-cheque').value || '').trim() : '';
+      const currentPayStatus = isExp ? (document.getElementById('edit-payment-status')?.value || '已付') : '已付';
+      const currentCheque = isExp ? (currentPayStatus === '未付' ? '' : (document.getElementById('edit-cheque').value || '').trim()) : '';
       const currentBank = isExp ? getBankValue('edit-exp') : getBankValue('edit-inc');
 
       // If in Expense Unified/Batch Edit Mode:
       if (isExp && selectedEditBatch && selectedEditBatch.length >= 1) {
-        if (newStatus !== (selectedEditTx.status || '有效')) return false;
-        if (newDateVal !== (selectedEditTx.dateIso || '')) return false;
         if (!fileMatch) return false;
-        if (currentCheque !== (selectedEditTx.cheque || '').trim()) return false;
-        if (currentBank !== (selectedEditTx.bank || '')) return false;
-        if (currentPayee !== (selectedEditTx.payee || '').trim()) return false;
-        const currentPayStatus = document.getElementById('edit-payment-status')?.value || '已付';
-        const origPayStatus = selectedEditTx.paymentStatus || (selectedEditTx.cheque ? '已付' : '未付');
-        if (currentPayStatus !== origPayStatus) return false;
-
         const currentRemarks = (document.getElementById('edit-remarks')?.value || '').trim();
-        const origRemarks = (selectedEditBatch[0]?._orig?.remarks || selectedEditTx.remarks || '').trim();
-        if (currentRemarks !== origRemarks) return false;
+        const sharedReceiptUrl = (
+          selectedEditBatch.find(x => (x._orig?.receiptUrl || x.receiptUrl || '').trim())?.receiptUrl ||
+          selectedEditTx.receiptUrl ||
+          ''
+        ).trim();
 
-        // Check each row in the batch
+        // Check each row in the batch against its original SharePoint snapshot (_orig)
         for (const item of selectedEditBatch) {
           const orig = item._orig || item;
+          if (newStatus !== (orig.status || '有效')) return false;
+          if (newDateVal !== (orig.dateIso || '')) return false;
+          if (currentCheque !== (orig.cheque || '').trim()) return false;
+          if (currentBank !== (orig.bank || '')) return false;
+          if (currentPayee !== (orig.payee || '').trim()) return false;
+          const origPayStatus = orig.paymentStatus || (orig.cheque ? '已付' : '未付');
+          if (currentPayStatus !== origPayStatus) return false;
+          if (currentRemarks !== (orig.remarks || '').trim()) return false;
+          if (currentPayStatus !== '未付' && sharedReceiptUrl && (orig.receiptUrl || '').trim() !== sharedReceiptUrl) {
+            return false;
+          }
+
           const curProjId = String(item.projId || '');
           const origProjId = String(orig.projId || '');
           if (curProjId !== origProjId) return false;
@@ -7455,7 +7508,6 @@
         if (currentBank !== (selectedEditTx.bank || '')) return false;
         if (currentPayee !== (selectedEditTx.payee || '').trim()) return false;
         if (currentSubitem !== (selectedEditTx.subitem || '').trim()) return false;
-        const currentPayStatus = document.getElementById('edit-payment-status')?.value || '已付';
         const origPayStatus = selectedEditTx.paymentStatus || (selectedEditTx.cheque ? '已付' : '未付');
         if (currentPayStatus !== origPayStatus) return false;
       } else {
@@ -7463,6 +7515,36 @@
       }
 
       return true;
+    }
+
+    function formatEditTxSearchLabel(tx, batch) {
+      if (!tx) return '';
+      const isExp = (currentEditType === 'expense');
+      const members = (batch && batch.length > 0)
+        ? batch
+        : (tx._batchMembers && tx._batchMembers.length > 0 ? tx._batchMembers : [tx]);
+      const summedAmt = (batch && batch.length > 0)
+        ? batch.reduce((s, it) => s + (parseAmount(it.amount) || 0), 0)
+        : (tx._groupedAmount !== undefined ? tx._groupedAmount : members.reduce((s, it) => s + (parseAmount(it.amount) || 0), 0));
+      const amtStr = `$${Number(summedAmt || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
+
+      if (!isExp) {
+        return `${tx.Title || ''} - ${amtStr}`;
+      }
+
+      const chq = (tx.cheque || '').trim();
+      if (chq) {
+        return `${chq} - ${amtStr}`;
+      }
+      const unpaidLabel = (tx.payee || '').trim() || (tx.projName || '').trim() || (tx.subitem || '').trim() || '未付支出';
+      return `${unpaidLabel} (未付) - ${amtStr}`;
+    }
+
+    function extractEditTxSearchQuery(rawVal) {
+      let s = (rawVal || '').trim();
+      if (!s) return '';
+      s = s.replace(/\s*(?:\(未付\))?\s*-\s*\$[\d,]+(?:\.\d+)?\s*$/, '').trim();
+      return s;
     }
 
     let editTxSearchTimer = null;
@@ -7674,7 +7756,7 @@
     let isServerSearching = false;
 
     function handleEditTxSearchInput(rawVal) {
-      const q = (rawVal || '').trim();
+      const q = extractEditTxSearchQuery(rawVal);
       clearTimeout(editTxSearchTimer);
 
       if (!q) {
@@ -7690,7 +7772,7 @@
           dropdown.innerHTML = `
           <div class="combobox-empty" style="color:var(--text-muted); font-size:12.5px; padding:14px 16px; line-height:1.5;">
             請輸入至少 2 個字元以啟動全庫搜尋<br>
-            <span style="font-size:11.5px; color:#64748b;">(支援交易單號、支票編號、廠商、所屬項目或小類關鍵字)</span>
+            <span style="font-size:11.5px; color:#64748b;">(支援支票編號、廠商、發票號碼、所屬項目或小類關鍵字)</span>
           </div>
         `;
           dropdown.style.display = 'block';
@@ -7718,6 +7800,72 @@
       editTxSearchTimer = setTimeout(() => {
         searchServerTransactions(q);
       }, 300);
+    }
+
+    function groupExpenseTransactionsForDropdown(items) {
+      if (!Array.isArray(items) || items.length === 0) return [];
+      const poolMap = new Map();
+      (loadedEditTransactions || []).forEach(t => {
+        if (t && t.Id !== undefined) poolMap.set(String(t.Id), t);
+      });
+      items.forEach(t => {
+        if (t && t.Id !== undefined) poolMap.set(String(t.Id), t);
+      });
+      const allKnown = Array.from(poolMap.values());
+
+      const seenCheques = new Set();
+      const seenUnpaidIds = new Set();
+      const grouped = [];
+
+      for (const tx of items) {
+        if (!tx) continue;
+        const chq = (tx.cheque || '').trim();
+        if (chq) {
+          const chqKey = chq.toUpperCase();
+          if (seenCheques.has(chqKey)) continue;
+          seenCheques.add(chqKey);
+
+          let members = allKnown.filter(t => t && (t.cheque || '').trim().toUpperCase() === chqKey && (tx.status === '作廢' || t.status !== '作廢'));
+          if (members.length === 0) members = [tx];
+          members.sort((a, b) => {
+            const na = parseInt((a.Title || '').replace(/\D/g, ''), 10) || a.Id || 0;
+            const nb = parseInt((b.Title || '').replace(/\D/g, ''), 10) || b.Id || 0;
+            return na - nb;
+          });
+          const summedAmt = Math.round(members.reduce((sum, m) => sum + (parseFloat(m.amount) || 0), 0) * 100) / 100;
+          const rep = Object.assign({}, members[0], {
+            _batchMembers: members,
+            _groupedAmount: summedAmt,
+            _isChequeGroup: true
+          });
+          grouped.push(rep);
+        } else {
+          if (seenUnpaidIds.has(String(tx.Id))) continue;
+          let members = [tx];
+          if (!tx.isIndependent && tx.batchId && tx.batchId.trim()) {
+            const bId = tx.batchId.trim();
+            const bMembers = allKnown.filter(t => t && !t.isIndependent && !(t.cheque || '').trim() && (t.batchId || '').trim() === bId);
+            if (bMembers.length > 0) members = bMembers;
+          } else if (!tx.isIndependent && tx.paymentStatus === '未付') {
+            const chain = computeUnpaidChain(tx, allKnown);
+            if (chain && chain.length > 0) members = chain;
+          }
+          members.sort((a, b) => {
+            const na = parseInt((a.Title || '').replace(/\D/g, ''), 10) || a.Id || 0;
+            const nb = parseInt((b.Title || '').replace(/\D/g, ''), 10) || b.Id || 0;
+            return na - nb;
+          });
+          members.forEach(m => seenUnpaidIds.add(String(m.Id)));
+          const summedAmt = Math.round(members.reduce((sum, m) => sum + (parseFloat(m.amount) || 0), 0) * 100) / 100;
+          const rep = Object.assign({}, members[0], {
+            _batchMembers: members,
+            _groupedAmount: summedAmt,
+            _isChequeGroup: false
+          });
+          grouped.push(rep);
+        }
+      }
+      return grouped;
     }
 
     async function searchServerTransactions(query) {
@@ -7795,6 +7943,10 @@
               const idWhere = `<Eq><FieldRef Name='ID' /><Value Type='Integer'>${num}</Value></Eq>`;
               queries.push(queryCaml(idWhere, 10));
             }
+            if (isExp) {
+              const chqWhere = `<Contains><FieldRef Name='_x652f__x7968__x7de8__x865f_' /><Value Type='Text'>${escapedQ}</Value></Contains>`;
+              queries.push(queryCaml(chqWhere, 100));
+            }
             const resLists = await Promise.all(queries);
             const rowMap = new Map();
             resLists.forEach(arr => (arr || []).forEach(r => rowMap.set(String(r.ID), r)));
@@ -7805,13 +7957,13 @@
             const paddedChq = (pfx === 'CHQ') ? `${pfx}${String(num).padStart(6, '0')}` : `${pfx}${String(num).padStart(4, '0')}`;
             const rawChq = `${pfx}${num}`;
 
-            // Execute parallel targeted queries on indexed Cheque column and Title column (avoiding cross-field OR which breaks index seek)
+            // Execute parallel targeted queries on indexed Cheque column and Title column
             const chqWhere = `<Or><Eq><FieldRef Name='_x652f__x7968__x7de8__x865f_' /><Value Type='Text'>${escapedQ}</Value></Eq><Or><Eq><FieldRef Name='_x652f__x7968__x7de8__x865f_' /><Value Type='Text'>${paddedChq}</Value></Eq><Contains><FieldRef Name='_x652f__x7968__x7de8__x865f_' /><Value Type='Text'>${rawChq}</Value></Contains></Or></Or>`;
             const titleWhere = `<Or><Eq><FieldRef Name='Title' /><Value Type='Text'>${escapedQ}</Value></Eq><Or><Contains><FieldRef Name='Title' /><Value Type='Text'>${paddedChq}</Value></Contains><Contains><FieldRef Name='Title' /><Value Type='Text'>${rawChq}</Value></Contains></Or></Or>`;
 
             const [rowsChq, rowsTitle] = await Promise.all([
-              queryCaml(chqWhere, 50),
-              queryCaml(titleWhere, 50)
+              queryCaml(chqWhere, 200),
+              queryCaml(titleWhere, 100)
             ]);
 
             const rowMap = new Map();
@@ -7828,6 +7980,8 @@
               queryCaml(projWhere, 50)
             ];
             if (isExp) {
+              const chqWhere = `<Contains><FieldRef Name='_x652f__x7968__x7de8__x865f_' /><Value Type='Text'>${escapedQ}</Value></Contains>`;
+              queries.push(queryCaml(chqWhere, 100));
               const payeeWhere = `<Contains><FieldRef Name='_x6536__x6b3e__x4eba_' /><Value Type='Text'>${escapedQ}</Value></Contains>`;
               queries.push(queryCaml(payeeWhere, 50));
               const invWhere = `<Contains><FieldRef Name='Invoice_x0020_No_x002e_' /><Value Type='Text'>${escapedQ}</Value></Contains>`;
@@ -7855,7 +8009,29 @@
 
         if (seq !== editTxSearchSeq) return;
 
-        const newItems = rows.map(r => parseRowToTx(r, isExp));
+        let newItems = rows.map(r => parseRowToTx(r, isExp));
+
+        // For expenses, if any returned records have a cheque, fetch all sibling rows for those cheques
+        if (isExp && newItems.length > 0) {
+          const foundCheques = Array.from(new Set(newItems.map(it => (it.cheque || '').trim()).filter(Boolean)));
+          if (foundCheques.length > 0) {
+            try {
+              const valuesXml = foundCheques.slice(0, 50).map(c => `<Value Type='Text'>${c.replace(/[<>&'"]/g, '')}</Value>`).join('');
+              const chqBatchWhere = `<In><FieldRef Name='_x652f__x7968__x7de8__x865f_' /><Values>${valuesXml}</Values></In>`;
+              const extraRows = await queryCaml(chqBatchWhere, 300);
+              if (seq === editTxSearchSeq && extraRows && extraRows.length > 0) {
+                const extraItems = extraRows.map(r => parseRowToTx(r, true));
+                const itemMap = new Map();
+                newItems.forEach(it => itemMap.set(String(it.Id), it));
+                extraItems.forEach(it => itemMap.set(String(it.Id), it));
+                newItems = Array.from(itemMap.values());
+              }
+            } catch (errChq) {
+              console.warn("searchServerTransactions cheque expansion notice:", errChq);
+            }
+          }
+        }
+
         newItems.sort((a, b) => (b.Id || 0) - (a.Id || 0));
 
         // Merge into loadedEditTransactions cache so batch lookups and selection operate on complete objects
@@ -7887,9 +8063,10 @@
       if (!dropdown) return;
       dropdown.innerHTML = '';
       editTxSelectedIndex = -1;
-      filteredEditTransactions = items || [];
 
       const isExp = (currentEditType === 'expense');
+      filteredEditTransactions = isExp ? groupExpenseTransactionsForDropdown(items || []) : (items || []);
+
       const frag = document.createDocumentFragment();
 
       if (filteredEditTransactions.length === 0) {
@@ -7901,43 +8078,73 @@
         filteredEditTransactions.slice(0, 50).forEach(tx => {
           const div = document.createElement('div');
           div.className = 'combobox-item';
-          if (selectedEditTx && String(selectedEditTx.Id) === String(tx.Id)) {
+          const members = tx._batchMembers || [tx];
+          const isSelected = selectedEditTx && (
+            String(selectedEditTx.Id) === String(tx.Id) ||
+            members.some(m => String(m.Id) === String(selectedEditTx.Id))
+          );
+          if (isSelected) {
             div.classList.add('selected');
           }
 
-          let displayTitle = escapeHtml(tx.Title || '');
-          if (q) {
-            try {
-              const regex = new RegExp(`(${escapeRegex(q)})`, 'gi');
-              displayTitle = displayTitle.replace(regex, '<mark>$1</mark>');
-            } catch (_) { }
-          }
-
           const isVoid = (tx.status === '作廢');
-          const amtStr = `$${Number(tx.amount || 0).toLocaleString()}`;
-          let chqDisplay = escapeHtml(tx.cheque || '');
-          if (q && chqDisplay) {
-            try {
-              const regex = new RegExp(`(${escapeRegex(q)})`, 'gi');
-              chqDisplay = chqDisplay.replace(regex, '<mark>$1</mark>');
-            } catch (_) { }
-          }
-          const chqBadge = tx.cheque ? `<span class="badge-chq">${chqDisplay}</span>` : '';
           const statusBadge = `<span class="badge-status ${isVoid ? 'void' : 'valid'}">${escapeHtml(tx.status || '有效')}</span>`;
 
-          div.innerHTML = `
-          <div class="combobox-item-title" style="display:flex; justify-content:space-between; align-items:center;">
-            <span><strong>${displayTitle}</strong> ${chqBadge}</span>
-            <span style="font-weight:700; color:${isExp ? '#b91c1c' : '#15803d'}; flex-shrink:0; white-space:nowrap; margin-left:8px;">${isExp ? '-' : '+'}${amtStr}</span>
-          </div>
-          <div class="combobox-item-meta" style="margin-top:3px;">
-            ${escapeHtml(tx.dateDisplay || '')} &nbsp;|&nbsp; 項目: ${escapeHtml(tx.projName || '無')} &nbsp;|&nbsp; ${statusBadge}
-            ${tx.payee ? ` &nbsp;|&nbsp; 收款: ${escapeHtml(tx.payee)}` : ''}
-            ${tx.invoiceNo ? ` &nbsp;|&nbsp; 發票: ${escapeHtml(tx.invoiceNo)}` : ''}
-            ${tx.bank ? ` &nbsp;|&nbsp; 銀行: ${escapeHtml(tx.bank)}` : ''}
-            ${tx.remarks ? ` &nbsp;|&nbsp; 備註: ${escapeHtml(tx.remarks)}` : ''}
-          </div>
-        `;
+          if (isExp) {
+            const totalAmt = tx._groupedAmount !== undefined ? tx._groupedAmount : (parseFloat(tx.amount) || 0);
+            const amtStr = `$${Number(totalAmt || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
+            const hasCheque = Boolean(tx.cheque && tx.cheque.trim());
+            const rawPrimary = hasCheque
+              ? tx.cheque.trim()
+              : `${(tx.payee || '').trim() || (tx.projName || '').trim() || (tx.subitem || '').trim() || '未付支出'} (未付)`;
+            let primaryDisplay = escapeHtml(rawPrimary);
+            if (q && primaryDisplay) {
+              try {
+                const regex = new RegExp(`(${escapeRegex(q)})`, 'gi');
+                primaryDisplay = primaryDisplay.replace(regex, '<mark>$1</mark>');
+              } catch (_) { }
+            }
+            const splitBadge = members.length > 1
+              ? `<span class="badge-chq" style="margin-left:8px;">共 ${members.length} 筆分攤</span>`
+              : '';
+
+            const uniqueProjs = Array.from(new Set(members.map(m => (m.projName || '').trim()).filter(Boolean)));
+            const projSummary = uniqueProjs.length > 0 ? uniqueProjs.join('、') : '無';
+            const uniqueInvs = Array.from(new Set(members.map(m => (m.invoiceNo || '').trim()).filter(Boolean)));
+
+            div.innerHTML = `
+            <div class="combobox-item-title" style="display:flex; justify-content:space-between; align-items:center;">
+              <span><strong style="color:#0f172a;">${primaryDisplay} - <span style="color:#b91c1c;">${amtStr}</span></strong>${splitBadge}</span>
+            </div>
+            <div class="combobox-item-meta" style="margin-top:3px;">
+              ${escapeHtml(tx.dateDisplay || tx.dateIso || '')} &nbsp;|&nbsp; 項目: ${escapeHtml(projSummary)} &nbsp;|&nbsp; ${statusBadge}
+              ${tx.payee ? ` &nbsp;|&nbsp; 收款: ${escapeHtml(tx.payee)}` : ''}
+              ${uniqueInvs.length ? ` &nbsp;|&nbsp; 發票: ${escapeHtml(uniqueInvs.join('、'))}` : ''}
+              ${tx.bank ? ` &nbsp;|&nbsp; 銀行: ${escapeHtml(tx.bank)}` : ''}
+              ${tx.remarks ? ` &nbsp;|&nbsp; 備註: ${escapeHtml(tx.remarks)}` : ''}
+            </div>
+          `;
+          } else {
+            let displayTitle = escapeHtml(tx.Title || '');
+            if (q) {
+              try {
+                const regex = new RegExp(`(${escapeRegex(q)})`, 'gi');
+                displayTitle = displayTitle.replace(regex, '<mark>$1</mark>');
+              } catch (_) { }
+            }
+            const amtStr = `$${Number(tx.amount || 0).toLocaleString()}`;
+            div.innerHTML = `
+            <div class="combobox-item-title" style="display:flex; justify-content:space-between; align-items:center;">
+              <span><strong>${displayTitle}</strong></span>
+              <span style="font-weight:700; color:#15803d; flex-shrink:0; white-space:nowrap; margin-left:8px;">+${amtStr}</span>
+            </div>
+            <div class="combobox-item-meta" style="margin-top:3px;">
+              ${escapeHtml(tx.dateDisplay || '')} &nbsp;|&nbsp; 項目: ${escapeHtml(tx.projName || '無')} &nbsp;|&nbsp; ${statusBadge}
+              ${tx.bank ? ` &nbsp;|&nbsp; 銀行: ${escapeHtml(tx.bank)}` : ''}
+              ${tx.remarks ? ` &nbsp;|&nbsp; 備註: ${escapeHtml(tx.remarks)}` : ''}
+            </div>
+          `;
+          }
 
           div.addEventListener('mousedown', (e) => {
             e.preventDefault();
@@ -8006,7 +8213,45 @@
         const data = await res.json();
         const rows = (data && data.Row) ? data.Row : [];
 
-        loadedEditTransactions = rows.map(r => parseRowToTx(r, isExp));
+        let items = rows.map(r => parseRowToTx(r, isExp));
+
+        // For expenses, expand all cheques appearing in the top 50 to guarantee complete sums
+        if (isExp && items.length > 0) {
+          const topCheques = Array.from(new Set(items.map(it => (it.cheque || '').trim()).filter(Boolean)));
+          if (topCheques.length > 0) {
+            try {
+              const valuesXml = topCheques.slice(0, 50).map(c => `<Value Type='Text'>${c.replace(/[<>&'"]/g, '')}</Value>`).join('');
+              const chqBatchWhere = `<In><FieldRef Name='_x652f__x7968__x7de8__x865f_' /><Values>${valuesXml}</Values></In>`;
+              const chqCaml = `<View><Query><Where>${chqBatchWhere}</Where><OrderBy><FieldRef Name='ID' Ascending='FALSE' /></OrderBy></Query><RowLimit>300</RowLimit></View>`;
+              const chqPayload = JSON.stringify({ parameters: { RenderOptions: 2, ViewXml: chqCaml } });
+              const chqRes = await spFetch(`${SITE_URL}/_api/web/lists(guid'${GUID_EXPENSE}')/RenderListDataAsStream`, {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json;odata=verbose',
+                  'Content-Type': 'application/json;odata=verbose',
+                  'X-RequestDigest': digestValue
+                },
+                body: chqPayload
+              });
+              if (chqRes.ok) {
+                const chqData = await chqRes.json();
+                const chqRows = (chqData && chqData.Row) ? chqData.Row : [];
+                if (chqRows.length > 0) {
+                  const chqItems = chqRows.map(r => parseRowToTx(r, true));
+                  const itemMap = new Map();
+                  items.forEach(it => itemMap.set(String(it.Id), it));
+                  chqItems.forEach(it => itemMap.set(String(it.Id), it));
+                  items = Array.from(itemMap.values());
+                  items.sort((a, b) => (b.Id || 0) - (a.Id || 0));
+                }
+              }
+            } catch (errChq) {
+              console.warn("loadRecentTransactions cheque expansion notice:", errChq);
+            }
+          }
+        }
+
+        loadedEditTransactions = items;
 
         if (badgeEl) badgeEl.textContent = `全庫即時搜尋模式 (支援 10,000+ 筆)`;
         if (statusEl) statusEl.textContent = '已就緒 (輸入關鍵字即可全庫檢索)';
@@ -8022,44 +8267,45 @@
       const chq = (tx.cheque || '').trim().toUpperCase();
       if (!chq) return [tx];
 
-      // 1. First look in locally cached transactions
-      let matches = loadedEditTransactions.filter(t => t && (t.cheque || '').trim().toUpperCase() === chq);
+      let matches = loadedEditTransactions.filter(t => t && (t.cheque || '').trim().toUpperCase() === chq && (tx.status === '作廢' || t.status !== '作廢'));
 
-      // 2. If <= 1, query SharePoint for all records sharing this cheque
-      if (matches.length <= 1) {
-        try {
-          await getDigest();
-          const escapedQ = tx.cheque.replace(/[<>&'"]/g, '').trim();
-          const camlXml = `<View><Query><Where><Eq><FieldRef Name='_x652f__x7968__x7de8__x865f_' /><Value Type='Text'>${escapedQ}</Value></Eq></Where><OrderBy><FieldRef Name='ID' Ascending='TRUE' /></OrderBy></Query><RowLimit>200</RowLimit></View>`;
-          const postPayload = JSON.stringify({ parameters: { RenderOptions: 2, ViewXml: camlXml } });
-          const res = await spFetch(`${SITE_URL}/_api/web/lists(guid'${GUID_EXPENSE}')/RenderListDataAsStream`, {
-            method: 'POST',
-            headers: {
-              'Accept': 'application/json;odata=verbose',
-              'Content-Type': 'application/json;odata=verbose',
-              'X-RequestDigest': digestValue
-            },
-            body: postPayload
-          });
-          if (res.ok) {
-            const data = await res.json();
-            const rows = (data && data.Row) ? data.Row : [];
-            if (rows.length > 1) {
-              const serverItems = rows.map(r => parseRowToTx(r, true));
-              serverItems.forEach(item => {
-                const ex = loadedEditTransactions.find(t => t.Id === item.Id);
-                if (!ex) {
-                  loadedEditTransactions.push(item);
-                } else {
-                  Object.assign(ex, item);
-                }
-              });
-              matches = serverItems;
-            }
+      // Always query SharePoint for all records sharing this cheque to guarantee 100% complete batch membership
+      try {
+        await getDigest();
+        const escapedQ = tx.cheque.replace(/[<>&'"]/g, '').trim();
+        const statusFilter = (tx.status === '作廢') ? '' : `<Neq><FieldRef Name='RecordStatus' /><Value Type='Choice'>作廢</Value></Neq>`;
+        const whereClause = statusFilter 
+          ? `<And><Eq><FieldRef Name='_x652f__x7968__x7de8__x865f_' /><Value Type='Text'>${escapedQ}</Value></Eq>${statusFilter}</And>`
+          : `<Eq><FieldRef Name='_x652f__x7968__x7de8__x865f_' /><Value Type='Text'>${escapedQ}</Value></Eq>`;
+        const camlXml = `<View><Query><Where>${whereClause}</Where><OrderBy><FieldRef Name='ID' Ascending='TRUE' /></OrderBy></Query><RowLimit>300</RowLimit></View>`;
+        const postPayload = JSON.stringify({ parameters: { RenderOptions: 2, ViewXml: camlXml } });
+        const res = await spFetch(`${SITE_URL}/_api/web/lists(guid'${GUID_EXPENSE}')/RenderListDataAsStream`, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json;odata=verbose',
+            'Content-Type': 'application/json;odata=verbose',
+            'X-RequestDigest': digestValue
+          },
+          body: postPayload
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const rows = (data && data.Row) ? data.Row : [];
+          if (rows.length > 0) {
+            const serverItems = rows.map(r => parseRowToTx(r, true));
+            serverItems.forEach(item => {
+              const ex = loadedEditTransactions.find(t => t.Id === item.Id);
+              if (!ex) {
+                loadedEditTransactions.push(item);
+              } else {
+                Object.assign(ex, item);
+              }
+            });
+            matches = serverItems;
           }
-        } catch (err) {
-          console.warn("findPaidBatchMembers server lookup notice:", err);
         }
+      } catch (err) {
+        console.warn("findPaidBatchMembers server lookup notice:", err);
       }
 
       // Sort ascending by numeric Title or Id
@@ -8111,6 +8357,7 @@
       const candidates = (candidateList || []).filter(t => {
         if (!t || t.paymentStatus !== '未付') return false;
         if (t.isIndependent) return false;
+        if (tx.status !== '作廢' && t.status === '作廢') return false;
 
         // Date check
         const tDate = toNormDate(t.dateIso || t.dateDisplay);
@@ -8226,21 +8473,10 @@
       // 1. If tx has BatchId and is not marked independent, look up by BatchId first
       if (tx.batchId && tx.batchId.trim() && !tx.isIndependent) {
         const bId = tx.batchId.trim();
-        let bMatches = loadedEditTransactions.filter(t => t && t.batchId === bId && t.paymentStatus === '未付' && !t.isIndependent);
-        if (bMatches.length > 1) {
-          bMatches.sort((a, b) => {
-            const na = parseInt((a.Title || '').replace(/\D/g, ''), 10) || a.Id || 0;
-            const nb = parseInt((b.Title || '').replace(/\D/g, ''), 10) || b.Id || 0;
-            return na - nb;
-          });
-          return bMatches;
-        }
-
-        // If local matches <= 1, query SharePoint by BatchId
         try {
           await getDigest();
           const escapedBId = bId.replace(/[<>&'"]/g, '').trim();
-          const camlWhere = `<And><Eq><FieldRef Name='_x4ed8__x6b3e__x72c0__x614b_' /><Value Type='Text'>未付</Value></Eq><Eq><FieldRef Name='BatchId' /><Value Type='Text'>${escapedBId}</Value></Eq></And>`;
+          const camlWhere = `<Eq><FieldRef Name='BatchId' /><Value Type='Text'>${escapedBId}</Value></Eq>`;
           const camlXml = `<View><Query><Where>${camlWhere}</Where><OrderBy><FieldRef Name='ID' Ascending='TRUE' /></OrderBy></Query><RowLimit>100</RowLimit></View>`;
           const postPayload = JSON.stringify({ parameters: { RenderOptions: 2, ViewXml: camlXml } });
           const res = await spFetch(`${SITE_URL}/_api/web/lists(guid'${GUID_EXPENSE}')/RenderListDataAsStream`, {
@@ -8255,8 +8491,8 @@
           if (res.ok) {
             const data = await res.json();
             const rows = (data && data.Row) ? data.Row : [];
-            if (rows.length > 1) {
-              const serverItems = rows.map(r => parseRowToTx(r, true));
+            if (rows.length > 0) {
+              const serverItems = rows.map(r => parseRowToTx(r, true)).filter(t => !t.isIndependent && (tx.status === '作廢' || t.status !== '作廢'));
               serverItems.forEach(item => {
                 const ex = loadedEditTransactions.find(t => t.Id === item.Id);
                 if (!ex) {
@@ -8265,12 +8501,14 @@
                   Object.assign(ex, item);
                 }
               });
-              serverItems.sort((a, b) => {
-                const na = parseInt((a.Title || '').replace(/\D/g, ''), 10) || a.Id || 0;
-                const nb = parseInt((b.Title || '').replace(/\D/g, ''), 10) || b.Id || 0;
-                return na - nb;
-              });
-              return serverItems;
+              if (serverItems.length > 0) {
+                serverItems.sort((a, b) => {
+                  const na = parseInt((a.Title || '').replace(/\D/g, ''), 10) || a.Id || 0;
+                  const nb = parseInt((b.Title || '').replace(/\D/g, ''), 10) || b.Id || 0;
+                  return na - nb;
+                });
+                return serverItems;
+              }
             }
           }
         } catch (err) {
@@ -8281,15 +8519,19 @@
       // 2. Fall back to contiguous chain logic (for legacy records without BatchId)
       if (tx.isIndependent) return [tx];
 
-      let chain = computeUnpaidChain(tx, loadedEditTransactions);
-      if (chain.length > 1) return chain;
-
-      // If local chain <= 1, query SharePoint for all unpaid records sharing this payee
-      if (tx.payee && tx.payee.trim()) {
-        try {
-          await getDigest();
+      // Query SharePoint for unpaid records sharing this payee (or adjacent IDs if payee empty)
+      try {
+        await getDigest();
+        let camlWhere = '';
+        if (tx.payee && tx.payee.trim()) {
           const escapedPayee = tx.payee.replace(/[<>&'"]/g, '').trim();
-          const camlWhere = `<And><Eq><FieldRef Name='_x4ed8__x6b3e__x72c0__x614b_' /><Value Type='Text'>未付</Value></Eq><Eq><FieldRef Name='_x6536__x6b3e__x4eba_' /><Value Type='Text'>${escapedPayee}</Value></Eq></And>`;
+          camlWhere = `<And><Eq><FieldRef Name='_x4ed8__x6b3e__x72c0__x614b_' /><Value Type='Text'>未付</Value></Eq><Eq><FieldRef Name='_x6536__x6b3e__x4eba_' /><Value Type='Text'>${escapedPayee}</Value></Eq></And>`;
+        } else if (tx.Id) {
+          const minId = Math.max(1, tx.Id - 20);
+          const maxId = tx.Id + 20;
+          camlWhere = `<And><Geq><FieldRef Name='ID' /><Value Type='Integer'>${minId}</Value></Geq><Leq><FieldRef Name='ID' /><Value Type='Integer'>${maxId}</Value></Leq></And>`;
+        }
+        if (camlWhere) {
           const camlXml = `<View><Query><Where>${camlWhere}</Where><OrderBy><FieldRef Name='ID' Ascending='FALSE' /></OrderBy></Query><RowLimit>100</RowLimit></View>`;
           const postPayload = JSON.stringify({ parameters: { RenderOptions: 2, ViewXml: camlXml } });
           const res = await spFetch(`${SITE_URL}/_api/web/lists(guid'${GUID_EXPENSE}')/RenderListDataAsStream`, {
@@ -8314,14 +8556,14 @@
                   Object.assign(ex, item);
                 }
               });
-              chain = computeUnpaidChain(tx, loadedEditTransactions);
             }
           }
-        } catch (err) {
-          console.warn("findUnpaidBatchMembers server lookup notice:", err);
         }
+      } catch (err) {
+        console.warn("findUnpaidBatchMembers server lookup notice:", err);
       }
 
+      const chain = computeUnpaidChain(tx, loadedEditTransactions);
       return chain.length > 0 ? chain : [tx];
     }
 
@@ -8341,7 +8583,7 @@
         await loadRecentTransactions(normType);
       }
 
-      // 3. Search in currently loaded transactions (safe integer & case-insensitive comparison)
+      // 3. Search in currently loaded transactions
       let tx = (loadedEditTransactions || []).find(t => 
         (targetId && Number(t.Id) === targetId) ||
         (targetTitle && t.Title && t.Title.trim().toLowerCase() === targetTitle.toLowerCase()) ||
@@ -8380,8 +8622,8 @@
       }
 
       // 5. Fallback server search if ID lookup was unavailable or failed
-      if (!tx && (targetTitle || targetCheque || targetId)) {
-        const queryTerm = targetTitle || targetCheque || String(targetId);
+      if (!tx && (targetCheque || targetTitle || targetId)) {
+        const queryTerm = targetCheque || targetTitle || String(targetId);
         const searchInp = document.getElementById('edit-tx-search');
         if (searchInp) searchInp.value = queryTerm;
         await searchServerTransactions(queryTerm);
@@ -8407,10 +8649,9 @@
           }, 120);
         }
       } else {
-        // If somehow still not found, preserve the search term in the search bar
         const searchInp = document.getElementById('edit-tx-search');
         if (searchInp) {
-          searchInp.value = targetTitle || targetCheque || (targetId ? `ID:${targetId}` : '');
+          searchInp.value = targetCheque || (normType === 'expense' ? '' : targetTitle) || (targetId ? `ID:${targetId}` : '');
           const clearBtn = document.getElementById('edit-tx-clear');
           if (clearBtn) clearBtn.style.display = searchInp.value ? 'block' : 'none';
         }
@@ -8459,6 +8700,7 @@
         if (badgeEl) badgeEl.textContent = '手動輸入模式';
       }
       updateFilePreviewUI('edit');
+      syncSharedFieldsToBatchInMemory();
       setEditSubmitButtonState('idle');
     }
     window.onEditChequePrefixChange = onEditChequePrefixChange;
@@ -8500,6 +8742,10 @@
         }
         setDropzoneEnabled('edit-dropzone', true);
         updateFilePreviewUI('edit');
+      }
+      syncSharedFieldsToBatchInMemory();
+      if (currentEditType === 'expense' && selectedEditBatch && selectedEditBatch.length > 0) {
+        renderEditBatchTable();
       }
       setEditSubmitButtonState('idle');
     }
@@ -8577,13 +8823,18 @@
                    oninput="onEditBatchRowAmtInput(${idx}, this)"
                    onblur="onEditBatchRowAmtBlur(${idx}, this)">
           </td>
-          ${showExtractCol ? `
           <td style="text-align: center; vertical-align: middle;">
-            <button type="button" class="btn-row-extract" id="btn-extract-batch-${idx}" onclick="extractSingleUnpaidFromBatch(${idx})" title="將此筆記錄獨立移出本批次">
-              <span>移出本批次</span>
-            </button>
+            <div style="display:inline-flex; gap:6px; align-items:center; justify-content:center;">
+              ${showExtractCol ? `
+              <button type="button" class="btn-row-extract" id="btn-extract-batch-${idx}" onclick="extractSingleUnpaidFromBatch(${idx})" title="將此筆記錄獨立移出本批次">
+                <span>移出</span>
+              </button>
+              ` : ''}
+              <button type="button" class="btn-row-void" id="btn-void-batch-${idx}" onclick="voidSingleBatchItem(${idx})" title="將此筆記錄狀態設為「作廢」（不影響其他項目）">
+                <span>作廢</span>
+              </button>
+            </div>
           </td>
-          ` : ''}
         </tr>
       `;
       }).join('');
@@ -8612,11 +8863,11 @@
             <thead>
               <tr>
                 <th style="width: 36px; text-align: center;">#</th>
-                <th style="${showExtractCol ? 'width: 28%;' : 'width: 32%;'}">所屬項目 <span class="req">*</span></th>
-                <th style="${showExtractCol ? 'width: 20%;' : 'width: 22%;'}">發票 / 單號</th>
-                <th style="${showExtractCol ? 'width: 18%;' : 'width: 20%;'}">小類</th>
-                <th style="${showExtractCol ? 'width: 18%;' : 'width: 20%;'} text-align: right;">分攤金額 (HKD) <span class="req">*</span></th>
-                ${showExtractCol ? `<th style="width: 105px; text-align: center;">操作</th>` : ''}
+                <th style="${showExtractCol ? 'width: 27%;' : 'width: 31%;'}">所屬項目 <span class="req">*</span></th>
+                <th style="${showExtractCol ? 'width: 19%;' : 'width: 21%;'}">發票 / 單號</th>
+                <th style="${showExtractCol ? 'width: 17%;' : 'width: 19%;'}">小類</th>
+                <th style="${showExtractCol ? 'width: 17%;' : 'width: 19%;'} text-align: right;">分攤金額 (HKD) <span class="req">*</span></th>
+                <th style="${showExtractCol ? 'width: 135px;' : 'width: 80px;'} text-align: center;">操作</th>
               </tr>
             </thead>
             <tbody>
@@ -8810,27 +9061,24 @@
       if (isExtractingBatchItem) return;
       if (!selectedEditBatch || !selectedEditBatch[idx]) return;
       if (!selectedEditTx || selectedEditTx.paymentStatus !== '未付') {
-        alert('僅支援未付記錄進行移出操作！');
+        const toast = document.getElementById('edit-toast') || document.getElementById('edit-tx-toast');
+        if (toast) {
+          toast.className = 'toast error';
+          toast.innerHTML = '僅支援未付記錄進行移出操作！';
+          toast.style.display = 'block';
+        }
         return;
       }
 
       const targetItem = selectedEditBatch[idx];
-      const targetTitle = targetItem.Title || `ID: ${targetItem.Id}`;
       const targetProjName = targetItem.projName || (targetItem.projId ? `項目 #${targetItem.projId}` : '未指定');
-      const targetAmt = parseAmount(targetItem.amount) || 0;
-
-      const confirmMsg = `確定要將記錄「${targetTitle}」移出本批次嗎？\n\n` +
-        `• 所屬項目：${targetProjName}\n` +
-        `• 分攤金額：$${targetAmt.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\n\n` +
-        `移出後，此記錄將被標記為獨立記錄，不再受此多項目批次連動。`;
-
-      if (!confirm(confirmMsg)) return;
+      const targetRowLabel = `第 ${idx + 1} 筆分攤項目（${targetProjName}）`;
 
       isExtractingBatchItem = true;
 
-      // Disable all extract buttons in the batch to prevent concurrent clicks
-      const allExtractBtns = document.querySelectorAll('.btn-row-extract');
-      allExtractBtns.forEach(b => { b.disabled = true; });
+      // Disable all action buttons in the batch to prevent concurrent clicks
+      const allActionBtns = document.querySelectorAll('.btn-row-void, .btn-row-extract');
+      allActionBtns.forEach(b => { b.disabled = true; });
 
       const btn = document.getElementById(`btn-extract-batch-${idx}`);
       if (btn) {
@@ -8840,7 +9088,7 @@
       const toast = document.getElementById('edit-tx-toast');
       if (toast) {
         toast.className = 'toast info';
-        toast.innerHTML = `正在將「${escapeHtml(targetTitle)}」獨立移出批次並更新 SharePoint...`;
+        toast.innerHTML = `正在將「${escapeHtml(targetRowLabel)}」獨立移出批次並更新 SharePoint...`;
         toast.style.display = 'block';
       }
 
@@ -8916,7 +9164,7 @@
 
         if (toast) {
           toast.className = 'toast success';
-          toast.innerHTML = `<strong>記錄「${escapeHtml(targetTitle)}」已成功獨立移出本批次！</strong><br><span style="font-size:12px;">該筆記錄已標記為獨立記錄，不再受批次連動。</span>`;
+          toast.innerHTML = `<strong>「${escapeHtml(targetRowLabel)}」已成功獨立移出本批次！</strong><br><span style="font-size:12px;">該筆記錄已標記為獨立記錄，不再受批次連動。</span>`;
           toast.style.display = 'block';
           setTimeout(() => {
             if (toast && toast.className.includes('success')) toast.style.display = 'none';
@@ -8928,11 +9176,16 @@
           // Multiple items remain: update batch totals and re-render
           recalcEditBatchTotal();
 
-          const firstTitle = selectedEditBatch[0].Title;
-          const lastTitle = selectedEditBatch[selectedEditBatch.length - 1].Title;
-          const rangeText = (firstTitle !== lastTitle) ? `${firstTitle} ～ ${lastTitle}` : firstTitle;
           const dispIdEl = document.getElementById('edit-display-id');
-          if (dispIdEl) dispIdEl.textContent = `${rangeText} (共 ${selectedEditBatch.length} 筆)`;
+          if (dispIdEl) {
+            const chq = selectedEditTx && selectedEditTx.cheque;
+            dispIdEl.textContent = chq ? `支票: ${chq} (共 ${selectedEditBatch.length} 筆)` : `多項目批次 (共 ${selectedEditBatch.length} 筆)`;
+          }
+
+          const searchInp = document.getElementById('edit-tx-search');
+          if (searchInp) {
+            searchInp.value = formatEditTxSearchLabel(selectedEditTx, selectedEditBatch);
+          }
 
           renderEditBatchTable();
         } else if (selectedEditBatch.length === 1) {
@@ -8945,9 +9198,17 @@
           recalcEditBatchTotal();
 
           const dispIdEl = document.getElementById('edit-display-id');
-          if (dispIdEl) dispIdEl.textContent = remainingItem.Title || `ID: ${remainingItem.Id}`;
+          if (dispIdEl) {
+            const chq = remainingItem.cheque;
+            dispIdEl.textContent = chq ? `支票: ${chq}` : (remainingItem.paymentStatus === '未付' ? '未付支出記錄' : '支出記錄');
+          }
           const dispTypeEl = document.getElementById('edit-display-type');
           if (dispTypeEl) dispTypeEl.textContent = '多項目分攤支出';
+
+          const searchInp = document.getElementById('edit-tx-search');
+          if (searchInp) {
+            searchInp.value = formatEditTxSearchLabel(selectedEditTx, selectedEditBatch);
+          }
 
           renderEditBatchTable();
         }
@@ -8959,16 +9220,194 @@
           toast.innerHTML = `移出本批次失敗：${escapeHtml(err.message)}`;
           toast.style.display = 'block';
         }
-        alert(`移出批次失敗：${err.message}`);
         if (btn) {
           btn.innerHTML = '<span>移出本批次</span>';
         }
       } finally {
         isExtractingBatchItem = false;
-        document.querySelectorAll('.btn-row-extract').forEach(b => { b.disabled = false; });
+        document.querySelectorAll('.btn-row-void, .btn-row-extract').forEach(b => { b.disabled = false; });
       }
     }
     window.extractSingleUnpaidFromBatch = extractSingleUnpaidFromBatch;
+
+    let isVoidingBatchItem = false;
+
+    async function voidSingleBatchItem(idx) {
+      if (isVoidingBatchItem || isExtractingBatchItem) return;
+      if (!selectedEditBatch || !selectedEditBatch[idx]) return;
+
+      const targetItem = selectedEditBatch[idx];
+      const targetProjName = targetItem.projName || (targetItem.projId ? `項目 #${targetItem.projId}` : '未指定項目');
+
+      isVoidingBatchItem = true;
+
+      // Disable all row action buttons in batch to prevent concurrent operations
+      const allActionBtns = document.querySelectorAll('.btn-row-void, .btn-row-extract');
+      allActionBtns.forEach(b => { b.disabled = true; });
+
+      const btn = document.getElementById(`btn-void-batch-${idx}`);
+      if (btn) {
+        btn.innerHTML = '<span>處理中...</span>';
+      }
+
+      const toast = document.getElementById('edit-toast') || document.getElementById('edit-tx-toast');
+      if (toast) {
+        toast.className = 'toast info';
+        toast.innerHTML = `正在將第 ${idx + 1} 筆分攤項目（${escapeHtml(targetProjName)}）設為作廢並更新 SharePoint...`;
+        toast.style.display = 'block';
+      }
+
+      try {
+        await getDigest();
+
+        const payload = {
+          "__metadata": { "type": "SP.Data.TransactionsListItem" },
+          "RecordStatus": "作廢"
+        };
+
+        let lastRes = null;
+        const maxRetries = 3;
+        for (let attempt = 0; attempt <= maxRetries; attempt++) {
+          lastRes = await spFetch(`${SITE_URL}/_api/web/lists(guid'${GUID_EXPENSE}')/items(${targetItem.Id})`, {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json;odata=verbose',
+              'Content-Type': 'application/json;odata=verbose',
+              'X-RequestDigest': digestValue,
+              'X-HTTP-Method': 'MERGE',
+              'If-Match': '*'
+            },
+            body: JSON.stringify(payload)
+          });
+
+          if (lastRes.status === 429 || lastRes.status === 503) {
+            let waitMs = 2000 * Math.pow(2, attempt);
+            const retryAfter = lastRes.headers ? lastRes.headers.get('Retry-After') : null;
+            if (retryAfter) {
+              const parsedSec = parseInt(retryAfter, 10);
+              if (!isNaN(parsedSec) && parsedSec > 0) waitMs = Math.max(waitMs, parsedSec * 1000);
+            }
+            if (attempt < maxRetries) {
+              console.warn(`[SharePoint Throttling] HTTP ${lastRes.status}. Backing off for ${waitMs}ms (attempt ${attempt + 1}/${maxRetries})...`);
+              if (toast) {
+                toast.innerHTML = `伺服器忙碌 (HTTP ${lastRes.status})，自動於 ${Math.ceil(waitMs / 1000)} 秒後重試...`;
+              }
+              await new Promise(r => setTimeout(r, waitMs));
+              continue;
+            }
+          }
+          break;
+        }
+
+        if (!lastRes || !lastRes.ok) {
+          const errText = lastRes ? await lastRes.text() : 'No response';
+          throw new Error(`HTTP ${lastRes ? lastRes.status : 'unknown'}: ${errText}`);
+        }
+
+        // Financial cost delta sync:
+        // If the record was valid ('有效') and paid ('已付'), voiding it removes its cost contribution from the project
+        const origPay = targetItem.paymentStatus || (targetItem.cheque ? '已付' : '未付');
+        let projDelta = null;
+        if (targetItem.projId && targetItem.status === '有效' && origPay !== '未付') {
+          projDelta = await syncProjectAmountDelta(
+            targetItem.projId,
+            targetItem.amount,
+            '有效',
+            targetItem.projId,
+            targetItem.amount,
+            '作廢',
+            'expense',
+            origPay,
+            origPay
+          );
+        }
+
+        // Update in-memory representations
+        targetItem.status = '作廢';
+        const inMem = loadedEditTransactions.find(t => t.Id === targetItem.Id);
+        if (inMem) {
+          inMem.status = '作廢';
+        }
+        if (targetItem.projId && projectTxCache[targetItem.projId]) {
+          const pTx = projectTxCache[targetItem.projId].find(t => t.id === targetItem.Id);
+          if (pTx) {
+            pTx.status = '作廢';
+          }
+        }
+
+        // Refresh project costs in dashboard if currently viewing affected project
+        if (selectedDashProject) {
+          updateDashProjectCosts(Number(selectedDashProject.id !== undefined ? selectedDashProject.id : selectedDashProject.Id));
+          renderProjectTxTable();
+        }
+
+        // Remove from selectedEditBatch
+        selectedEditBatch.splice(idx, 1);
+
+        if (selectedEditBatch.length === 0) {
+          cancelEditTransaction();
+          const mainToast = document.getElementById('edit-toast');
+          if (mainToast) {
+            mainToast.className = 'toast success';
+            mainToast.innerHTML = `<strong>分攤項目（${escapeHtml(targetProjName)}）已成功設為「作廢」！</strong><br><span style="font-size:12px;">該筆記錄狀態已更新為作廢，且不計入項目統計。</span>`;
+            mainToast.style.display = 'block';
+            setTimeout(() => { if (mainToast) mainToast.style.display = 'none'; }, 4500);
+          }
+          return;
+        }
+
+        // If the removed item was selectedEditTx, update selectedEditTx to the first remaining item
+        if (selectedEditTx && selectedEditTx.Id === targetItem.Id && selectedEditBatch.length > 0) {
+          selectedEditTx = Object.assign({}, selectedEditBatch[0]);
+          const idInp = document.getElementById('edit-tx-id');
+          if (idInp) idInp.value = selectedEditTx.Id;
+        }
+
+        recalcEditBatchTotal();
+
+        const isMulti = (selectedEditBatch.length > 1);
+        const dispIdEl = document.getElementById('edit-display-id');
+        if (dispIdEl) {
+          if (selectedEditTx.cheque) {
+            dispIdEl.textContent = isMulti ? `支票: ${selectedEditTx.cheque} (共 ${selectedEditBatch.length} 筆)` : `支票: ${selectedEditTx.cheque}`;
+          } else {
+            dispIdEl.textContent = isMulti ? `多項目批次 (共 ${selectedEditBatch.length} 筆)` : (selectedEditTx.paymentStatus === '未付' ? '未付支出記錄' : '支出記錄');
+          }
+        }
+
+        const searchInp = document.getElementById('edit-tx-search');
+        if (searchInp) {
+          searchInp.value = formatEditTxSearchLabel(selectedEditTx, selectedEditBatch);
+        }
+
+        renderEditBatchTable();
+
+        if (toast) {
+          toast.className = 'toast success';
+          let costNote = (projDelta && projDelta.length > 0) ? '，項目累計成本已扣減' : '';
+          toast.innerHTML = `<strong>第 ${idx + 1} 筆分攤項目（${escapeHtml(targetProjName)}）已成功設為「作廢」！</strong><br><span style="font-size:12px;">其餘 ${selectedEditBatch.length} 筆分攤項目保持不變${costNote}。</span>`;
+          toast.style.display = 'block';
+          setTimeout(() => {
+            if (toast && toast.className.includes('success')) toast.style.display = 'none';
+          }, 4500);
+        }
+
+      } catch (err) {
+        console.error("voidSingleBatchItem failed:", err);
+        if (toast) {
+          toast.className = 'toast error';
+          toast.innerHTML = `設為作廢失敗：${escapeHtml(err.message)}`;
+          toast.style.display = 'block';
+        }
+        if (btn) {
+          btn.innerHTML = '<span>作廢</span>';
+        }
+      } finally {
+        isVoidingBatchItem = false;
+        document.querySelectorAll('.btn-row-void, .btn-row-extract').forEach(b => { b.disabled = false; });
+      }
+    }
+    window.voidSingleBatchItem = voidSingleBatchItem;
 
     let candidateTransactionsList = [];
 
@@ -9108,7 +9547,7 @@
               <input type="checkbox" class="candidate-check" id="candidate-chk-${idx}" data-idx="${idx}" onchange="updateCandidateModalSummary()">
             </td>
             <td style="font-weight: 600; color: #0284c7; white-space: nowrap;">
-              ${escapeHtml(tx.Title || ('ID:' + tx.Id))}
+              ${escapeHtml(cleanInvoiceNoStr(tx.invoiceNo || '') || '-')}
               ${tx.isIndependent ? `<span style="font-size:10px; background:#f1f5f9; color:#475569; padding:1px 5px; border-radius:3px; margin-left:4px;">獨立記錄</span>` : ''}
             </td>
             <td style="white-space: nowrap; color: #475569; font-size: 12px;">${escapeHtml(tx.dateDisplay || tx.dateIso || '')}</td>
@@ -9139,7 +9578,7 @@
                 <th style="width: 40px; text-align: center;">
                   <input type="checkbox" id="candidate-check-all" onchange="toggleAllCandidates(this.checked)" title="全選 / 取消全選">
                 </th>
-                <th style="width: 110px;">單號</th>
+                <th style="width: 120px;">發票 / 單號</th>
                 <th style="width: 95px;">交易日期</th>
                 <th>所屬項目</th>
                 <th style="width: 110px;">小類</th>
@@ -9276,7 +9715,7 @@
         for (let i = 0; i < itemsToSync.length; i++) {
           const it = itemsToSync[i];
           if (confirmBtn) {
-            confirmBtn.innerHTML = `正在寫入第 ${i + 1} / ${itemsToSync.length} 筆 (${it.Title || it.Id})...`;
+            confirmBtn.innerHTML = `正在寫入第 ${i + 1} / ${itemsToSync.length} 筆 (${escapeHtml(it.projName || '分攤項目')})...`;
           }
 
           const payload = {
@@ -9321,7 +9760,7 @@
 
           if (!lastRes || !lastRes.ok) {
             const errText = lastRes ? await lastRes.text() : 'No response';
-            throw new Error(`更新記錄 ${it.Title} 失敗 (${lastRes ? lastRes.status : 'unknown'}): ${errText}`);
+            throw new Error(`更新第 ${i + 1} 筆記錄失敗 (${lastRes ? lastRes.status : 'unknown'}): ${errText}`);
           }
 
           it.batchId = targetBatchId;
@@ -9356,7 +9795,14 @@
             remarks: item.remarks || '',
             amount: item.amount,
             status: item.status,
-            paymentStatus: item.paymentStatus
+            paymentStatus: item.paymentStatus,
+            invoiceNo: item.invoiceNo || '',
+            dateIso: item.dateIso || '',
+            cheque: item.cheque || '',
+            bank: item.bank || '',
+            payee: item.payee || '',
+            receiptUrl: item.receiptUrl || '',
+            receiptDesc: item.receiptDesc || ''
           };
           item._isNewlyAddedToBatch = true;
 
@@ -9380,11 +9826,16 @@
         recalcEditBatchTotal();
 
         // Update header text
-        const firstTitle = selectedEditBatch[0].Title;
-        const lastTitle = selectedEditBatch[selectedEditBatch.length - 1].Title;
-        const rangeText = (firstTitle !== lastTitle) ? `${firstTitle} ～ ${lastTitle}` : firstTitle;
         const dispIdEl = document.getElementById('edit-display-id');
-        if (dispIdEl) dispIdEl.textContent = `${rangeText} (共 ${selectedEditBatch.length} 筆)`;
+        if (dispIdEl) {
+          const chq = selectedEditTx && selectedEditTx.cheque;
+          dispIdEl.textContent = chq ? `支票: ${chq} (共 ${selectedEditBatch.length} 筆)` : `多項目批次 (共 ${selectedEditBatch.length} 筆)`;
+        }
+
+        const searchInp = document.getElementById('edit-tx-search');
+        if (searchInp) {
+          searchInp.value = formatEditTxSearchLabel(selectedEditTx, selectedEditBatch);
+        }
 
         // Re-render batch table
         renderEditBatchTable();
@@ -9398,7 +9849,7 @@
         // Display success toast
         if (toast) {
           toast.className = 'toast success';
-          toast.innerHTML = `<strong>已成功將 ${toAdd.length} 筆記錄加入當前批次！</strong><br><span style="font-size:12px;">批次識別碼「${targetBatchId}」與分組屬性 (IsIndependent=false) 已成功寫入 SharePoint 清單。</span>`;
+          toast.innerHTML = `<strong>已成功將 ${toAdd.length} 筆記錄加入當前批次！</strong><br><span style="font-size:12px;">已成功合併至當前分攤批次，所有項目金額與所屬項目可於下方表格繼續編輯並儲存。</span>`;
           toast.style.display = 'block';
           setTimeout(() => {
             if (toast && toast.className.includes('success')) toast.style.display = 'none';
@@ -9458,11 +9909,24 @@
       const singleRemarksGroup = document.getElementById('edit-remarks-group');
 
       document.getElementById('edit-tx-id').value = tx.Id;
-      document.getElementById('edit-tx-search').value = `${tx.Title} ${tx.cheque ? `(${tx.cheque})` : ''} - $${tx.amount.toLocaleString()}`;
+      if (isExp) {
+        document.getElementById('edit-tx-search').value = formatEditTxSearchLabel(tx, selectedEditBatch);
+      } else {
+        document.getElementById('edit-tx-search').value = `${tx.Title || '收入'} - $${(parseAmount(tx.amount) || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      }
       const clearBtn = document.getElementById('edit-tx-clear');
       if (clearBtn) clearBtn.style.display = 'block';
 
       if (isExp && selectedEditBatch && selectedEditBatch.length >= 1) {
+        // Find existing receipt in batch if selected item doesn't have one
+        if (!tx.receiptUrl) {
+          const bReceipt = selectedEditBatch.find(x => x.receiptUrl && x.receiptUrl.trim());
+          if (bReceipt) {
+            tx.receiptUrl = bReceipt.receiptUrl;
+            tx.receiptDesc = bReceipt.receiptDesc;
+          }
+        }
+
         // Snapshot original values for accurate delta synchronization
         selectedEditBatch.forEach(item => {
           if (item.projId && !item.projName) {
@@ -9477,17 +9941,26 @@
             amount: item.amount,
             status: item.status,
             paymentStatus: item.paymentStatus,
-            invoiceNo: item.invoiceNo || ''
+            invoiceNo: item.invoiceNo || '',
+            dateIso: item.dateIso || '',
+            cheque: item.cheque || '',
+            bank: item.bank || '',
+            payee: item.payee || '',
+            receiptUrl: item.receiptUrl || '',
+            receiptDesc: item.receiptDesc || ''
           };
         });
 
         const totalBatchAmt = selectedEditBatch.reduce((sum, item) => sum + (parseAmount(item.amount) || 0), 0);
-        const firstTitle = selectedEditBatch[0].Title;
-        const lastTitle = selectedEditBatch[selectedEditBatch.length - 1].Title;
         const isMulti = (selectedEditBatch.length > 1);
-        const rangeText = (firstTitle !== lastTitle) ? `${firstTitle} ～ ${lastTitle}` : firstTitle;
         const dispIdEl = document.getElementById('edit-display-id');
-        if (dispIdEl) dispIdEl.textContent = isMulti ? `${rangeText} (共 ${selectedEditBatch.length} 筆)` : (tx.Title || `ID: ${tx.Id}`);
+        if (dispIdEl) {
+          if (tx.cheque) {
+            dispIdEl.textContent = isMulti ? `支票: ${tx.cheque} (共 ${selectedEditBatch.length} 筆)` : `支票: ${tx.cheque}`;
+          } else {
+            dispIdEl.textContent = isMulti ? `多項目批次 (共 ${selectedEditBatch.length} 筆)` : (tx.paymentStatus === '未付' ? '未付支出記錄' : '支出記錄');
+          }
+        }
         const dispTypeEl = document.getElementById('edit-display-type');
         if (dispTypeEl) dispTypeEl.textContent = tx.cheque ? `多項目分攤支出 (${tx.cheque})` : '多項目分攤支出';
         const dispModEl = document.getElementById('edit-display-modified');
@@ -9824,6 +10297,10 @@
             newFileUrl = await uploadFileToDocLib(currentUploadedFiles.edit, folder, targetName);
           }
 
+          // Check existing receipt on batch
+          const existingBatchReceiptUrl = (selectedEditBatch.find(x => x.receiptUrl && x.receiptUrl.trim())?.receiptUrl || selectedEditTx.receiptUrl || '').trim();
+          const existingBatchReceiptDesc = (selectedEditBatch.find(x => x.receiptDesc && x.receiptDesc.trim())?.receiptDesc || selectedEditTx.receiptDesc || '收據檔案').trim();
+
           const count = selectedEditBatch.length;
 
           // Validate each row has valid amount > 0
@@ -9867,7 +10344,7 @@
             const rowInvoice = cleanInvoiceNoStr(item.invoiceNo || '').trim();
 
             if (submitBtn) {
-              submitBtn.innerHTML = `正在更新第 ${i + 1} / ${count} 筆 (${item.Title})...`;
+              submitBtn.innerHTML = `正在更新第 ${i + 1} / ${count} 筆 (${escapeHtml(item.projName || '分攤項目')})...`;
             }
 
             const payload = {
@@ -9892,6 +10369,12 @@
                 "__metadata": { "type": "SP.FieldUrlValue" },
                 "Url": newFileUrl,
                 "Description": newFileName
+              };
+            } else if (existingBatchReceiptUrl && editPayStatus !== '未付') {
+              payload["OData__x6536__x64da__x9023__x7d50_"] = {
+                "__metadata": { "type": "SP.FieldUrlValue" },
+                "Url": existingBatchReceiptUrl,
+                "Description": existingBatchReceiptDesc
               };
             }
 
@@ -9932,7 +10415,7 @@
 
             if (!lastRes || !lastRes.ok) {
               const errText = lastRes ? await lastRes.text() : 'No response';
-              throw new Error(`更新記錄 ${item.Title} 失敗 (${lastRes ? lastRes.status : 'unknown'}): ${errText}`);
+              throw new Error(`更新第 ${i + 1} 筆分攤記錄失敗 (${lastRes ? lastRes.status : 'unknown'}): ${errText}`);
             }
 
             // Financial cost sync: calculate delta between original and new values
@@ -9966,6 +10449,14 @@
             item.amount = rowAmount;
             item.batchId = payload["BatchId"];
             item.isIndependent = payload["IsIndependent"];
+            if (newFileUrl) {
+              item.receiptUrl = newFileUrl;
+              item.receiptDesc = newFileName;
+            } else if (existingBatchReceiptUrl && editPayStatus !== '未付') {
+              item.receiptUrl = existingBatchReceiptUrl;
+              item.receiptDesc = existingBatchReceiptDesc;
+            }
+
             item._orig = {
               projId: rowProjId,
               projName: item.projName,
@@ -9974,7 +10465,13 @@
               amount: rowAmount,
               status: newStatus,
               paymentStatus: editPayStatus,
-              invoiceNo: rowInvoice
+              invoiceNo: rowInvoice,
+              dateIso: newDateVal,
+              cheque: chqNum,
+              bank: bankVal,
+              payee: payeeVal,
+              receiptUrl: item.receiptUrl || '',
+              receiptDesc: item.receiptDesc || ''
             };
 
             const inMem = loadedEditTransactions.find(t => t.Id === item.Id);
@@ -9995,9 +10492,9 @@
                 pTx.subitem = rowSubitem;
                 pTx.remarks = rowRemarks;
                 pTx.invoiceNo = rowInvoice;
-                if (newFileUrl) {
-                  pTx.receipt = newFileUrl;
-                  pTx.receiptDesc = newFileName;
+                if (item.receiptUrl) {
+                  pTx.receipt = item.receiptUrl;
+                  pTx.receiptDesc = item.receiptDesc;
                 }
               }
             }
@@ -10024,7 +10521,28 @@
             }
             document.getElementById('edit-no-receipt-label').style.display = 'none';
             removeFile('edit');
+          } else if (existingBatchReceiptUrl && editPayStatus !== '未付') {
+            const receiptLink = document.getElementById('edit-current-receipt-link');
+            if (receiptLink) {
+              receiptLink.href = existingBatchReceiptUrl;
+              receiptLink.textContent = `檢視現有收據檔案 (${existingBatchReceiptDesc})`;
+              receiptLink.style.display = 'inline';
+            }
+            document.getElementById('edit-no-receipt-label').style.display = 'none';
           }
+
+          document.getElementById('edit-tx-search').value = formatEditTxSearchLabel(selectedEditTx, selectedEditBatch);
+          const dispIdEl = document.getElementById('edit-display-id');
+          if (dispIdEl) {
+            if (chqNum) {
+              dispIdEl.textContent = count > 1 ? `支票: ${chqNum} (共 ${count} 筆)` : `支票: ${chqNum}`;
+            } else {
+              dispIdEl.textContent = count > 1 ? `多項目批次 (共 ${count} 筆)` : (editPayStatus === '未付' ? '未付支出記錄' : '支出記錄');
+            }
+          }
+
+          // Re-render batch table
+          renderEditBatchTable();
 
           // Refresh dashboard if viewing affected project
           if (selectedDashProject) {
@@ -10035,7 +10553,7 @@
           toast.className = 'toast success';
           let msg = count > 1 
             ? `<strong>全數分攤記錄（共 ${count} 筆）已成功更新！</strong><br>`
-            : `<strong>記錄「${escapeHtml(selectedEditBatch[0]?.Title || '')}」已成功更新！</strong><br>`;
+            : `<strong>${chqNum ? `支票「${escapeHtml(chqNum)}」分攤記錄` : '分攤支出記錄'}已成功更新！</strong><br>`;
           msg += `付款狀態：<strong style="color:${editPayStatus === '已付' ? '#059669' : '#d97706'};">${editPayStatus}</strong> ｜ 支票編號：<strong>${chqNum || '(無)'}</strong> ｜ 轉賬銀行：${escapeHtml(bankVal)}<br>`;
           if (newFileUrl) {
             msg += count > 1 
@@ -10211,7 +10729,34 @@
           removeFile('edit');
         }
 
-        document.getElementById('edit-tx-search').value = `${selectedEditTx.Title} ${selectedEditTx.cheque ? `(${selectedEditTx.cheque})` : ''} - $${selectedEditTx.amount.toLocaleString()}`;
+        if (isExp) {
+          document.getElementById('edit-tx-search').value = formatEditTxSearchLabel(selectedEditTx);
+          const dispIdEl = document.getElementById('edit-display-id');
+          if (dispIdEl) {
+            dispIdEl.textContent = selectedEditTx.cheque ? `支票: ${selectedEditTx.cheque}` : (selectedEditTx.paymentStatus === '未付' ? '未付支出記錄' : '支出記錄');
+          }
+        } else {
+          document.getElementById('edit-tx-search').value = `${selectedEditTx.Title || '收入'} - $${selectedEditTx.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+          const dispIdEl = document.getElementById('edit-display-id');
+          if (dispIdEl) dispIdEl.textContent = selectedEditTx.Title || `ID: ${selectedEditTx.Id}`;
+        }
+
+        selectedEditTx._orig = {
+          projId: newProjId,
+          projName: selectedEditTx.projName,
+          subitem: selectedEditTx.subitem,
+          remarks: newRemarks,
+          amount: newAmount,
+          status: newStatus,
+          paymentStatus: editPayStatus,
+          invoiceNo: selectedEditTx.invoiceNo || '',
+          dateIso: newDateVal,
+          cheque: selectedEditTx.cheque || '',
+          bank: selectedEditTx.bank || '',
+          payee: selectedEditTx.payee || '',
+          receiptUrl: selectedEditTx.receiptUrl || '',
+          receiptDesc: selectedEditTx.receiptDesc || ''
+        };
 
         const inMemory = loadedEditTransactions.find(t => t.Id === itemId);
         if (inMemory) {
@@ -10245,7 +10790,9 @@
         }
 
         toast.className = 'toast success';
-        let msg = `<strong>記錄「${selectedEditTx.Title}」已成功更新！</strong>`;
+        let msg = isExp
+          ? `<strong>${selectedEditTx.cheque ? `支票「${escapeHtml(selectedEditTx.cheque)}」記錄` : '支出記錄'}已成功更新！</strong>`
+          : `<strong>記錄「${selectedEditTx.Title}」已成功更新！</strong>`;
         if (newFileUrl) {
           msg += `<br><span style="font-size:12px;">收據檔案已成功替換並重新連結。</span>`;
         }
@@ -10298,11 +10845,9 @@
     sortDashboardProjects(dashboardProjectsList);
     let selectedDashProject = dashboardProjectsList.find(p => p.id === 228) || dashboardProjectsList.find(p => p.id !== 838 && p.code !== 'UNASSIGNED') || dashboardProjectsList[0] || null;
     let dashboardInitialized = false;
-    const PROJECT_LIST_PAGE_SIZE = 20;
-    let projectListPage = 1;
     let projectListQuery = '';            // current 項目清單總表 search filter (name/code)
     let projectListMgrQuery = '';         // 項目清單總表：負責人文字篩選
-    let projectListFilterUnderReceived = true;   // default on: show only recv < contractTotal
+    let projectListFilterUnderReceived = true;   // default on: show only (contractTotal - recv) >= 10
     let projectUnpaidMap = {};            // pid -> unpaid cost
     let projectUnpaidFetched = new Set(); // pids successfully queried
     let projectUnpaidFailed = new Set();  // pids whose query failed
@@ -10363,12 +10908,21 @@
 
     function fmtMoney(amount, symbol = 'HK$') {
       const num = Number(amount) || 0;
-      return symbol + ' ' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const absStr = Math.abs(num).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const prefix = symbol ? (symbol + ' ') : '';
+      if (num < -0.0001 && absStr !== '0.00') {
+        return `(${prefix}${absStr})`;
+      }
+      return `${prefix}${absStr}`;
     }
 
     function fmtCompact(amount) {
       const num = Number(amount) || 0;
-      return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+      const absStr = Math.abs(num).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+      if (num < -0.5 && absStr !== '0') {
+        return `($${absStr})`;
+      }
+      return '$' + absStr;
     }
 
     function calculateDateRange(type) {
@@ -11134,7 +11688,7 @@
           badgeEl.className = "status-badge positive";
           statusTextEl.textContent = "盈餘 (淨現金流入)";
         } else if (data.net < 0) {
-          netEl.textContent = `-${fmtMoney(Math.abs(data.net))}`;
+          netEl.textContent = fmtMoney(data.net);
           netEl.className = "balance-value negative";
           badgeEl.className = "status-badge negative";
           statusTextEl.textContent = "虧損 (淨現金流出)";
@@ -11264,62 +11818,67 @@
       return 0;
     }
 
-    async function fetchUnpaidCostsForPage(ids) {
+    async function fetchUnpaidCostsForProjects(ids) {
       const pending = (ids || []).map(Number).filter(id =>
         id && !projectUnpaidFetched.has(id) && !projectUnpaidFailed.has(id) && !projectUnpaidPromises.has(id));
       if (pending.length > 0) {
-        const batchPromise = (async () => {
-          let ok = false;
-          try {
-            if (!digestValue) {
-              try { await getDigest(); } catch (e) { }
-            }
-            const postHeaders = {
-              'Accept': 'application/json;odata=verbose',
-              'Content-Type': 'application/json;odata=verbose'
-            };
-            if (digestValue) postHeaders['X-RequestDigest'] = digestValue;
+        const CHUNK_SIZE = 20;
+        for (let i = 0; i < pending.length; i += CHUNK_SIZE) {
+          const chunk = pending.slice(i, i + CHUNK_SIZE);
+          const batchPromise = (async () => {
+            let ok = false;
+            try {
+              if (!digestValue) {
+                try { await getDigest(); } catch (e) { }
+              }
+              const postHeaders = {
+                'Accept': 'application/json;odata=verbose',
+                'Content-Type': 'application/json;odata=verbose'
+              };
+              if (digestValue) postHeaders['X-RequestDigest'] = digestValue;
 
-            const valuesXml = pending.map(id => `<Value Type='Integer'>${id}</Value>`).join('');
-            const caml = `<View><Query><Where><And><In><FieldRef Name='_x6240__x5c6c__x9805__x76ee_' LookupId='TRUE' /><Values>${valuesXml}</Values></In><Neq><FieldRef Name='RecordStatus' /><Value Type='Choice'>作廢</Value></Neq></And></Where></Query><RowLimit>2000</RowLimit></View>`;
-            const res = await spFetch(`${SITE_URL}/_api/web/lists(guid'${GUID_EXPENSE}')/RenderListDataAsStream`, {
-              method: 'POST',
-              headers: postHeaders,
-              body: JSON.stringify({ parameters: { RenderOptions: 2, ViewXml: caml } })
-            });
-            if (!res || !res.ok) {
-              console.warn('Unpaid-cost fetch non-ok:', res && res.status);
-              return;
+              const valuesXml = chunk.map(id => `<Value Type='Integer'>${id}</Value>`).join('');
+              const caml = `<View><Query><Where><And><In><FieldRef Name='_x6240__x5c6c__x9805__x76ee_' LookupId='TRUE' /><Values>${valuesXml}</Values></In><Neq><FieldRef Name='RecordStatus' /><Value Type='Choice'>作廢</Value></Neq></And></Where></Query><RowLimit>2000</RowLimit></View>`;
+              const res = await spFetch(`${SITE_URL}/_api/web/lists(guid'${GUID_EXPENSE}')/RenderListDataAsStream`, {
+                method: 'POST',
+                headers: postHeaders,
+                body: JSON.stringify({ parameters: { RenderOptions: 2, ViewXml: caml } })
+              });
+              if (!res || !res.ok) {
+                console.warn('Unpaid-cost fetch non-ok:', res && res.status);
+                return;
+              }
+              const data = await res.json();
+              const rows = (data && data.Row) ? data.Row : ((data && data.d && data.d.Row) ? data.d.Row : []);
+              rows.forEach(r => {
+                const chqVal = (r['_x652f__x7968__x7de8__x865f_'] || '').trim();
+                const payStatus = (r['_x4ed8__x6b3e__x72c0__x614b_'] || (chqVal ? '已付' : '未付')).trim();
+                if (payStatus !== '未付') return;
+                const rawAmt = r['_x91d1__x984d_.'] || strClean(r['_x91d1__x984d_']);
+                const amt = parseFloat(rawAmt) || 0;
+                if (!amt) return;
+                const pid = getProjectLookupId(r);
+                if (!pid) return;
+                projectUnpaidMap[pid] = (projectUnpaidMap[pid] || 0) + amt;
+              });
+              ok = true;
+            } catch (err) {
+              console.error('Error fetching unpaid costs for chunk:', err);
+            } finally {
+              chunk.forEach(id => {
+                projectUnpaidPromises.delete(id);
+                if (ok) { projectUnpaidFetched.add(id); projectUnpaidFailed.delete(id); }
+                else { projectUnpaidFailed.add(id); }
+              });
             }
-            const data = await res.json();
-            const rows = (data && data.Row) ? data.Row : ((data && data.d && data.d.Row) ? data.d.Row : []);
-            rows.forEach(r => {
-              const chqVal = (r['_x652f__x7968__x7de8__x865f_'] || '').trim();
-              const payStatus = (r['_x4ed8__x6b3e__x72c0__x614b_'] || (chqVal ? '已付' : '未付')).trim();
-              if (payStatus !== '未付') return;
-              const rawAmt = r['_x91d1__x984d_.'] || strClean(r['_x91d1__x984d_']);
-              const amt = parseFloat(rawAmt) || 0;
-              if (!amt) return;
-              const pid = getProjectLookupId(r);
-              if (!pid) return;
-              projectUnpaidMap[pid] = (projectUnpaidMap[pid] || 0) + amt;
-            });
-            ok = true;
-          } catch (err) {
-            console.error('Error fetching unpaid costs for page:', err);
-          } finally {
-            pending.forEach(id => {
-              projectUnpaidPromises.delete(id);
-              if (ok) { projectUnpaidFetched.add(id); projectUnpaidFailed.delete(id); }
-              else { projectUnpaidFailed.add(id); }
-            });
-          }
-        })();
-        pending.forEach(id => projectUnpaidPromises.set(id, batchPromise));
+          })();
+          chunk.forEach(id => projectUnpaidPromises.set(id, batchPromise));
+        }
       }
       const waitFor = (ids || []).map(Number).map(id => projectUnpaidPromises.get(id)).filter(Boolean);
       await Promise.all(waitFor);
     }
+    const fetchUnpaidCostsForPage = fetchUnpaidCostsForProjects;
 
     function parseExpenseDateMs(v) {
       if (v === null || v === undefined || v === '') return 0;
@@ -11457,28 +12016,11 @@
       }
     }
 
-    function updateProjectListPager(page, pageCount, total, loading) {
-      const pager = document.getElementById('project-list-pager');
-      if (!pager) return;
-      if (pageCount <= 1) {
-        pager.style.display = 'none';
-        return;
-      }
-      pager.style.display = 'flex';
-      const info = document.getElementById('pl-pager-info');
-      if (info) info.textContent = `第 ${page} / ${pageCount} 頁（共 ${total} 個項目）`;
-      const prev = document.getElementById('pl-pager-prev');
-      const next = document.getElementById('pl-pager-next');
-      if (prev) prev.disabled = !!loading || page <= 1;
-      if (next) next.disabled = !!loading || page >= pageCount;
-    }
-
     async function renderProjectList() {
       const seq = ++projectListRenderSeq;
       hideProjectListNote();
       const tbody = document.getElementById('project-list-tbody');
       const empty = document.getElementById('project-list-empty');
-      const pager = document.getElementById('project-list-pager');
       const wrap = document.getElementById('project-list-table-wrap');
       if (!tbody) return;
 
@@ -11487,7 +12029,7 @@
         .filter(p => !/test/i.test(p.title || p.Title || ''))
         .slice();
       if (projectListFilterUnderReceived) {
-        list = list.filter(p => (p.recv || 0) < ((p.contract !== undefined ? p.contract : (p.amt || 0)) + (p.voTotal || 0)));
+        list = list.filter(p => ((p.contract !== undefined ? p.contract : (p.amt || 0)) + (p.voTotal || 0)) - (p.recv || 0) >= 10);
       }
       if (projectListMgrQuery) {
         const mq = projectListMgrQuery.toLowerCase();
@@ -11516,7 +12058,6 @@
         }
         if (wrap) wrap.style.display = 'none';
         tbody.innerHTML = '';
-        if (pager) pager.style.display = 'none';
         return;
       }
 
@@ -11540,34 +12081,27 @@
       }
       if (wrap) wrap.style.display = '';
 
-      const pageCount = Math.max(1, Math.ceil(list.length / PROJECT_LIST_PAGE_SIZE));
-      projectListPage = Math.min(Math.max(1, projectListPage), pageCount);
-      const start = (projectListPage - 1) * PROJECT_LIST_PAGE_SIZE;
-      const pageItems = list.slice(start, start + PROJECT_LIST_PAGE_SIZE);
-      const pageIds = pageItems
+      const projectIds = list
         .map(p => Number(p.id !== undefined ? p.id : p.Id))
         .filter(id => id > 0);
 
-      // The target page is reflected in the pager immediately. Old rows stay in place
-      // (dimmed) under an overlay pinned to the visible area, so there is no height collapse.
-      const needFetch = pageIds.some(id => !projectUnpaidFetched.has(id) && !projectUnpaidFailed.has(id));
-      updateProjectListPager(projectListPage, pageCount, list.length, needFetch);
+      const needFetch = projectIds.some(id => !projectUnpaidFetched.has(id) && !projectUnpaidFailed.has(id));
       if (needFetch) {
         setProjectListLoading(true);
         try {
-          await fetchUnpaidCostsForPage(pageIds);
+          await fetchUnpaidCostsForProjects(projectIds);
         } catch (err) {
           console.warn('renderProjectList: unpaid fetch failed', err);
         }
         if (seq !== projectListRenderSeq) return; // superseded by a newer navigation/refresh
       } else {
-        setProjectListLoading(false); // cached page: render instantly, clear any stale overlay
+        setProjectListLoading(false); // cached: render instantly, clear any stale overlay
       }
 
-      const allResolved = pageIds.every(id => projectUnpaidFetched.has(id));
-      const anyFailed = pageIds.some(id => projectUnpaidFailed.has(id));
+      const allResolved = projectIds.every(id => projectUnpaidFetched.has(id));
+      const anyFailed = projectIds.some(id => projectUnpaidFailed.has(id));
 
-      const rowsHtml = pageItems.map(p => {
+      const rowsHtml = list.map(p => {
         const id = Number(p.id !== undefined ? p.id : p.Id);
         const base = p.contract !== undefined ? p.contract : (p.amt || 0);
         const voTotal = p.voTotal !== undefined ? p.voTotal : (Array.isArray(p.vos) ? p.vos.reduce((s, v) => s + (parseFloat(v.amount) || 0), 0) : 0);
@@ -11666,20 +12200,11 @@
         tbody.innerHTML = rowsHtml;
       } finally {
         setProjectListLoading(false);
-        updateProjectListPager(projectListPage, pageCount, list.length, false);
       }
-    }
-
-    function goProjectListPage(delta) {
-      const next = projectListPage + delta;
-      if (next < 1) return;
-      projectListPage = next;
-      renderProjectList();
     }
 
     function toggleProjectListUnderRecvFilter(on) {
       projectListFilterUnderReceived = on;
-      projectListPage = 1;
       renderProjectList();
     }
 
@@ -11704,7 +12229,6 @@
 
     function toggleProjectListDateMode() {
       projectListDateMode = projectListDateMode === 'expense' ? 'date' : 'expense';
-      projectListPage = 1;
       updateProjectListDateHeader();
       renderProjectList();
     }
@@ -11841,7 +12365,7 @@
           netBadgeEl.className = "status-badge positive";
           netStatusText.textContent = `實收盈餘 (利潤率 ${marginPct}%)`;
         } else if (net < 0) {
-          netValEl.textContent = `-${fmtMoney(Math.abs(net))}`;
+          netValEl.textContent = fmtMoney(net);
           netValEl.className = "balance-value negative";
           netBadgeEl.className = "status-badge negative";
           netStatusText.textContent = "成本超支 (待追補款)";
@@ -11944,7 +12468,7 @@
         if (selectedDashProject && selectedDashProject.id === p.id) div.classList.add('selected');
 
         const net = (p.recv || 0) - (p.cost || 0);
-        const netStr = net >= 0 ? `+${fmtCompact(net)}` : `-${fmtCompact(Math.abs(net))}`;
+        const netStr = net >= 0 ? `+${fmtCompact(net)}` : fmtCompact(net);
         const netColor = net >= 0 ? '#059669' : '#dc2626';
 
         const pStartDate = p.startDate || p.OData__x9810__x8a08__x65bd__x5de5__x65 || p._x9810__x8a08__x65bd__x5de5__x65;
@@ -12026,7 +12550,6 @@
         projectUnpaidFetched = new Set();
         projectUnpaidFailed = new Set();
         projectUnpaidPromises = new Map();
-        projectListPage = 1;
         projectListRenderSeq++; // invalidate any in-flight list render
         projectListFilterUnderReceived = true;
         const underRecvCheck = document.getElementById('project-list-undrecv-filter');
@@ -12142,7 +12665,6 @@
           mgrSearch.value = projectListMgrQuery;
           mgrSearch.addEventListener('input', (e) => {
             projectListMgrQuery = e.target.value.trim();
-            projectListPage = 1;
             renderProjectList();
           });
         }
@@ -12152,7 +12674,6 @@
         if (listSearch) {
           listSearch.addEventListener('input', (e) => {
             projectListQuery = e.target.value.trim();
-            projectListPage = 1;
             renderProjectList();
           });
         }
@@ -12283,7 +12804,7 @@
           netBadgeEl.className = "status-badge positive";
           netStatusText.textContent = `實收盈餘 (利潤率 ${marginPctTotal}%)`;
         } else if (netTotal < 0) {
-          netValEl.textContent = `-${fmtMoney(Math.abs(netTotal))}`;
+          netValEl.textContent = fmtMoney(netTotal);
           netValEl.className = "balance-value negative";
           netBadgeEl.className = "status-badge negative";
           netStatusText.textContent = "成本超支 (待追補款)";
