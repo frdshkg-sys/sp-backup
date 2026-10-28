@@ -61,7 +61,8 @@ backup/
 2. 在左側選單點選 **Weekly SharePoint to Google Drive Backup**。
 3. 點擊右側的 **Run workflow** 按鈕進行手動測試。
 4. 執行完成後，您可以在 Google Drive 的 `CHUN_KING_Backups` 資料夾中看見：
-   - `Weekly_Snapshots/YYYY-MM-DD/`（包含繁體中文版 `CHUN_KING_Financial_Master_YYYY-MM-DD.xlsx` 與 JSON）
+   - `Weekly_Snapshots/YYYY-MM-DD/`（包含繁體中文版 `CHUN_KING_Financial_Master_YYYY-MM-DD.xlsx`、原始 JSON 與每週定格歷史快照 `CA-SA.xlsx`）
+   - `Documents_Live_Mirror/`（包含 SharePoint 共用文件庫 `Shared Documents` 的增量鏡像：`CA-SA.xlsx` 最新工作檔、使用指引 PDF 與專案範本）
    - `Receipts_Live_Mirror/`（包含支出支票收據 `CHQ/`、`CK/`、`DBS/`、`WS/` 與各銀行收入單據 `Income/{銀行}/{項目}/`）
    - `manifest.json`（檔案雜湊與同步狀態）
 

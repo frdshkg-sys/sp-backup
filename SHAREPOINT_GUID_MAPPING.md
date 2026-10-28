@@ -26,7 +26,7 @@
 | **交易記錄-收入** | `GUID_INCOME` | `527698fd-139d-4482-b819-b3f6da4e8794` | `/sites/CHUNKING/Lists/Income` | 項目進帳、客戶付款、退款與各銀行收入表記錄 |
 | **支票收據** | `GUID_RECEIPTS` | `441ac1bf-d867-4c5f-af6e-6939afcbb2b4` | `/sites/CHUNKING/Lists/ChequeReceipts` | 支票照片與收據圖檔存放文件庫 (Doc Library) |
 | **Site Pages** | - | `547bce72-2b86-40d9-8b28-48c97f313a2a` | `/sites/CHUNKING/SitePages` | SharePoint 站台頁面庫 (存放儀表板頁面) |
-| **Documents** | - | `3a0db32a-274f-45b6-aadb-facaceee8299` | `/sites/CHUNKING/Shared Documents` | 共用文件庫 |
+| **Documents** | `SP_DOCUMENTS_FOLDER` | `3a0db32a-274f-45b6-aadb-facaceee8299` | `/sites/CHUNKING/Shared Documents` | 共用文件庫（存放 `CA-SA.xlsx`、操作手冊 PDF 與 Power BI 儀表板範本；自動備份至 GDrive） |
 
 ---
 

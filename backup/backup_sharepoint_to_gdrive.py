@@ -30,6 +30,9 @@ GUID_EXPENSES = "a09172c2-2be4-4b12-8dfd-418a6fbe0c6d"
 GUID_INCOME = "527698fd-139d-4482-b819-b3f6da4e8794"
 GUID_RECEIPTS_LIB = "441ac1bf-d867-4c5f-af6e-6939afcbb2b4"
 
+SP_DOCUMENTS_FOLDER = "/sites/CHUNKING/Shared Documents"
+SP_CASA_REL_PATH = "/sites/CHUNKING/Shared Documents/CA-SA.xlsx"
+
 
 def load_sharepoint_cookies() -> Dict[str, str]:
     """Loads SharePoint cookies from environment variable or local cookies.json."""
@@ -200,6 +203,11 @@ def run_backup_pipeline(lists_only: bool = False, max_media_files: Optional[int]
     temp_receipts_dir = os.path.join(staging_dir, "temp_downloads")
     os.makedirs(temp_receipts_dir, exist_ok=True)
 
+    casa_snapshot_success = False
+    casa_snapshot_hash = ""
+    casa_snapshot_bytes = 0
+    casa_staging_path = os.path.join(staging_dir, "CA-SA.xlsx")
+
     # 2. Fetch or initialize Manifest
     manifest = {}
     if gdrive.is_connected:
@@ -217,6 +225,7 @@ def run_backup_pipeline(lists_only: bool = False, max_media_files: Optional[int]
     gdrive_weekly_folder_id = None
     gdrive_expense_folder_ids = {}
     gdrive_receipts_inc_id = None
+    gdrive_documents_folder_id = None
     expense_subdirs = ["CHQ", "CK", "DBS", "WS"]
 
     if gdrive.is_connected:
@@ -228,11 +237,13 @@ def run_backup_pipeline(lists_only: bool = False, max_media_files: Optional[int]
             gdrive_expense_folder_ids[sub_name] = gdrive.find_or_create_folder(sub_name, parent_id=mirror_root_id)
         gdrive_receipts_inc_id = gdrive.find_or_create_folder("Income", parent_id=mirror_root_id)
 
+        gdrive_documents_folder_id = gdrive.find_or_create_folder("Documents_Live_Mirror")
+
     # =========================================================================
-    # 3. EXPORT SHAREPOINT LISTS (Full Snapshot)
+    # 3. EXPORT SHAREPOINT LISTS & WORKING SPREADSHEET (Full Snapshot)
     # =========================================================================
     print("\n------------------------------------------------------------------")
-    print("📋 [Step 1/3] Extracting Structured Lists from SharePoint Online...")
+    print("📋 [Step 1/3] Extracting Structured Lists & Spreadsheet Snapshot from SharePoint Online...")
     print("------------------------------------------------------------------")
 
     # 3.1 Projects List
@@ -295,6 +306,19 @@ def run_backup_pipeline(lists_only: bool = False, max_media_files: Optional[int]
         gdrive.upload_file(master_excel_path, destination_folder_id=gdrive_weekly_folder_id, overwrite=True)
         gdrive.upload_file(raw_bundle_path, destination_folder_id=gdrive_weekly_folder_id, overwrite=True)
         print("   ✅ Lists safely archived on Google Drive.")
+
+    # 3.6 Working Spreadsheet Snapshot (CA-SA.xlsx)
+    print("\n⏳ Downloading CA-SA.xlsx working spreadsheet snapshot...")
+    casa_staging_path = os.path.join(staging_dir, "CA-SA.xlsx")
+    casa_snapshot_success, casa_snapshot_hash, casa_snapshot_bytes = sp.download_file(SP_CASA_REL_PATH, casa_staging_path)
+    if casa_snapshot_success:
+        print(f"   ✅ CA-SA.xlsx downloaded ({casa_snapshot_bytes / (1024*1024):.2f} MB, SHA256: {casa_snapshot_hash[:12]}...)")
+        if gdrive.is_connected and gdrive_weekly_folder_id:
+            print("☁️ Uploading CA-SA.xlsx to Google Drive Weekly Snapshot folder...")
+            gdrive.upload_file(casa_staging_path, destination_folder_id=gdrive_weekly_folder_id, remote_file_name="CA-SA.xlsx", overwrite=True)
+            print("   ✅ CA-SA.xlsx historical snapshot archived in Weekly_Snapshots.")
+    else:
+        print(f"⚠️ Warning: Could not download {SP_CASA_REL_PATH} for weekly snapshot.")
 
     # =========================================================================
     # 4. INCREMENTAL SYNC OF MEDIA & RECEIPT FILES (PDF / PNG / JPG)
@@ -500,6 +524,119 @@ def run_backup_pipeline(lists_only: bool = False, max_media_files: Optional[int]
     print(f"   ⏩ Skipped (already backed up): {skipped_count} files")
     print(f"   📥 Newly synced files: {new_downloads_count} files ({new_bytes_transferred / (1024*1024):.2f} MB)")
 
+    # =========================================================================
+    # 5. INCREMENTAL SYNC OF DOCUMENTS LIBRARY (CA-SA.xlsx, Guides, Templates)
+    # =========================================================================
+    print("\n------------------------------------------------------------------")
+    print("📄 [Step 3/3] Incremental Synchronization of Documents Library...")
+    print("------------------------------------------------------------------")
+
+    docs_new_count = 0
+    docs_bytes_transferred = 0
+    docs_skipped_count = 0
+
+    if lists_only:
+        print("⏩ Skipping documents synchronization (--lists-only flag is set).")
+    else:
+        def scan_documents_tree(base_sp_path: str):
+            folders_to_visit = [(base_sp_path, "")]
+            while folders_to_visit:
+                curr_sp_path, curr_rel_path = folders_to_visit.pop(0)
+                files = sp.fetch_folder_files_metadata(curr_sp_path)
+                if files:
+                    yield curr_sp_path, curr_rel_path, files
+                subdirs = sp.fetch_subfolders(curr_sp_path)
+                for s in subdirs:
+                    sub_name = os.path.basename(s.rstrip("/"))
+                    if sub_name == "Forms" or sub_name.startswith("_"):
+                        continue
+                    next_rel = f"{curr_rel_path}/{sub_name}".strip("/") if curr_rel_path else sub_name
+                    folders_to_visit.append((s, next_rel))
+
+        gdrive_doc_folder_cache = {}
+
+        def get_or_create_doc_gdrive_path(rel_path: str, base_parent_id: str) -> str:
+            if not rel_path:
+                return base_parent_id
+            if rel_path in gdrive_doc_folder_cache:
+                return gdrive_doc_folder_cache[rel_path]
+            parts = rel_path.split("/")
+            curr = base_parent_id
+            for part in parts:
+                curr = gdrive.find_or_create_folder(part, parent_id=curr)
+            gdrive_doc_folder_cache[rel_path] = curr
+            return curr
+
+        print(f"⏳ Scanning SharePoint {SP_DOCUMENTS_FOLDER}...")
+        for sp_folder_path, rel_path, sub_files in scan_documents_tree(SP_DOCUMENTS_FOLDER):
+            target_gdrive_sub_id = None
+            existing_doc_drive = {}
+            if gdrive.is_connected and gdrive_documents_folder_id:
+                target_gdrive_sub_id = get_or_create_doc_gdrive_path(rel_path, gdrive_documents_folder_id)
+                existing_doc_drive = gdrive.list_files_in_folder(target_gdrive_sub_id)
+
+            for file_meta in sub_files:
+                name = file_meta.get("Name", "")
+                rel_url = file_meta.get("ServerRelativeUrl", "")
+                file_len = int(file_meta.get("Length", 0))
+                time_modified = file_meta.get("TimeLastModified", "")
+
+                manifest_entry = manifest_files.get(rel_url)
+                if manifest_entry and manifest_entry.get("size") == file_len and manifest_entry.get("time_modified") == time_modified:
+                    docs_skipped_count += 1
+                    continue
+
+                local_target = os.path.join(temp_receipts_dir, name)
+                need_download = True
+                file_hash = ""
+                byte_size = file_len
+
+                # Check if we can reuse CA-SA.xlsx downloaded in Step 1 snapshot
+                if rel_url == SP_CASA_REL_PATH and casa_snapshot_success and os.path.exists(casa_staging_path):
+                    local_target = casa_staging_path
+                    need_download = False
+                    file_hash = casa_snapshot_hash
+                    byte_size = casa_snapshot_bytes
+                    success = True
+                else:
+                    success, file_hash, byte_size = sp.download_file(rel_url, local_target)
+
+                if success:
+                    if manifest_entry and manifest_entry.get("sha256") == file_hash:
+                        manifest_files[rel_url]["time_modified"] = time_modified
+                        manifest_files[rel_url]["last_backed_up"] = today_str
+                        docs_skipped_count += 1
+                        if need_download and os.path.exists(local_target):
+                            os.remove(local_target)
+                        continue
+
+                    docs_new_count += 1
+                    docs_bytes_transferred += byte_size
+                    uploaded_id = None
+                    if gdrive.is_connected and target_gdrive_sub_id:
+                        uploaded_id = gdrive.upload_file(local_target, destination_folder_id=target_gdrive_sub_id, remote_file_name=name, overwrite=True)
+
+                    if gdrive.is_connected and not uploaded_id:
+                        print(f"⚠️ Failed to upload {name} to Google Drive; skipping manifest update so it will be retried next time.")
+                    else:
+                        category_name = f"Documents/{rel_path}".strip("/") if rel_path else "Documents"
+                        manifest_files[rel_url] = {
+                            "name": name,
+                            "size": byte_size,
+                            "sha256": file_hash,
+                            "time_modified": time_modified,
+                            "category": category_name,
+                            "last_backed_up": today_str
+                        }
+                        print(f"   ✅ [Documents] Synced {name} ({byte_size / (1024*1024):.2f} MB) to Google Drive.")
+
+                    if need_download and os.path.exists(local_target):
+                        os.remove(local_target)
+
+        print(f"✅ Incremental Documents Sync Completed:")
+        print(f"   ⏩ Skipped (already up-to-date): {docs_skipped_count} files")
+        print(f"   📥 Newly synced documents: {docs_new_count} files ({docs_bytes_transferred / (1024*1024):.2f} MB)")
+
     # Save manifest
     manifest["last_sync_date"] = today_str
     manifest["total_tracked_files"] = len(manifest_files)
@@ -516,7 +653,7 @@ def run_backup_pipeline(lists_only: bool = False, max_media_files: Optional[int]
         pass
 
     # =========================================================================
-    # 5. AUDIT REPORT & SUMMARY
+    # 6. AUDIT REPORT & SUMMARY
     # =========================================================================
     elapsed = time.time() - start_time
     report = {
@@ -527,6 +664,12 @@ def run_backup_pipeline(lists_only: bool = False, max_media_files: Optional[int]
             "projects": len(clean_projects),
             "expenses": len(clean_expenses),
             "incomes": len(clean_incomes)
+        },
+        "documents_sync": {
+            "casa_snapshot_backed_up": casa_snapshot_success,
+            "new_documents_transferred": docs_new_count,
+            "new_megabytes_transferred": round(docs_bytes_transferred / (1024*1024), 2),
+            "skipped_already_synced": docs_skipped_count
         },
         "media_sync": {
             "new_files_transferred": new_downloads_count,
@@ -554,6 +697,8 @@ def run_backup_pipeline(lists_only: bool = False, max_media_files: Optional[int]
     print("\n==================================================================")
     print(f"🎉 BACKUP COMPLETED IN {elapsed:.2f}s WITH STATUS: {report['status']}")
     print(f"📊 Projects: {len(clean_projects)} | Expenses: {len(clean_expenses)} | Income: {len(clean_incomes)}")
+    print(f"📑 CA-SA.xlsx Snapshot: {'Archived ✅' if casa_snapshot_success else 'Skipped/Failed ⚠️'}")
+    print(f"📄 Documents Mirror: {docs_new_count} newly synced, {docs_skipped_count} skipped ({docs_bytes_transferred / (1024*1024):.2f} MB)")
     print(f"💾 New Media: {new_downloads_count} files ({new_bytes_transferred / (1024*1024):.2f} MB)")
     print(f"🛡️ Throttling Events (HTTP 429/503): {sp.total_throttle_events} (Paced & Handled smoothly)")
     print("==================================================================")
