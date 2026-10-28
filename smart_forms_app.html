@@ -2748,6 +2748,13 @@
       text-decoration: underline;
     }
 
+    /* Auto hide subitem column when viewing income */
+    #period-tx-table.hide-subitem .col-period-subitem,
+    #period-tx-table.hide-subitem .th-period-subitem,
+    #period-tx-table.hide-subitem .td-subitem {
+      display: none !important;
+    }
+
     .proj-tx-empty,
     .proj-tx-loading {
       height: 100%;
@@ -3033,6 +3040,63 @@
     .btn-row-void:disabled {
       opacity: 0.45;
       cursor: not-allowed;
+    }
+
+    .btn-row-remove {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3px 8px;
+      font-size: 11px;
+      font-weight: 500;
+      border-radius: 4px;
+      border: 1px solid #fca5a5;
+      background: #fff5f5;
+      color: #dc2626;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      line-height: 1.4;
+      white-space: nowrap;
+    }
+    .btn-row-remove:hover {
+      background: #fee2e2;
+      border-color: #ef4444;
+      color: #b91c1c;
+    }
+
+    /* Pending void row visual styling */
+    .exp-batch-row.is-pending-void {
+      opacity: 0.45;
+      background-color: #fef2f2 !important;
+      transition: all 0.2s ease;
+    }
+    .exp-batch-row.is-pending-void td {
+      background-color: transparent !important;
+    }
+    .exp-batch-row.is-pending-void input {
+      background-color: #f1f5f9 !important;
+      color: #94a3b8 !important;
+      text-decoration: line-through;
+      pointer-events: none;
+      cursor: not-allowed;
+    }
+    .exp-batch-row.is-pending-void .exp-row-proj-btn {
+      pointer-events: none;
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .exp-batch-row.is-pending-void .btn-row-extract {
+      display: none !important;
+    }
+    .exp-batch-row.is-pending-void .btn-row-void {
+      background: #f1f5f9 !important;
+      border-color: #cbd5e1 !important;
+      color: #334155 !important;
+      font-weight: 600;
+    }
+    .exp-batch-row.is-pending-void .btn-row-void:hover {
+      background: #e2e8f0 !important;
+      color: #0f172a !important;
     }
 
     .btn-batch-add-candidate {
@@ -3988,13 +4052,19 @@
               <div class="period-range-text" id="period-range-label" style="margin-bottom:0;">
                 <span>統計區間：</span><span id="label-date-range" style="font-weight:600; color:var(--text-main);">讀取中...</span>
               </div>
-              <div class="pills-container" id="period-pills">
-                <button type="button" class="pill-btn active" data-period="month"
-                  onclick="selectPeriod('month')">本月</button>
-                <button type="button" class="pill-btn" data-period="quarter"
-                  onclick="selectPeriod('quarter')">本季</button>
-                <button type="button" class="pill-btn" data-period="year" onclick="selectPeriod('year')">本年</button>
-                <button type="button" class="pill-btn" data-period="hkfy" onclick="selectPeriod('hkfy')">本財政年度</button>
+              <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                <label class="underrecv-filter-label" title="勾選以排除項目名稱含有 'test' 的測試記錄">
+                  <input type="checkbox" id="period-filter-exclude-test" checked onchange="toggleDashboardExcludeTest(this.checked)">
+                  <span>排除測試項目 (含 'test')</span>
+                </label>
+                <div class="pills-container" id="period-pills">
+                  <button type="button" class="pill-btn active" data-period="month"
+                    onclick="selectPeriod('month')">本月</button>
+                  <button type="button" class="pill-btn" data-period="quarter"
+                    onclick="selectPeriod('quarter')">本季</button>
+                  <button type="button" class="pill-btn" data-period="year" onclick="selectPeriod('year')">本年</button>
+                  <button type="button" class="pill-btn" data-period="hkfy" onclick="selectPeriod('hkfy')">本財政年度</button>
+                </div>
               </div>
             </div>
 
@@ -4105,13 +4175,13 @@
             </div>
 
             <div class="proj-tx-table-container">
-              <table class="proj-tx-table">
+              <table class="proj-tx-table" id="period-tx-table">
                 <colgroup>
                   <col style="width: 58px;">
                   <col style="width: 100px;">
                   <col style="width: 130px;">
                   <col style="width: auto;">
-                  <col style="width: 85px;">
+                  <col class="col-period-subitem" style="width: 85px;">
                   <col style="width: auto;">
                   <col style="width: 120px;">
                   <col style="width: auto;">
@@ -4123,7 +4193,7 @@
                     <th>交易日期</th>
                     <th style="text-align: right;">金額</th>
                     <th>所屬項目</th>
-                    <th>小類</th>
+                    <th class="th-period-subitem">小類</th>
                     <th>收款人</th>
                     <th>發票號碼</th>
                     <th>備註</th>
@@ -4157,11 +4227,17 @@
               </div>
 
               <!-- Project Selector Combobox -->
-              <div class="project-picker-wrap" id="project-picker-wrap">
-                <input type="text" class="project-search-input" id="proj-search-input" placeholder="搜尋工程項目..."
-                  value="1881" autocomplete="off">
-                <span class="project-search-icon">▼</span>
-                <div class="project-dropdown" id="proj-dropdown"></div>
+              <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                <label class="underrecv-filter-label" title="勾選以排除項目名稱含有 'test' 的測試項目">
+                  <input type="checkbox" id="proj-filter-exclude-test" checked onchange="toggleDashboardExcludeTest(this.checked)">
+                  <span>排除測試項目 (含 'test')</span>
+                </label>
+                <div class="project-picker-wrap" id="project-picker-wrap">
+                  <input type="text" class="project-search-input" id="proj-search-input" placeholder="搜尋工程項目..."
+                    value="1881" autocomplete="off">
+                  <span class="project-search-icon">▼</span>
+                  <div class="project-dropdown" id="proj-dropdown"></div>
+                </div>
               </div>
             </div>
 
@@ -5242,9 +5318,10 @@
               startDate: p.startDate || ''
             }));
             sortDashboardProjects(dashboardProjectsList);
-            renderDashboardProjectDropdown(dashboardProjectsList);
+            const validProjects = getDashboardFilteredProjects();
+            renderDashboardProjectDropdown(validProjects);
             if (typeof selectedDashProject !== 'undefined' && selectedDashProject) {
-              const updated = dashboardProjectsList.find(x => x.id === selectedDashProject.id);
+              const updated = validProjects.find(x => x.id === selectedDashProject.id);
               if (updated) selectDashProject(updated);
             }
           }
@@ -7341,7 +7418,8 @@
       const btn = document.getElementById('edit-submit-btn');
       if (!btn) return;
       const isBatch = (selectedEditBatch && selectedEditBatch.length > 1);
-      const batchCount = isBatch ? selectedEditBatch.length : 0;
+      const batchCount = selectedEditBatch ? selectedEditBatch.length : 0;
+      const pendingVoidCount = selectedEditBatch ? selectedEditBatch.filter(x => x._pendingVoid).length : 0;
 
       if (state === 'saved') {
         btn.disabled = true;
@@ -7350,11 +7428,23 @@
       } else if (state === 'loading') {
         btn.disabled = true;
         btn.className = 'btn-submit';
-        btn.innerHTML = isBatch ? `正在批次更新 ${batchCount} 筆記錄中...` : '儲存修改中...';
+        if (pendingVoidCount > 0 && pendingVoidCount === batchCount) {
+          btn.innerHTML = batchCount > 1 ? `正在作廢全數分攤記錄 (${batchCount} 筆)...` : '正在作廢記錄...';
+        } else {
+          btn.innerHTML = isBatch ? `正在批次更新 ${batchCount} 筆記錄中...` : '儲存修改中...';
+        }
       } else { // 'idle' / 'dirty'
         btn.disabled = false;
         btn.className = 'btn-submit';
-        btn.innerHTML = isBatch ? `一次儲存更新全數分攤記錄 (${batchCount} 筆)` : '儲存修改並同步項目金額';
+        if (pendingVoidCount > 0) {
+          if (pendingVoidCount === batchCount) {
+            btn.innerHTML = batchCount > 1 ? `確認作廢全數分攤記錄 (${batchCount} 筆)` : '確認作廢此筆記錄';
+          } else {
+            btn.innerHTML = `儲存修改（含作廢 ${pendingVoidCount} 筆，保留 ${batchCount - pendingVoidCount} 筆）`;
+          }
+        } else {
+          btn.innerHTML = isBatch ? `一次儲存更新全數分攤記錄 (${batchCount} 筆)` : '儲存修改並同步項目金額';
+        }
       }
     }
 
@@ -7448,6 +7538,8 @@
 
         // Check each row in the batch against its original SharePoint snapshot (_orig)
         for (const item of selectedEditBatch) {
+          if (item._isNew) return false;
+          if (item._pendingVoid) return false;
           const orig = item._orig || item;
           if (newStatus !== (orig.status || '有效')) return false;
           if (newDateVal !== (orig.dateIso || '')) return false;
@@ -7811,13 +7903,17 @@
       items.forEach(t => {
         if (t && t.Id !== undefined) poolMap.set(String(t.Id), t);
       });
-      const allKnown = Array.from(poolMap.values());
+      // 僅納入非作廢的有效記錄
+      const allKnown = Array.from(poolMap.values()).filter(t => t && t.status !== '作廢' && t.status !== '作废');
 
       const seenCheques = new Set();
       const seenUnpaidIds = new Set();
       const grouped = [];
 
-      for (const tx of items) {
+      // 排除作廢項目
+      const activeItems = items.filter(t => t && t.status !== '作廢' && t.status !== '作废');
+
+      for (const tx of activeItems) {
         if (!tx) continue;
         const chq = (tx.cheque || '').trim();
         if (chq) {
@@ -7825,7 +7921,7 @@
           if (seenCheques.has(chqKey)) continue;
           seenCheques.add(chqKey);
 
-          let members = allKnown.filter(t => t && (t.cheque || '').trim().toUpperCase() === chqKey && (tx.status === '作廢' || t.status !== '作廢'));
+          let members = allKnown.filter(t => t && (t.cheque || '').trim().toUpperCase() === chqKey);
           if (members.length === 0) members = [tx];
           members.sort((a, b) => {
             const na = parseInt((a.Title || '').replace(/\D/g, ''), 10) || a.Id || 0;
@@ -7889,7 +7985,9 @@
 
         // Helper to query SharePoint with RenderListDataAsStream
         const queryCaml = async (whereClause, rowLimit = 50) => {
-          const camlXml = `<View><Query><Where>${whereClause}</Where><OrderBy><FieldRef Name='ID' Ascending='FALSE' /></OrderBy></Query><RowLimit>${rowLimit}</RowLimit></View>`;
+          const statusClause = `<Neq><FieldRef Name='RecordStatus' /><Value Type='Choice'>作廢</Value></Neq>`;
+          const finalWhere = whereClause ? `<And>${statusClause}${whereClause}</And>` : statusClause;
+          const camlXml = `<View><Query><Where>${finalWhere}</Where><OrderBy><FieldRef Name='ID' Ascending='FALSE' /></OrderBy></Query><RowLimit>${rowLimit}</RowLimit></View>`;
           const postPayload = JSON.stringify({ parameters: { RenderOptions: 2, ViewXml: camlXml } });
           const r = await spFetch(`${SITE_URL}/_api/web/lists(guid'${guid}')/RenderListDataAsStream`, {
             method: 'POST',
@@ -8009,7 +8107,7 @@
 
         if (seq !== editTxSearchSeq) return;
 
-        let newItems = rows.map(r => parseRowToTx(r, isExp));
+        let newItems = rows.map(r => parseRowToTx(r, isExp)).filter(it => it && it.status !== '作廢' && it.status !== '作废');
 
         // For expenses, if any returned records have a cheque, fetch all sibling rows for those cheques
         if (isExp && newItems.length > 0) {
@@ -8020,7 +8118,7 @@
               const chqBatchWhere = `<In><FieldRef Name='_x652f__x7968__x7de8__x865f_' /><Values>${valuesXml}</Values></In>`;
               const extraRows = await queryCaml(chqBatchWhere, 300);
               if (seq === editTxSearchSeq && extraRows && extraRows.length > 0) {
-                const extraItems = extraRows.map(r => parseRowToTx(r, true));
+                const extraItems = extraRows.map(r => parseRowToTx(r, true)).filter(it => it && it.status !== '作廢' && it.status !== '作废');
                 const itemMap = new Map();
                 newItems.forEach(it => itemMap.set(String(it.Id), it));
                 extraItems.forEach(it => itemMap.set(String(it.Id), it));
@@ -8064,8 +8162,9 @@
       dropdown.innerHTML = '';
       editTxSelectedIndex = -1;
 
+      const activeItems = (items || []).filter(t => t && t.status !== '作廢' && t.status !== '作废');
       const isExp = (currentEditType === 'expense');
-      filteredEditTransactions = isExp ? groupExpenseTransactionsForDropdown(items || []) : (items || []);
+      filteredEditTransactions = isExp ? groupExpenseTransactionsForDropdown(activeItems) : activeItems;
 
       const frag = document.createDocumentFragment();
 
@@ -8086,9 +8185,6 @@
           if (isSelected) {
             div.classList.add('selected');
           }
-
-          const isVoid = (tx.status === '作廢');
-          const statusBadge = `<span class="badge-status ${isVoid ? 'void' : 'valid'}">${escapeHtml(tx.status || '有效')}</span>`;
 
           if (isExp) {
             const totalAmt = tx._groupedAmount !== undefined ? tx._groupedAmount : (parseFloat(tx.amount) || 0);
@@ -8117,7 +8213,7 @@
               <span><strong style="color:#0f172a;">${primaryDisplay} - <span style="color:#b91c1c;">${amtStr}</span></strong>${splitBadge}</span>
             </div>
             <div class="combobox-item-meta" style="margin-top:3px;">
-              ${escapeHtml(tx.dateDisplay || tx.dateIso || '')} &nbsp;|&nbsp; 項目: ${escapeHtml(projSummary)} &nbsp;|&nbsp; ${statusBadge}
+              ${escapeHtml(tx.dateDisplay || tx.dateIso || '')} &nbsp;|&nbsp; 項目: ${escapeHtml(projSummary)}
               ${tx.payee ? ` &nbsp;|&nbsp; 收款: ${escapeHtml(tx.payee)}` : ''}
               ${uniqueInvs.length ? ` &nbsp;|&nbsp; 發票: ${escapeHtml(uniqueInvs.join('、'))}` : ''}
               ${tx.bank ? ` &nbsp;|&nbsp; 銀行: ${escapeHtml(tx.bank)}` : ''}
@@ -8139,7 +8235,7 @@
               <span style="font-weight:700; color:#15803d; flex-shrink:0; white-space:nowrap; margin-left:8px;">+${amtStr}</span>
             </div>
             <div class="combobox-item-meta" style="margin-top:3px;">
-              ${escapeHtml(tx.dateDisplay || '')} &nbsp;|&nbsp; 項目: ${escapeHtml(tx.projName || '無')} &nbsp;|&nbsp; ${statusBadge}
+              ${escapeHtml(tx.dateDisplay || '')} &nbsp;|&nbsp; 項目: ${escapeHtml(tx.projName || '無')}
               ${tx.bank ? ` &nbsp;|&nbsp; 銀行: ${escapeHtml(tx.bank)}` : ''}
               ${tx.remarks ? ` &nbsp;|&nbsp; 備註: ${escapeHtml(tx.remarks)}` : ''}
             </div>
@@ -8192,8 +8288,8 @@
 
       try {
         await getDigest();
-        // Load top 50 records by default for instant display when search is empty
-        const camlXml = "<View><Query><OrderBy><FieldRef Name='ID' Ascending='FALSE' /></OrderBy></Query><RowLimit>50</RowLimit></View>";
+        // Load top 50 records by default for instant display when search is empty (excluding void)
+        const camlXml = "<View><Query><Where><Neq><FieldRef Name='RecordStatus' /><Value Type='Choice'>作廢</Value></Neq></Where><OrderBy><FieldRef Name='ID' Ascending='FALSE' /></OrderBy></Query><RowLimit>50</RowLimit></View>";
         const postPayload = JSON.stringify({ parameters: { RenderOptions: 2, ViewXml: camlXml } });
 
         const res = await spFetch(`${SITE_URL}/_api/web/lists(guid'${guid}')/RenderListDataAsStream`, {
@@ -8213,7 +8309,7 @@
         const data = await res.json();
         const rows = (data && data.Row) ? data.Row : [];
 
-        let items = rows.map(r => parseRowToTx(r, isExp));
+        let items = rows.map(r => parseRowToTx(r, isExp)).filter(it => it && it.status !== '作廢' && it.status !== '作废');
 
         // For expenses, expand all cheques appearing in the top 50 to guarantee complete sums
         if (isExp && items.length > 0) {
@@ -8221,7 +8317,7 @@
           if (topCheques.length > 0) {
             try {
               const valuesXml = topCheques.slice(0, 50).map(c => `<Value Type='Text'>${c.replace(/[<>&'"]/g, '')}</Value>`).join('');
-              const chqBatchWhere = `<In><FieldRef Name='_x652f__x7968__x7de8__x865f_' /><Values>${valuesXml}</Values></In>`;
+              const chqBatchWhere = `<And><Neq><FieldRef Name='RecordStatus' /><Value Type='Choice'>作廢</Value></Neq><In><FieldRef Name='_x652f__x7968__x7de8__x865f_' /><Values>${valuesXml}</Values></In></And>`;
               const chqCaml = `<View><Query><Where>${chqBatchWhere}</Where><OrderBy><FieldRef Name='ID' Ascending='FALSE' /></OrderBy></Query><RowLimit>300</RowLimit></View>`;
               const chqPayload = JSON.stringify({ parameters: { RenderOptions: 2, ViewXml: chqCaml } });
               const chqRes = await spFetch(`${SITE_URL}/_api/web/lists(guid'${GUID_EXPENSE}')/RenderListDataAsStream`, {
@@ -8237,7 +8333,7 @@
                 const chqData = await chqRes.json();
                 const chqRows = (chqData && chqData.Row) ? chqData.Row : [];
                 if (chqRows.length > 0) {
-                  const chqItems = chqRows.map(r => parseRowToTx(r, true));
+                  const chqItems = chqRows.map(r => parseRowToTx(r, true)).filter(it => it && it.status !== '作廢' && it.status !== '作废');
                   const itemMap = new Map();
                   items.forEach(it => itemMap.set(String(it.Id), it));
                   chqItems.forEach(it => itemMap.set(String(it.Id), it));
@@ -8267,16 +8363,14 @@
       const chq = (tx.cheque || '').trim().toUpperCase();
       if (!chq) return [tx];
 
-      let matches = loadedEditTransactions.filter(t => t && (t.cheque || '').trim().toUpperCase() === chq && (tx.status === '作廢' || t.status !== '作廢'));
+      let matches = loadedEditTransactions.filter(t => t && (t.cheque || '').trim().toUpperCase() === chq && t.status !== '作廢' && t.status !== '作废');
 
       // Always query SharePoint for all records sharing this cheque to guarantee 100% complete batch membership
       try {
         await getDigest();
         const escapedQ = tx.cheque.replace(/[<>&'"]/g, '').trim();
-        const statusFilter = (tx.status === '作廢') ? '' : `<Neq><FieldRef Name='RecordStatus' /><Value Type='Choice'>作廢</Value></Neq>`;
-        const whereClause = statusFilter 
-          ? `<And><Eq><FieldRef Name='_x652f__x7968__x7de8__x865f_' /><Value Type='Text'>${escapedQ}</Value></Eq>${statusFilter}</And>`
-          : `<Eq><FieldRef Name='_x652f__x7968__x7de8__x865f_' /><Value Type='Text'>${escapedQ}</Value></Eq>`;
+        const statusFilter = `<Neq><FieldRef Name='RecordStatus' /><Value Type='Choice'>作廢</Value></Neq>`;
+        const whereClause = `<And><Eq><FieldRef Name='_x652f__x7968__x7de8__x865f_' /><Value Type='Text'>${escapedQ}</Value></Eq>${statusFilter}</And>`;
         const camlXml = `<View><Query><Where>${whereClause}</Where><OrderBy><FieldRef Name='ID' Ascending='TRUE' /></OrderBy></Query><RowLimit>300</RowLimit></View>`;
         const postPayload = JSON.stringify({ parameters: { RenderOptions: 2, ViewXml: camlXml } });
         const res = await spFetch(`${SITE_URL}/_api/web/lists(guid'${GUID_EXPENSE}')/RenderListDataAsStream`, {
@@ -8292,7 +8386,7 @@
           const data = await res.json();
           const rows = (data && data.Row) ? data.Row : [];
           if (rows.length > 0) {
-            const serverItems = rows.map(r => parseRowToTx(r, true));
+            const serverItems = rows.map(r => parseRowToTx(r, true)).filter(t => t && t.status !== '作廢' && t.status !== '作废');
             serverItems.forEach(item => {
               const ex = loadedEditTransactions.find(t => t.Id === item.Id);
               if (!ex) {
@@ -8772,20 +8866,26 @@
       if (!batchContainer || !selectedEditBatch || selectedEditBatch.length === 0) return;
 
       let totalBatchAmt = 0;
+      let pendingVoidCount = 0;
       selectedEditBatch.forEach(item => {
-        totalBatchAmt += (parseAmount(item.amount) || 0);
+        if (item._pendingVoid) {
+          pendingVoidCount++;
+        } else {
+          totalBatchAmt += (parseAmount(item.amount) || 0);
+        }
       });
 
       const isUnpaidBatch = (selectedEditTx && selectedEditTx.paymentStatus === '未付');
       const showExtractCol = (isUnpaidBatch && selectedEditBatch.length > 1);
 
       const rowsHtml = selectedEditBatch.map((item, idx) => {
+        const isNew = Boolean(item._isNew);
         const curProjName = item.projName || (item.projId ? ('項目 #' + item.projId) : '');
         const curInvoice = cleanInvoiceNoStr(item.invoiceNo || '');
         const curSubitem = item.subitem || '';
         const curAmt = (item.amount !== undefined && item.amount !== null && item.amount !== '') ? item.amount : '';
         return `
-        <tr id="edit-batch-row-${idx}">
+        <tr id="edit-batch-row-${idx}" class="exp-batch-row ${Boolean(item._pendingVoid) ? 'is-pending-void' : ''}">
           <td style="text-align: center;"><span class="exp-row-num">${idx + 1}</span></td>
           <td>
             <div class="exp-row-proj-box" id="edit-batch-proj-box-${idx}">
@@ -8793,12 +8893,13 @@
                      placeholder="輸入項目名稱或編號搜尋..."
                      value="${escapeHtml(curProjName)}"
                      autocomplete="off"
+                     ${Boolean(item._pendingVoid) ? 'disabled' : ''}
                      onfocus="onEditBatchRowProjFocus(${idx})"
                      oninput="onEditBatchRowProjInput(${idx}, this.value)"
                      onkeydown="onEditBatchRowProjKeydown(event, ${idx})">
               <button type="button" class="exp-row-proj-clear" id="edit-batch-proj-clear-${idx}"
                       onclick="clearEditBatchRowProj(${idx})"
-                      style="${item.projId ? 'display:flex' : 'display:none'}" title="清除選取">✕</button>
+                      style="${(item.projId && !item._pendingVoid) ? 'display:flex' : 'display:none'}" title="清除選取">✕</button>
               <div class="exp-row-proj-dropdown" id="edit-batch-proj-dropdown-${idx}"></div>
             </div>
           </td>
@@ -8807,6 +8908,7 @@
                    placeholder="發票號碼..."
                    value="${escapeHtml(curInvoice)}"
                    autocomplete="off"
+                   ${Boolean(item._pendingVoid) ? 'disabled' : ''}
                    oninput="onEditBatchRowInvoiceChange(${idx}, this.value)">
           </td>
           <td>
@@ -8814,25 +8916,33 @@
                    placeholder="例如：材料款、工程尾款..."
                    value="${escapeHtml(curSubitem)}"
                    autocomplete="off"
+                   ${Boolean(item._pendingVoid) ? 'disabled' : ''}
                    oninput="onEditBatchRowSubitemChange(${idx}, this.value)">
           </td>
           <td>
             <input type="text" inputmode="decimal" class="exp-row-amt-input" id="edit-batch-amt-${idx}"
                    placeholder="0.00"
                    value="${curAmt}"
+                   ${Boolean(item._pendingVoid) ? 'disabled' : ''}
                    oninput="onEditBatchRowAmtInput(${idx}, this)"
                    onblur="onEditBatchRowAmtBlur(${idx}, this)">
           </td>
           <td style="text-align: center; vertical-align: middle;">
             <div style="display:inline-flex; gap:6px; align-items:center; justify-content:center;">
-              ${showExtractCol ? `
+              ${isNew ? `
+              <button type="button" class="btn-row-remove" id="btn-remove-new-batch-${idx}" onclick="removeNewEditBatchRow(${idx})" title="刪除此筆新增項目">
+                <span>刪除</span>
+              </button>
+              ` : `
+              ${(showExtractCol && !item._pendingVoid) ? `
               <button type="button" class="btn-row-extract" id="btn-extract-batch-${idx}" onclick="extractSingleUnpaidFromBatch(${idx})" title="將此筆記錄獨立移出本批次">
                 <span>移出</span>
               </button>
               ` : ''}
-              <button type="button" class="btn-row-void" id="btn-void-batch-${idx}" onclick="voidSingleBatchItem(${idx})" title="將此筆記錄狀態設為「作廢」（不影響其他項目）">
-                <span>作廢</span>
+              <button type="button" class="btn-row-void ${Boolean(item._pendingVoid) ? 'is-pending' : ''}" id="btn-void-batch-${idx}" onclick="voidSingleBatchItem(${idx})" title="${Boolean(item._pendingVoid) ? '點擊取消標記作廢，保留此記錄' : '標記此記錄為「作廢」（點擊下方儲存按鈕後生效）'}">
+                <span>${Boolean(item._pendingVoid) ? '復原' : '作廢'}</span>
               </button>
+              `}
             </div>
           </td>
         </tr>
@@ -8849,7 +8959,7 @@
           </div>
           <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
             <div style="font-size:13px; color:#475569;">
-              合計總金額：<strong style="color:#dc2626; font-size:16px;" id="edit-batch-total-amt">$${totalBatchAmt.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+              合計總金額：<strong style="color:#dc2626; font-size:16px;" id="edit-batch-total-amt">$${totalBatchAmt.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}${pendingVoidCount > 0 ? ` <span style="font-size:12px; font-weight:500; color:#dc2626; margin-left:4px;">(已標記 ${pendingVoidCount} 筆作廢)</span>` : ''}</strong>
             </div>
             ${isUnpaidBatch ? `
             <button type="button" class="btn-batch-add-candidate" id="btn-batch-add-candidate" onclick="openAddCandidateModal()" title="尋找並加入相同收款人之其他未付記錄">
@@ -8874,6 +8984,11 @@
               ${rowsHtml}
             </tbody>
           </table>
+        </div>
+        <div class="exp-entries-footer" style="margin-top: 8px; justify-content: flex-start;">
+          <button type="button" class="btn-add-entry-row" id="btn-edit-add-batch-row" onclick="addNewEditBatchRow()">
+            + 新增項目分攤行
+          </button>
         </div>
       </div>
     `;
@@ -9039,19 +9154,28 @@
 
     function recalcEditBatchTotal() {
       if (!selectedEditBatch) return;
-      let sum = 0;
+      let activeSum = 0;
+      let pendingVoidCount = 0;
       selectedEditBatch.forEach(item => {
-        sum += (parseAmount(item.amount) || 0);
+        if (item._pendingVoid) {
+          pendingVoidCount++;
+        } else {
+          activeSum += (parseAmount(item.amount) || 0);
+        }
       });
 
       const totalEl = document.getElementById('edit-batch-total-amt');
       if (totalEl) {
-        totalEl.textContent = `$${sum.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        if (pendingVoidCount > 0) {
+          totalEl.innerHTML = `$${activeSum.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span style="font-size:12px; font-weight:500; color:#dc2626; margin-left:4px;">(已標記 ${pendingVoidCount} 筆作廢)</span>`;
+        } else {
+          totalEl.textContent = `$${activeSum.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        }
       }
 
       const mainAmtInput = document.getElementById('edit-amount');
       if (mainAmtInput) {
-        mainAmtInput.value = sum > 0 ? (Math.round(sum * 100) / 100) : '';
+        mainAmtInput.value = activeSum > 0 ? (Math.round(activeSum * 100) / 100) : '0';
       }
     }
 
@@ -9230,184 +9354,68 @@
     }
     window.extractSingleUnpaidFromBatch = extractSingleUnpaidFromBatch;
 
-    let isVoidingBatchItem = false;
-
-    async function voidSingleBatchItem(idx) {
-      if (isVoidingBatchItem || isExtractingBatchItem) return;
+    function voidSingleBatchItem(idx) {
       if (!selectedEditBatch || !selectedEditBatch[idx]) return;
-
-      const targetItem = selectedEditBatch[idx];
-      const targetProjName = targetItem.projName || (targetItem.projId ? `項目 #${targetItem.projId}` : '未指定項目');
-
-      isVoidingBatchItem = true;
-
-      // Disable all row action buttons in batch to prevent concurrent operations
-      const allActionBtns = document.querySelectorAll('.btn-row-void, .btn-row-extract');
-      allActionBtns.forEach(b => { b.disabled = true; });
-
-      const btn = document.getElementById(`btn-void-batch-${idx}`);
-      if (btn) {
-        btn.innerHTML = '<span>處理中...</span>';
-      }
-
-      const toast = document.getElementById('edit-toast') || document.getElementById('edit-tx-toast');
-      if (toast) {
-        toast.className = 'toast info';
-        toast.innerHTML = `正在將第 ${idx + 1} 筆分攤項目（${escapeHtml(targetProjName)}）設為作廢並更新 SharePoint...`;
-        toast.style.display = 'block';
-      }
-
-      try {
-        await getDigest();
-
-        const payload = {
-          "__metadata": { "type": "SP.Data.TransactionsListItem" },
-          "RecordStatus": "作廢"
-        };
-
-        let lastRes = null;
-        const maxRetries = 3;
-        for (let attempt = 0; attempt <= maxRetries; attempt++) {
-          lastRes = await spFetch(`${SITE_URL}/_api/web/lists(guid'${GUID_EXPENSE}')/items(${targetItem.Id})`, {
-            method: 'POST',
-            headers: {
-              'Accept': 'application/json;odata=verbose',
-              'Content-Type': 'application/json;odata=verbose',
-              'X-RequestDigest': digestValue,
-              'X-HTTP-Method': 'MERGE',
-              'If-Match': '*'
-            },
-            body: JSON.stringify(payload)
-          });
-
-          if (lastRes.status === 429 || lastRes.status === 503) {
-            let waitMs = 2000 * Math.pow(2, attempt);
-            const retryAfter = lastRes.headers ? lastRes.headers.get('Retry-After') : null;
-            if (retryAfter) {
-              const parsedSec = parseInt(retryAfter, 10);
-              if (!isNaN(parsedSec) && parsedSec > 0) waitMs = Math.max(waitMs, parsedSec * 1000);
-            }
-            if (attempt < maxRetries) {
-              console.warn(`[SharePoint Throttling] HTTP ${lastRes.status}. Backing off for ${waitMs}ms (attempt ${attempt + 1}/${maxRetries})...`);
-              if (toast) {
-                toast.innerHTML = `伺服器忙碌 (HTTP ${lastRes.status})，自動於 ${Math.ceil(waitMs / 1000)} 秒後重試...`;
-              }
-              await new Promise(r => setTimeout(r, waitMs));
-              continue;
-            }
-          }
-          break;
-        }
-
-        if (!lastRes || !lastRes.ok) {
-          const errText = lastRes ? await lastRes.text() : 'No response';
-          throw new Error(`HTTP ${lastRes ? lastRes.status : 'unknown'}: ${errText}`);
-        }
-
-        // Financial cost delta sync:
-        // If the record was valid ('有效') and paid ('已付'), voiding it removes its cost contribution from the project
-        const origPay = targetItem.paymentStatus || (targetItem.cheque ? '已付' : '未付');
-        let projDelta = null;
-        if (targetItem.projId && targetItem.status === '有效' && origPay !== '未付') {
-          projDelta = await syncProjectAmountDelta(
-            targetItem.projId,
-            targetItem.amount,
-            '有效',
-            targetItem.projId,
-            targetItem.amount,
-            '作廢',
-            'expense',
-            origPay,
-            origPay
-          );
-        }
-
-        // Update in-memory representations
-        targetItem.status = '作廢';
-        const inMem = loadedEditTransactions.find(t => t.Id === targetItem.Id);
-        if (inMem) {
-          inMem.status = '作廢';
-        }
-        if (targetItem.projId && projectTxCache[targetItem.projId]) {
-          const pTx = projectTxCache[targetItem.projId].find(t => t.id === targetItem.Id);
-          if (pTx) {
-            pTx.status = '作廢';
-          }
-        }
-
-        // Refresh project costs in dashboard if currently viewing affected project
-        if (selectedDashProject) {
-          updateDashProjectCosts(Number(selectedDashProject.id !== undefined ? selectedDashProject.id : selectedDashProject.Id));
-          renderProjectTxTable();
-        }
-
-        // Remove from selectedEditBatch
-        selectedEditBatch.splice(idx, 1);
-
-        if (selectedEditBatch.length === 0) {
-          cancelEditTransaction();
-          const mainToast = document.getElementById('edit-toast');
-          if (mainToast) {
-            mainToast.className = 'toast success';
-            mainToast.innerHTML = `<strong>分攤項目（${escapeHtml(targetProjName)}）已成功設為「作廢」！</strong><br><span style="font-size:12px;">該筆記錄狀態已更新為作廢，且不計入項目統計。</span>`;
-            mainToast.style.display = 'block';
-            setTimeout(() => { if (mainToast) mainToast.style.display = 'none'; }, 4500);
-          }
-          return;
-        }
-
-        // If the removed item was selectedEditTx, update selectedEditTx to the first remaining item
-        if (selectedEditTx && selectedEditTx.Id === targetItem.Id && selectedEditBatch.length > 0) {
-          selectedEditTx = Object.assign({}, selectedEditBatch[0]);
-          const idInp = document.getElementById('edit-tx-id');
-          if (idInp) idInp.value = selectedEditTx.Id;
-        }
-
-        recalcEditBatchTotal();
-
-        const isMulti = (selectedEditBatch.length > 1);
-        const dispIdEl = document.getElementById('edit-display-id');
-        if (dispIdEl) {
-          if (selectedEditTx.cheque) {
-            dispIdEl.textContent = isMulti ? `支票: ${selectedEditTx.cheque} (共 ${selectedEditBatch.length} 筆)` : `支票: ${selectedEditTx.cheque}`;
-          } else {
-            dispIdEl.textContent = isMulti ? `多項目批次 (共 ${selectedEditBatch.length} 筆)` : (selectedEditTx.paymentStatus === '未付' ? '未付支出記錄' : '支出記錄');
-          }
-        }
-
-        const searchInp = document.getElementById('edit-tx-search');
-        if (searchInp) {
-          searchInp.value = formatEditTxSearchLabel(selectedEditTx, selectedEditBatch);
-        }
-
-        renderEditBatchTable();
-
-        if (toast) {
-          toast.className = 'toast success';
-          let costNote = (projDelta && projDelta.length > 0) ? '，項目累計成本已扣減' : '';
-          toast.innerHTML = `<strong>第 ${idx + 1} 筆分攤項目（${escapeHtml(targetProjName)}）已成功設為「作廢」！</strong><br><span style="font-size:12px;">其餘 ${selectedEditBatch.length} 筆分攤項目保持不變${costNote}。</span>`;
-          toast.style.display = 'block';
-          setTimeout(() => {
-            if (toast && toast.className.includes('success')) toast.style.display = 'none';
-          }, 4500);
-        }
-
-      } catch (err) {
-        console.error("voidSingleBatchItem failed:", err);
-        if (toast) {
-          toast.className = 'toast error';
-          toast.innerHTML = `設為作廢失敗：${escapeHtml(err.message)}`;
-          toast.style.display = 'block';
-        }
-        if (btn) {
-          btn.innerHTML = '<span>作廢</span>';
-        }
-      } finally {
-        isVoidingBatchItem = false;
-        document.querySelectorAll('.btn-row-void, .btn-row-extract').forEach(b => { b.disabled = false; });
-      }
+      selectedEditBatch[idx]._pendingVoid = !selectedEditBatch[idx]._pendingVoid;
+      renderEditBatchTable();
+      recalcEditBatchTotal();
+      setEditSubmitButtonState('idle');
     }
     window.voidSingleBatchItem = voidSingleBatchItem;
+
+    function addNewEditBatchRow() {
+      if (!selectedEditBatch) {
+        if (selectedEditTx) {
+          selectedEditBatch = [Object.assign({}, selectedEditTx)];
+        } else {
+          return;
+        }
+      }
+      const count = selectedEditBatch.length;
+      const lastItem = count > 0 ? selectedEditBatch[count - 1] : null;
+      const lastSubitem = lastItem ? (lastItem.subitem || '') : '';
+      const lastInvoice = lastItem ? (lastItem.invoiceNo || '') : '';
+
+      const newRow = {
+        _isNew: true,
+        Id: null,
+        Title: '',
+        projId: null,
+        projName: '',
+        invoiceNo: lastInvoice,
+        subitem: lastSubitem || '其他',
+        amount: '',
+        status: '有效',
+        _pendingVoid: false
+      };
+
+      selectedEditBatch.push(newRow);
+      renderEditBatchTable();
+      recalcEditBatchTotal();
+      setEditSubmitButtonState('idle');
+
+      setTimeout(() => {
+        const newProjInp = document.getElementById(`edit-batch-proj-input-${selectedEditBatch.length - 1}`);
+        if (newProjInp) newProjInp.focus();
+      }, 50);
+    }
+    window.addNewEditBatchRow = addNewEditBatchRow;
+
+    function removeNewEditBatchRow(idx) {
+      if (!selectedEditBatch || !selectedEditBatch[idx]) return;
+      if (!selectedEditBatch[idx]._isNew) return;
+
+      selectedEditBatch.splice(idx, 1);
+
+      if (selectedEditBatch.length === 0 && selectedEditTx && selectedEditTx._orig) {
+        selectedEditBatch = [Object.assign({}, selectedEditTx._orig)];
+      }
+
+      renderEditBatchTable();
+      recalcEditBatchTotal();
+      setEditSubmitButtonState(checkIsEditTxUnchanged() ? 'saved' : 'idle');
+    }
+    window.removeNewEditBatchRow = removeNewEditBatchRow;
 
     let candidateTransactionsList = [];
 
@@ -10303,9 +10311,20 @@
 
           const count = selectedEditBatch.length;
 
-          // Validate each row has valid amount > 0
+          // Validate each active (non-void) row has valid project and amount > 0
           for (let i = 0; i < count; i++) {
             const it = selectedEditBatch[i];
+            if (it._pendingVoid) continue; // Skip validation for items marked for voiding/deletion
+            if (!it.projId) {
+              toast.className = 'toast error';
+              toast.innerHTML = `請為第 ${i + 1} 筆分攤項目選取工程項目！`;
+              toast.style.display = 'block';
+              const projInp = document.getElementById(`edit-batch-proj-input-${i}`);
+              if (projInp) projInp.focus();
+              setEditSubmitButtonState('idle');
+              isSubmittingEditTx = false;
+              return;
+            }
             const amt = parseAmount(it.amount);
             if (!amt || amt <= 0) {
               toast.className = 'toast error';
@@ -10320,23 +10339,30 @@
           }
 
           // Determine BatchId to set for batch items
+          const remainingActive = selectedEditBatch.filter(x => !x._pendingVoid);
           let batchIdToSet = "";
-          if (count > 1) {
+          if (remainingActive.length > 1) {
             batchIdToSet = selectedEditBatch.find(x => x.batchId && x.batchId.trim())?.batchId;
             if (!batchIdToSet) {
-              const firstTitle = selectedEditBatch[0].Title || ('ID' + selectedEditBatch[0].Id);
+              const firstWithTitle = selectedEditBatch.find(x => x.Title && x.Title.trim());
+              const firstTitle = firstWithTitle ? firstWithTitle.Title : ('ID' + (selectedEditBatch[0].Id || Date.now()));
               batchIdToSet = `BATCH-${firstTitle}`;
             }
-          } else {
-            batchIdToSet = selectedEditBatch[0].batchId || "";
+          } else if (remainingActive.length === 1) {
+            batchIdToSet = remainingActive[0].batchId || "";
           }
 
           const syncResults = [];
           const submitBtn = document.getElementById('edit-submit-btn');
+          let voidCount = 0;
+          let updateCount = 0;
+          let createdCount = 0;
 
           for (let i = 0; i < count; i++) {
             const item = selectedEditBatch[i];
             const orig = item._orig || item;
+            const isRowVoid = Boolean(item._pendingVoid);
+            const isRowNew = Boolean(item._isNew);
             const rowProjId = item.projId ? parseInt(item.projId, 10) : null;
             const rowSubitem = (item.subitem || '').trim() || '其他';
             const rowRemarks = batchRemarks;
@@ -10344,157 +10370,388 @@
             const rowInvoice = cleanInvoiceNoStr(item.invoiceNo || '').trim();
 
             if (submitBtn) {
-              submitBtn.innerHTML = `正在更新第 ${i + 1} / ${count} 筆 (${escapeHtml(item.projName || '分攤項目')})...`;
+              const actionLabel = isRowVoid ? '正在作廢' : (isRowNew ? '正在新增' : '正在更新');
+              submitBtn.innerHTML = `${actionLabel}第 ${i + 1} / ${count} 筆 (${escapeHtml(item.projName || '分攤項目')})...`;
             }
 
-            const payload = {
-              "__metadata": { "type": "SP.Data.TransactionsListItem" },
-              "OData__x4ea4__x6613__x6642__x9593_": new Date(newDateVal).toISOString(),
-              "RecordStatus": newStatus,
-              "OData__x652f__x7968__x7de8__x865f_": chqNum,
-              "Invoice_x0020_No_x002e_": rowInvoice,
-              "OData__x8f49__x5e33__x9280__x884c_": bankVal,
-              "OData__x6536__x6b3e__x4eba_": payeeVal,
-              "OData__x4ed8__x6b3e__x72c0__x614b_": editPayStatus,
-              "OData__x6240__x5c6c__x9805__x76ee_Id": rowProjId,
-              "OData__x5b50__x9805__x76ee_": rowSubitem,
-              "Remarks": rowRemarks,
-              "OData__x91d1__x984d_": rowAmount,
-              "BatchId": (count > 1) ? batchIdToSet : (item.batchId || ""),
-              "IsIndependent": (count > 1) ? false : (item.isIndependent === true)
-            };
-
-            if (newFileUrl) {
-              payload["OData__x6536__x64da__x9023__x7d50_"] = {
-                "__metadata": { "type": "SP.FieldUrlValue" },
-                "Url": newFileUrl,
-                "Description": newFileName
+            if (isRowVoid) {
+              const payload = {
+                "__metadata": { "type": "SP.Data.TransactionsListItem" },
+                "RecordStatus": "作廢"
               };
-            } else if (existingBatchReceiptUrl && editPayStatus !== '未付') {
-              payload["OData__x6536__x64da__x9023__x7d50_"] = {
-                "__metadata": { "type": "SP.FieldUrlValue" },
-                "Url": existingBatchReceiptUrl,
-                "Description": existingBatchReceiptDesc
-              };
-            }
 
-            // Throttling protection: exponential backoff + Retry-After inspection
-            let lastRes = null;
-            const maxRetries = 3;
-            for (let attempt = 0; attempt <= maxRetries; attempt++) {
-              lastRes = await spFetch(`${SITE_URL}/_api/web/lists(guid'${GUID_EXPENSE}')/items(${item.Id})`, {
-                method: 'POST',
-                headers: {
-                  'Accept': 'application/json;odata=verbose',
-                  'Content-Type': 'application/json;odata=verbose',
-                  'X-RequestDigest': digestValue,
-                  'X-HTTP-Method': 'MERGE',
-                  'If-Match': '*'
-                },
-                body: JSON.stringify(payload)
-              });
+              let lastRes = null;
+              const maxRetries = 3;
+              for (let attempt = 0; attempt <= maxRetries; attempt++) {
+                lastRes = await spFetch(`${SITE_URL}/_api/web/lists(guid'${GUID_EXPENSE}')/items(${item.Id})`, {
+                  method: 'POST',
+                  headers: {
+                    'Accept': 'application/json;odata=verbose',
+                    'Content-Type': 'application/json;odata=verbose',
+                    'X-RequestDigest': digestValue,
+                    'X-HTTP-Method': 'MERGE',
+                    'If-Match': '*'
+                  },
+                  body: JSON.stringify(payload)
+                });
 
-              if (lastRes.status === 429 || lastRes.status === 503) {
-                let waitMs = 2000 * Math.pow(2, attempt);
-                const retryAfter = lastRes.headers ? lastRes.headers.get('Retry-After') : null;
-                if (retryAfter) {
-                  const parsedSec = parseInt(retryAfter, 10);
-                  if (!isNaN(parsedSec) && parsedSec > 0) waitMs = Math.max(waitMs, parsedSec * 1000);
-                }
-                if (attempt < maxRetries) {
-                  console.warn(`[SharePoint Throttling] HTTP ${lastRes.status}. Backing off for ${waitMs}ms (attempt ${attempt + 1}/${maxRetries})...`);
-                  if (submitBtn) {
-                    submitBtn.innerHTML = `伺服器忙碌，${Math.ceil(waitMs / 1000)} 秒後重試第 ${i + 1} 筆...`;
+                if (lastRes.status === 429 || lastRes.status === 503) {
+                  let waitMs = 2000 * Math.pow(2, attempt);
+                  const retryAfter = lastRes.headers ? lastRes.headers.get('Retry-After') : null;
+                  if (retryAfter) {
+                    const parsedSec = parseInt(retryAfter, 10);
+                    if (!isNaN(parsedSec) && parsedSec > 0) waitMs = Math.max(waitMs, parsedSec * 1000);
                   }
-                  await new Promise(r => setTimeout(r, waitMs));
-                  continue;
+                  if (attempt < maxRetries) {
+                    console.warn(`[SharePoint Throttling] HTTP ${lastRes.status}. Backing off for ${waitMs}ms (attempt ${attempt + 1}/${maxRetries})...`);
+                    if (submitBtn) {
+                      submitBtn.innerHTML = `伺服器忙碌，${Math.ceil(waitMs / 1000)} 秒後重試第 ${i + 1} 筆...`;
+                    }
+                    await new Promise(r => setTimeout(r, waitMs));
+                    continue;
+                  }
                 }
+                break;
               }
-              break;
-            }
 
-            if (!lastRes || !lastRes.ok) {
-              const errText = lastRes ? await lastRes.text() : 'No response';
-              throw new Error(`更新第 ${i + 1} 筆分攤記錄失敗 (${lastRes ? lastRes.status : 'unknown'}): ${errText}`);
-            }
+              if (!lastRes || !lastRes.ok) {
+                const errText = lastRes ? await lastRes.text() : 'No response';
+                throw new Error(`作廢第 ${i + 1} 筆分攤記錄失敗 (${lastRes ? lastRes.status : 'unknown'}): ${errText}`);
+              }
 
-            // Financial cost sync: calculate delta between original and new values
-            const oldPay = orig.paymentStatus || (orig.cheque ? '已付' : '未付');
-            const projDelta = await syncProjectAmountDelta(
-              orig.projId,
-              orig.amount,
-              orig.status,
-              rowProjId,
-              rowAmount,
-              newStatus,
-              'expense',
-              oldPay,
-              editPayStatus
-            );
-            if (projDelta && projDelta.length > 0) {
-              syncResults.push(...projDelta);
-            }
+              voidCount++;
+              const oldPay = orig.paymentStatus || (orig.cheque ? '已付' : '未付');
+              const projDelta = await syncProjectAmountDelta(
+                orig.projId,
+                orig.amount,
+                orig.status || '有效',
+                orig.projId,
+                orig.amount,
+                '作廢',
+                'expense',
+                oldPay,
+                oldPay
+              );
+              if (projDelta && projDelta.length > 0) {
+                syncResults.push(...projDelta);
+              }
 
-            // Update in-memory item
-            item.paymentStatus = editPayStatus;
-            item.cheque = chqNum;
-            item.bank = bankVal;
-            item.payee = payeeVal;
-            item.status = newStatus;
-            item.dateIso = newDateVal;
-            item.projId = rowProjId;
-            item.subitem = rowSubitem;
-            item.remarks = rowRemarks;
-            item.invoiceNo = rowInvoice;
-            item.amount = rowAmount;
-            item.batchId = payload["BatchId"];
-            item.isIndependent = payload["IsIndependent"];
-            if (newFileUrl) {
-              item.receiptUrl = newFileUrl;
-              item.receiptDesc = newFileName;
-            } else if (existingBatchReceiptUrl && editPayStatus !== '未付') {
-              item.receiptUrl = existingBatchReceiptUrl;
-              item.receiptDesc = existingBatchReceiptDesc;
-            }
+              item.status = '作廢';
+              item._pendingVoid = false;
 
-            item._orig = {
-              projId: rowProjId,
-              projName: item.projName,
-              subitem: rowSubitem,
-              remarks: rowRemarks,
-              amount: rowAmount,
-              status: newStatus,
-              paymentStatus: editPayStatus,
-              invoiceNo: rowInvoice,
-              dateIso: newDateVal,
-              cheque: chqNum,
-              bank: bankVal,
-              payee: payeeVal,
-              receiptUrl: item.receiptUrl || '',
-              receiptDesc: item.receiptDesc || ''
-            };
+              loadedEditTransactions = (loadedEditTransactions || []).filter(t => t.Id !== item.Id);
+              if (orig.projId && projectTxCache[orig.projId]) {
+                projectTxCache[orig.projId] = projectTxCache[orig.projId].filter(t => t.id !== item.Id && t.title !== item.Title);
+              }
 
-            const inMem = loadedEditTransactions.find(t => t.Id === item.Id);
-            if (inMem) {
-              Object.assign(inMem, item);
-            }
+            } else if (isRowNew) {
+              createdCount++;
+              const newExpNum = ++maxNumbers.exp;
+              const expTitle = `EXP-${String(newExpNum).padStart(7, '0')}`;
+              try {
+                localStorage.setItem('ck_max_numbers', JSON.stringify(maxNumbers));
+              } catch (_) { }
 
-            // Update projectTxCache if present
-            if (orig.projId && projectTxCache[orig.projId] && orig.projId !== rowProjId) {
-              projectTxCache[orig.projId] = projectTxCache[orig.projId].filter(t => t.id !== item.Id && t.title !== item.Title);
-            }
-            if (rowProjId && projectTxCache[rowProjId]) {
-              const pTx = projectTxCache[rowProjId].find(t => t.id === item.Id || t.title === item.Title);
-              if (pTx) {
-                pTx.paymentStatus = editPayStatus;
-                pTx.cheque = chqNum;
-                pTx.amount = rowAmount;
-                pTx.subitem = rowSubitem;
-                pTx.remarks = rowRemarks;
-                pTx.invoiceNo = rowInvoice;
-                if (item.receiptUrl) {
-                  pTx.receipt = item.receiptUrl;
-                  pTx.receiptDesc = item.receiptDesc;
+              const payload = {
+                "__metadata": { "type": "SP.Data.TransactionsListItem" },
+                "Title": expTitle,
+                "OData__x4ea4__x6613__x6642__x9593_": new Date(newDateVal).toISOString(),
+                "RecordStatus": newStatus,
+                "OData__x652f__x7968__x7de8__x865f_": chqNum,
+                "Invoice_x0020_No_x002e_": rowInvoice,
+                "OData__x8f49__x5e33__x9280__x884c_": bankVal,
+                "OData__x6536__x6b3e__x4eba_": payeeVal,
+                "OData__x4ed8__x6b3e__x72c0__x614b_": editPayStatus,
+                "OData__x6240__x5c6c__x9805__x76ee_Id": rowProjId,
+                "OData__x5b50__x9805__x76ee_": rowSubitem,
+                "Remarks": rowRemarks,
+                "OData__x91d1__x984d_": rowAmount,
+                "BatchId": (remainingActive.length > 1) ? batchIdToSet : "",
+                "IsIndependent": false
+              };
+
+              if (newFileUrl) {
+                payload["OData__x6536__x64da__x9023__x7d50_"] = {
+                  "__metadata": { "type": "SP.FieldUrlValue" },
+                  "Url": newFileUrl,
+                  "Description": newFileName
+                };
+              } else if (existingBatchReceiptUrl && editPayStatus !== '未付') {
+                payload["OData__x6536__x64da__x9023__x7d50_"] = {
+                  "__metadata": { "type": "SP.FieldUrlValue" },
+                  "Url": existingBatchReceiptUrl,
+                  "Description": existingBatchReceiptDesc
+                };
+              }
+
+              let lastRes = null;
+              const maxRetries = 3;
+              for (let attempt = 0; attempt <= maxRetries; attempt++) {
+                lastRes = await spFetch(`${SITE_URL}/_api/web/lists(guid'${GUID_EXPENSE}')/items`, {
+                  method: 'POST',
+                  headers: {
+                    'Accept': 'application/json;odata=verbose',
+                    'Content-Type': 'application/json;odata=verbose',
+                    'X-RequestDigest': digestValue
+                  },
+                  body: JSON.stringify(payload)
+                });
+
+                if (lastRes.status === 429 || lastRes.status === 503) {
+                  let waitMs = 2000 * Math.pow(2, attempt);
+                  const retryAfter = lastRes.headers ? lastRes.headers.get('Retry-After') : null;
+                  if (retryAfter) {
+                    const parsedSec = parseInt(retryAfter, 10);
+                    if (!isNaN(parsedSec) && parsedSec > 0) waitMs = Math.max(waitMs, parsedSec * 1000);
+                  }
+                  if (attempt < maxRetries) {
+                    console.warn(`[SharePoint Throttling] HTTP ${lastRes.status}. Backing off for ${waitMs}ms (attempt ${attempt + 1}/${maxRetries})...`);
+                    if (submitBtn) {
+                      submitBtn.innerHTML = `伺服器忙碌，${Math.ceil(waitMs / 1000)} 秒後重試新增第 ${i + 1} 筆...`;
+                    }
+                    await new Promise(r => setTimeout(r, waitMs));
+                    continue;
+                  }
+                }
+                break;
+              }
+
+              if (!lastRes || !lastRes.ok) {
+                const errText = lastRes ? await lastRes.text() : 'No response';
+                throw new Error(`新增第 ${i + 1} 筆分攤記錄失敗 (${lastRes ? lastRes.status : 'unknown'}): ${errText}`);
+              }
+
+              const createdJson = await lastRes.json();
+              const createdId = createdJson.d ? createdJson.d.Id : createdJson.Id;
+
+              item.Id = createdId;
+              item.Title = expTitle;
+              item._isNew = false;
+              item.paymentStatus = editPayStatus;
+              item.cheque = chqNum;
+              item.bank = bankVal;
+              item.payee = payeeVal;
+              item.status = newStatus;
+              item.dateIso = newDateVal;
+              item.projId = rowProjId;
+              item.subitem = rowSubitem;
+              item.remarks = rowRemarks;
+              item.invoiceNo = rowInvoice;
+              item.amount = rowAmount;
+              item.batchId = payload["BatchId"];
+              item.isIndependent = payload["IsIndependent"];
+              if (newFileUrl) {
+                item.receiptUrl = newFileUrl;
+                item.receiptDesc = newFileName;
+              } else if (existingBatchReceiptUrl && editPayStatus !== '未付') {
+                item.receiptUrl = existingBatchReceiptUrl;
+                item.receiptDesc = existingBatchReceiptDesc;
+              }
+
+              item._orig = {
+                projId: rowProjId,
+                projName: item.projName,
+                subitem: rowSubitem,
+                remarks: rowRemarks,
+                amount: rowAmount,
+                status: newStatus,
+                paymentStatus: editPayStatus,
+                invoiceNo: rowInvoice,
+                dateIso: newDateVal,
+                cheque: chqNum,
+                bank: bankVal,
+                payee: payeeVal,
+                receiptUrl: item.receiptUrl || '',
+                receiptDesc: item.receiptDesc || ''
+              };
+
+              // Delta project sync for new item
+              const projDelta = await syncProjectAmountDelta(
+                null,
+                0,
+                '作廢',
+                rowProjId,
+                rowAmount,
+                newStatus,
+                'expense',
+                '未付',
+                editPayStatus
+              );
+              if (projDelta && projDelta.length > 0) {
+                syncResults.push(...projDelta);
+              }
+
+              loadedEditTransactions.unshift(Object.assign({}, item));
+              if (rowProjId && projectTxCache[rowProjId]) {
+                projectTxCache[rowProjId].unshift({
+                  id: item.Id,
+                  title: item.Title,
+                  date: item.dateIso,
+                  type: 'expense',
+                  amount: item.amount,
+                  subitem: item.subitem,
+                  remarks: item.remarks,
+                  paymentStatus: item.paymentStatus,
+                  cheque: item.cheque,
+                  bank: item.bank,
+                  payee: item.payee,
+                  receipt: item.receiptUrl,
+                  receiptDesc: item.receiptDesc,
+                  invoiceNo: item.invoiceNo
+                });
+              }
+
+            } else {
+              // Existing row update (MERGE)
+              updateCount++;
+              const payload = {
+                "__metadata": { "type": "SP.Data.TransactionsListItem" },
+                "OData__x4ea4__x6613__x6642__x9593_": new Date(newDateVal).toISOString(),
+                "RecordStatus": newStatus,
+                "OData__x652f__x7968__x7de8__x865f_": chqNum,
+                "Invoice_x0020_No_x002e_": rowInvoice,
+                "OData__x8f49__x5e33__x9280__x884c_": bankVal,
+                "OData__x6536__x6b3e__x4eba_": payeeVal,
+                "OData__x4ed8__x6b3e__x72c0__x614b_": editPayStatus,
+                "OData__x6240__x5c6c__x9805__x76ee_Id": rowProjId,
+                "OData__x5b50__x9805__x76ee_": rowSubitem,
+                "Remarks": rowRemarks,
+                "OData__x91d1__x984d_": rowAmount,
+                "BatchId": (remainingActive.length > 1) ? batchIdToSet : (item.batchId || ""),
+                "IsIndependent": (remainingActive.length > 1) ? false : (item.isIndependent === true)
+              };
+
+              if (newFileUrl) {
+                payload["OData__x6536__x64da__x9023__x7d50_"] = {
+                  "__metadata": { "type": "SP.FieldUrlValue" },
+                  "Url": newFileUrl,
+                  "Description": newFileName
+                };
+              } else if (existingBatchReceiptUrl && editPayStatus !== '未付') {
+                payload["OData__x6536__x64da__x9023__x7d50_"] = {
+                  "__metadata": { "type": "SP.FieldUrlValue" },
+                  "Url": existingBatchReceiptUrl,
+                  "Description": existingBatchReceiptDesc
+                };
+              }
+
+              let lastRes = null;
+              const maxRetries = 3;
+              for (let attempt = 0; attempt <= maxRetries; attempt++) {
+                lastRes = await spFetch(`${SITE_URL}/_api/web/lists(guid'${GUID_EXPENSE}')/items(${item.Id})`, {
+                  method: 'POST',
+                  headers: {
+                    'Accept': 'application/json;odata=verbose',
+                    'Content-Type': 'application/json;odata=verbose',
+                    'X-RequestDigest': digestValue,
+                    'X-HTTP-Method': 'MERGE',
+                    'If-Match': '*'
+                  },
+                  body: JSON.stringify(payload)
+                });
+
+                if (lastRes.status === 429 || lastRes.status === 503) {
+                  let waitMs = 2000 * Math.pow(2, attempt);
+                  const retryAfter = lastRes.headers ? lastRes.headers.get('Retry-After') : null;
+                  if (retryAfter) {
+                    const parsedSec = parseInt(retryAfter, 10);
+                    if (!isNaN(parsedSec) && parsedSec > 0) waitMs = Math.max(waitMs, parsedSec * 1000);
+                  }
+                  if (attempt < maxRetries) {
+                    console.warn(`[SharePoint Throttling] HTTP ${lastRes.status}. Backing off for ${waitMs}ms (attempt ${attempt + 1}/${maxRetries})...`);
+                    if (submitBtn) {
+                      submitBtn.innerHTML = `伺服器忙碌，${Math.ceil(waitMs / 1000)} 秒後重試第 ${i + 1} 筆...`;
+                    }
+                    await new Promise(r => setTimeout(r, waitMs));
+                    continue;
+                  }
+                }
+                break;
+              }
+
+              if (!lastRes || !lastRes.ok) {
+                const errText = lastRes ? await lastRes.text() : 'No response';
+                throw new Error(`更新第 ${i + 1} 筆分攤記錄失敗 (${lastRes ? lastRes.status : 'unknown'}): ${errText}`);
+              }
+
+              // Financial cost sync: calculate delta between original and new values
+              const oldPay = orig.paymentStatus || (orig.cheque ? '已付' : '未付');
+              const projDelta = await syncProjectAmountDelta(
+                orig.projId,
+                orig.amount,
+                orig.status,
+                rowProjId,
+                rowAmount,
+                newStatus,
+                'expense',
+                oldPay,
+                editPayStatus
+              );
+              if (projDelta && projDelta.length > 0) {
+                syncResults.push(...projDelta);
+              }
+
+              // Update in-memory item
+              item.paymentStatus = editPayStatus;
+              item.cheque = chqNum;
+              item.bank = bankVal;
+              item.payee = payeeVal;
+              item.status = newStatus;
+              item.dateIso = newDateVal;
+              item.projId = rowProjId;
+              item.subitem = rowSubitem;
+              item.remarks = rowRemarks;
+              item.invoiceNo = rowInvoice;
+              item.amount = rowAmount;
+              item.batchId = payload["BatchId"];
+              item.isIndependent = payload["IsIndependent"];
+              if (newFileUrl) {
+                item.receiptUrl = newFileUrl;
+                item.receiptDesc = newFileName;
+              } else if (existingBatchReceiptUrl && editPayStatus !== '未付') {
+                item.receiptUrl = existingBatchReceiptUrl;
+                item.receiptDesc = existingBatchReceiptDesc;
+              }
+
+              item._orig = {
+                projId: rowProjId,
+                projName: item.projName,
+                subitem: rowSubitem,
+                remarks: rowRemarks,
+                amount: rowAmount,
+                status: newStatus,
+                paymentStatus: editPayStatus,
+                invoiceNo: rowInvoice,
+                dateIso: newDateVal,
+                cheque: chqNum,
+                bank: bankVal,
+                payee: payeeVal,
+                receiptUrl: item.receiptUrl || '',
+                receiptDesc: item.receiptDesc || ''
+              };
+
+              const inMem = loadedEditTransactions.find(t => t.Id === item.Id);
+              if (inMem) {
+                Object.assign(inMem, item);
+              }
+
+              // Update projectTxCache if present
+              if (orig.projId && projectTxCache[orig.projId] && orig.projId !== rowProjId) {
+                projectTxCache[orig.projId] = projectTxCache[orig.projId].filter(t => t.id !== item.Id && t.title !== item.Title);
+              }
+              if (rowProjId && projectTxCache[rowProjId]) {
+                const pTx = projectTxCache[rowProjId].find(t => t.id === item.Id || t.title === item.Title);
+                if (pTx) {
+                  pTx.paymentStatus = editPayStatus;
+                  pTx.cheque = chqNum;
+                  pTx.amount = rowAmount;
+                  pTx.subitem = rowSubitem;
+                  pTx.remarks = rowRemarks;
+                  pTx.invoiceNo = rowInvoice;
+                  if (item.receiptUrl) {
+                    pTx.receipt = item.receiptUrl;
+                    pTx.receiptDesc = item.receiptDesc;
+                  }
                 }
               }
             }
@@ -10505,12 +10762,39 @@
             }
           }
 
-          if (editPayStatus === '已付' && chqNum) {
+          if (editPayStatus === '已付' && chqNum && (updateCount > 0 || createdCount > 0)) {
             updateMaxNumbersFromCheque(chqNum);
           }
 
-          // Also update selectedEditTx
+          // Remove voided items from selectedEditBatch
+          selectedEditBatch = selectedEditBatch.filter(it => it.status !== '作廢');
+
+          // Case A: All items in batch were marked void
+          if (selectedEditBatch.length === 0) {
+            cancelEditTransaction();
+            if (selectedDashProject) {
+              updateDashProjectCosts(Number(selectedDashProject.id !== undefined ? selectedDashProject.id : selectedDashProject.Id));
+              renderProjectTxTable();
+            }
+            toast.className = 'toast success';
+            let msg = `<strong>全數分攤項目（共 ${voidCount} 筆）已成功設為「作廢」！</strong><br>`;
+            if (syncResults.length > 0) {
+              syncResults.forEach(sr => {
+                const p = allProjects.find(item => item.Id === sr.projId);
+                const pName = p ? p.Title : `#${sr.projId}`;
+                const deltaSign = sr.delta > 0 ? `+${sr.delta}` : `${sr.delta}`;
+                msg += `<span style="font-size:12px;opacity:0.95;">項目「${escapeHtml(pName)}」累計成本變動：<strong>${deltaSign}</strong> (更新後：成本=$${sr.res.cost?.toLocaleString() || '-'})</span><br>`;
+              });
+            }
+            toast.innerHTML = msg;
+            toast.style.display = 'block';
+            setEditSubmitButtonState('saved');
+            return;
+          }
+
+          // Case B: Active items remain in batch
           Object.assign(selectedEditTx, selectedEditBatch[0]);
+          const remainingCount = selectedEditBatch.length;
 
           if (newFileUrl) {
             const receiptLink = document.getElementById('edit-current-receipt-link');
@@ -10535,13 +10819,14 @@
           const dispIdEl = document.getElementById('edit-display-id');
           if (dispIdEl) {
             if (chqNum) {
-              dispIdEl.textContent = count > 1 ? `支票: ${chqNum} (共 ${count} 筆)` : `支票: ${chqNum}`;
+              dispIdEl.textContent = remainingCount > 1 ? `支票: ${chqNum} (共 ${remainingCount} 筆)` : `支票: ${chqNum}`;
             } else {
-              dispIdEl.textContent = count > 1 ? `多項目批次 (共 ${count} 筆)` : (editPayStatus === '未付' ? '未付支出記錄' : '支出記錄');
+              dispIdEl.textContent = remainingCount > 1 ? `多項目批次 (共 ${remainingCount} 筆)` : (editPayStatus === '未付' ? '未付支出記錄' : '支出記錄');
             }
           }
 
-          // Re-render batch table
+          // Recalculate & re-render batch table
+          recalcEditBatchTotal();
           renderEditBatchTable();
 
           // Refresh dashboard if viewing affected project
@@ -10551,13 +10836,41 @@
           }
 
           toast.className = 'toast success';
-          let msg = count > 1 
-            ? `<strong>全數分攤記錄（共 ${count} 筆）已成功更新！</strong><br>`
-            : `<strong>${chqNum ? `支票「${escapeHtml(chqNum)}」分攤記錄` : '分攤支出記錄'}已成功更新！</strong><br>`;
-          msg += `付款狀態：<strong style="color:${editPayStatus === '已付' ? '#059669' : '#d97706'};">${editPayStatus}</strong> ｜ 支票編號：<strong>${chqNum || '(無)'}</strong> ｜ 轉賬銀行：${escapeHtml(bankVal)}<br>`;
+          let msg = '';
+          const parts = [];
+          if (createdCount > 0) parts.push(`新增 ${createdCount} 筆`);
+          if (updateCount > 0) parts.push(`更新 ${updateCount} 筆`);
+          if (voidCount > 0) parts.push(`作廢 ${voidCount} 筆`);
+          if (parts.length > 0) {
+            msg = `<strong>分攤記錄已成功儲存（${parts.join('，')}）！</strong><br>`;
+          } else {
+            msg = remainingCount > 1 
+              ? `<strong>全數分攤記錄（共 ${remainingCount} 筆）已成功更新！</strong><br>`
+              : `<strong>${chqNum ? `支票「${escapeHtml(chqNum)}」分攤記錄` : '分攤支出記錄'}已成功更新！</strong><br>`;
+          }
+          if (updateCount > 0 || createdCount > 0) {
+            msg += `付款狀態：<strong style="color:${editPayStatus === '已付' ? '#059669' : '#d97706'};">${editPayStatus}</strong> ｜ 支票編號：<strong>${chqNum || '(無)'}</strong> ｜ 轉賬銀行：${escapeHtml(bankVal)}<br>`;
+          }
           if (newFileUrl) {
-            msg += count > 1 
-              ? `<span style="font-size:12px;">新收據檔案已自動關聯至全數 ${count} 筆記錄。</span><br>`
+            msg += remainingCount > 1 
+              ? `<span style="font-size:12px;">新收據檔案已自動關聯至全數 ${remainingCount} 筆記錄。</span><br>`
+              : `<span style="font-size:12px;">新收據檔案已成功關聯。</span><br>`;
+          }
+          if (syncResults.length > 0) {
+            syncResults.forEach(sr => {
+              const p = allProjects.find(item => item.Id === sr.projId);
+              const pName = p ? p.Title : `#${sr.projId}`;
+              const deltaSign = sr.delta > 0 ? `+${sr.delta}` : `${sr.delta}`;
+              msg += `<span style="font-size:12px;opacity:0.95;">項目「${escapeHtml(pName)}」累計成本變動：<strong>${deltaSign}</strong> (更新後：成本=$${sr.res.cost?.toLocaleString() || '-'})</span><br>`;
+            });
+          }
+          toast.innerHTML = msg;
+          toast.style.display = 'block';
+
+          setEditSubmitButtonState('saved');
+          if (newFileUrl) {
+            msg += remainingCount > 1 
+              ? `<span style="font-size:12px;">新收據檔案已自動關聯至全數 ${remainingCount} 筆記錄。</span><br>`
               : `<span style="font-size:12px;">新收據檔案已成功關聯。</span><br>`;
           }
           if (syncResults.length > 0) {
@@ -10758,9 +11071,13 @@
           receiptDesc: selectedEditTx.receiptDesc || ''
         };
 
-        const inMemory = loadedEditTransactions.find(t => t.Id === itemId);
-        if (inMemory) {
-          Object.assign(inMemory, selectedEditTx);
+        if (newStatus === '作廢') {
+          loadedEditTransactions = (loadedEditTransactions || []).filter(t => t.Id !== itemId);
+        } else {
+          const inMemory = loadedEditTransactions.find(t => t.Id === itemId);
+          if (inMemory) {
+            Object.assign(inMemory, selectedEditTx);
+          }
         }
 
         if (isExp && editPayStatus === '已付' && chqNum) {
@@ -10830,6 +11147,13 @@
     // ==========================================
     let currentPeriod = 'month'; // 'month' | 'quarter' | 'year' | 'hkfy'
     let periodCache = {};
+    let dashboardExcludeTest = true; // 排除項目名稱含有 'test' 或 '測試' 的測試記錄
+
+    function isTestProjectName(name) {
+      if (!name) return false;
+      return /test|測試/i.test(String(name).trim());
+    }
+
     let dashboardProjectsList = INITIAL_PROJECTS.map(p => ({
       id: p.Id || p.id,
       title: p.Title || p.title || '未命名項目',
@@ -10843,7 +11167,16 @@
       startDate: p.startDate || p.OData__x9810__x8a08__x65bd__x5de5__x65 || p._x9810__x8a08__x65bd__x5de5__x65 || ''
     }));
     sortDashboardProjects(dashboardProjectsList);
-    let selectedDashProject = dashboardProjectsList.find(p => p.id === 228) || dashboardProjectsList.find(p => p.id !== 838 && p.code !== 'UNASSIGNED') || dashboardProjectsList[0] || null;
+
+    function getDashboardFilteredProjects() {
+      const list = dashboardProjectsList || [];
+      if (dashboardExcludeTest) {
+        return list.filter(p => !isTestProjectName(p.title || p.Title || ''));
+      }
+      return list;
+    }
+
+    let selectedDashProject = getDashboardFilteredProjects().find(p => p.id === 228) || getDashboardFilteredProjects().find(p => p.id !== 838 && p.code !== 'UNASSIGNED') || getDashboardFilteredProjects()[0] || null;
     let dashboardInitialized = false;
     let projectListQuery = '';            // current 項目清單總表 search filter (name/code)
     let projectListMgrQuery = '';         // 項目清單總表：負責人文字篩選
@@ -11089,6 +11422,11 @@
       const activeBtn = document.getElementById(`btn-period-filter-${activeKey}`);
       if (activeBtn) activeBtn.classList.add('active');
 
+      const tableEl = document.getElementById('period-tx-table');
+      if (tableEl) {
+        tableEl.classList.toggle('hide-subitem', filterType === 'income');
+      }
+
       const subPills = document.getElementById('period-tx-subtotal-pills');
       if (filterType === 'expense') {
         if (subPills) subPills.style.display = 'inline-flex';
@@ -11188,6 +11526,11 @@
       const summaryBadge = document.getElementById('period-subtotal-summary-badge');
       const summaryText = document.getElementById('period-subtotal-summary-text');
       if (!tbody) return;
+
+      const tableEl = document.getElementById('period-tx-table');
+      if (tableEl) {
+        tableEl.classList.toggle('hide-subitem', currentPeriodTxFilter === 'income');
+      }
 
       // Handle Subtotal Mode in Period Transactions
       if (currentPeriodTxSubtotal !== 'none') {
@@ -11422,9 +11765,10 @@
         const projName = item.project || '未指定項目';
         const projHtml = `<span class="period-tx-proj" title="點擊切換查看此項目: ${escapeHtml(projName)}" onclick="selectProjectFromPeriodTx('${escapeHtml(projName).replace(/'/g, "\\'")}')" style="cursor:pointer;">${escapeHtml(projName)}</span>`;
 
-        const subitemText = item.subitem || (isExp ? '其他' : '工程款');
-        const subitemClass = isExp ? '' : 'inc';
-        const subitemHtml = `<span class="proj-tx-subitem ${subitemClass}" title="${escapeHtml(subitemText)}">${escapeHtml(subitemText)}</span>`;
+        const subitemText = isExp ? (item.subitem || '其他') : '';
+        const subitemHtml = isExp
+          ? `<span class="proj-tx-subitem" title="${escapeHtml(subitemText)}">${escapeHtml(subitemText)}</span>`
+          : `<span style="color:#94a3b8;">-</span>`;
 
         let payeeHtml = '<span style="color:#94a3b8;">-</span>';
         const payeeText = (item.payee && item.payee.trim()) ? item.payee.trim() : (item.cheque && item.cheque.trim() ? item.cheque.trim() : '');
@@ -11528,11 +11872,7 @@
 
     async function fetchPeriodData(type) {
       if (periodCache[type]) {
-        renderPeriodUI(periodCache[type]);
-        if (periodCache[type].items) {
-          currentPeriodTxItems = periodCache[type].items;
-          renderPeriodTxTable();
-        }
+        computeAndRenderPeriodData(periodCache[type]);
         return;
       }
 
@@ -11620,7 +11960,7 @@
             type: 'income',
             date: formatTxDateStr(r['_x4ea4__x6613__x6642__x9593_'], r['_x4ea4__x6613__x6642__x9593_.']),
             amt: amt,
-            subitem: '工程款',
+            subitem: '',
             project: extractProjectNameFromRow(r),
             payee: r['_x6536__x9805__x9280__x884c_'] || (r['Title'] || ''),
             cheque: r['Title'] || '',
@@ -11639,19 +11979,11 @@
         const statObj = {
           type: type,
           rangeLabel: range.label,
-          incTotal: incTotal,
-          incCount: incRows.length,
-          expTotal: expTotal,
-          expCount: validExpCount,
-          net: net,
-          items: periodItems
+          allItems: periodItems
         };
 
         periodCache[type] = statObj;
-        renderPeriodUI(statObj);
-
-        currentPeriodTxItems = periodItems;
-        renderPeriodTxTable();
+        computeAndRenderPeriodData(statObj);
 
       } catch (err) {
         console.warn("fetchPeriodData network error:", err);
@@ -11713,6 +12045,87 @@
       if (barInc) barInc.style.width = `${incPct}%`;
       if (barExp) barExp.style.width = `${expPct}%`;
       if (ratioText) ratioText.textContent = `${incPct}% 收入 : ${expPct}% 支出`;
+    }
+
+    function computeAndRenderPeriodData(statObj) {
+      if (!statObj) return;
+      const allItems = statObj.allItems || statObj.items || [];
+      const items = dashboardExcludeTest
+        ? allItems.filter(it => !isTestProjectName(it.project))
+        : allItems;
+
+      let expTotal = 0;
+      let expCount = 0;
+      let incTotal = 0;
+      let incCount = 0;
+
+      for (const it of items) {
+        if (it.type === 'expense') {
+          expTotal += (it.amt || 0);
+          expCount++;
+        } else if (it.type === 'income') {
+          incTotal += (it.amt || 0);
+          incCount++;
+        }
+      }
+
+      const net = incTotal - expTotal;
+
+      const displayData = {
+        type: statObj.type,
+        rangeLabel: statObj.rangeLabel,
+        incTotal: incTotal,
+        incCount: incCount,
+        expTotal: expTotal,
+        expCount: expCount,
+        net: net
+      };
+
+      renderPeriodUI(displayData);
+      currentPeriodTxItems = items;
+      renderPeriodTxTable();
+    }
+
+    function toggleDashboardExcludeTest(checked) {
+      dashboardExcludeTest = !!checked;
+
+      // 1. 同步其餘分頁的勾選框
+      const chkPeriod = document.getElementById('period-filter-exclude-test');
+      if (chkPeriod && chkPeriod.checked !== dashboardExcludeTest) chkPeriod.checked = dashboardExcludeTest;
+      const chkProj = document.getElementById('proj-filter-exclude-test');
+      if (chkProj && chkProj.checked !== dashboardExcludeTest) chkProj.checked = dashboardExcludeTest;
+
+      // 2. 重新計算並渲染週期收支與明細表
+      if (periodCache[currentPeriod]) {
+        computeAndRenderPeriodData(periodCache[currentPeriod]);
+      }
+
+      // 3. 重新渲染工程項目下拉選單
+      const filteredProjects = getDashboardFilteredProjects();
+      const searchInput = document.getElementById('proj-search-input');
+      const q = searchInput ? searchInput.value.toLowerCase().trim() : '';
+      if (q) {
+        renderDashboardProjectDropdown(filteredProjects.filter(p =>
+          (p.title && p.title.toLowerCase().includes(q)) ||
+          (p.code && p.code.toLowerCase().includes(q)) ||
+          (p.mgr && p.mgr.toLowerCase().includes(q))
+        ));
+      } else {
+        renderDashboardProjectDropdown(filteredProjects);
+      }
+
+      // 若目前選取的工程項目為測試項目且開啟排除，自動切換至第一個非測試項目
+      if (dashboardExcludeTest && selectedDashProject && isTestProjectName(selectedDashProject.title || selectedDashProject.Title || '')) {
+        const fallback = filteredProjects.find(p => p.id !== 838 && p.code !== 'UNASSIGNED') || filteredProjects[0] || null;
+        if (fallback) {
+          selectDashProject(fallback);
+        }
+      }
+
+      // 4. 重新渲染項目清單總表
+      if (typeof renderProjectList === 'function') {
+        renderProjectList();
+      }
     }
 
     function selectPeriod(period) {
@@ -11778,21 +12191,22 @@
         console.warn("loadDashboardProjects network notice (preserving cached projects):", err);
       }
 
-      if (dashboardProjectsList.length > 0) {
+      const validProjects = getDashboardFilteredProjects();
+      if (validProjects.length > 0) {
         if (selectedDashProject) {
-          const stillSelected = dashboardProjectsList.find(p => p.id === selectedDashProject.id);
+          const stillSelected = validProjects.find(p => p.id === selectedDashProject.id);
           if (stillSelected) {
             selectDashProject(stillSelected);
           } else {
-            const fallback = dashboardProjectsList.find(p => p.id !== 838 && p.code !== 'UNASSIGNED') || dashboardProjectsList[0];
+            const fallback = validProjects.find(p => p.id !== 838 && p.code !== 'UNASSIGNED') || validProjects[0];
             selectDashProject(fallback);
           }
         } else {
-          const fallback = dashboardProjectsList.find(p => p.id !== 838 && p.code !== 'UNASSIGNED') || dashboardProjectsList[0];
+          const fallback = validProjects.find(p => p.id !== 838 && p.code !== 'UNASSIGNED') || validProjects[0];
           selectDashProject(fallback);
         }
       }
-      renderDashboardProjectDropdown(dashboardProjectsList);
+      renderDashboardProjectDropdown(validProjects);
       renderProjectList();
     }
 
@@ -12025,9 +12439,8 @@
       if (!tbody) return;
 
       // List only (does not mutate dashboardProjectsList, which feeds the 🏗️ dropdown).
-      let list = (dashboardProjectsList || [])
-        .filter(p => !/test/i.test(p.title || p.Title || ''))
-        .slice();
+      // Always exclude test projects (containing 'test' or '測試') from 項目清單總表
+      let list = (dashboardProjectsList || []).filter(p => !isTestProjectName(p.title || p.Title || ''));
       if (projectListFilterUnderReceived) {
         list = list.filter(p => ((p.contract !== undefined ? p.contract : (p.amt || 0)) + (p.voTotal || 0)) - (p.recv || 0) >= 10);
       }
@@ -12554,6 +12967,10 @@
         projectListFilterUnderReceived = true;
         const underRecvCheck = document.getElementById('project-list-undrecv-filter');
         if (underRecvCheck) underRecvCheck.checked = true;
+        ['period-filter-exclude-test', 'proj-filter-exclude-test'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.checked = dashboardExcludeTest;
+        });
         // 重置日期欄排序與最早支出快取，讓本次刷新重新掃描
         projectListDateMode = 'expense';
         projectListFirstExpense = new Map();
@@ -12609,16 +13026,17 @@
       updateProjectListDateHeader();
       switchDashboardView(currentDashboardView);
       // 1. 渲染預設項目
-      if (!selectedDashProject && dashboardProjectsList.length > 0) {
-        selectedDashProject = dashboardProjectsList.find(p => p.id !== 838 && p.code !== 'UNASSIGNED') || dashboardProjectsList[0];
+      const validProjects = getDashboardFilteredProjects();
+      if (!selectedDashProject && validProjects.length > 0) {
+        selectedDashProject = validProjects.find(p => p.id !== 838 && p.code !== 'UNASSIGNED') || validProjects[0];
       }
       if (selectedDashProject) {
         selectDashProject(selectedDashProject);
       }
-      renderDashboardProjectDropdown(dashboardProjectsList);
+      renderDashboardProjectDropdown(validProjects);
 
       if (periodCache[currentPeriod]) {
-        renderPeriodUI(periodCache[currentPeriod]);
+        computeAndRenderPeriodData(periodCache[currentPeriod]);
       } else {
         showPeriodSkeleton(currentPeriod);
       }
@@ -12631,13 +13049,13 @@
 
         if (searchInput && dropdownEl) {
           searchInput.addEventListener('focus', () => {
-            renderDashboardProjectDropdown(dashboardProjectsList);
+            renderDashboardProjectDropdown(getDashboardFilteredProjects());
             dropdownEl.style.display = 'block';
           });
 
           searchInput.addEventListener('input', (e) => {
             const q = e.target.value.toLowerCase().trim();
-            const list = dashboardProjectsList;
+            const list = getDashboardFilteredProjects();
             if (!q) {
               renderDashboardProjectDropdown(list);
             } else {
@@ -13341,9 +13759,10 @@
         const amtClass = isExp ? 'exp' : 'inc';
         const amtHtml = `<span class="proj-tx-amt ${amtClass}" title="${amtSign}${fmtMoney(item.amt)}">${amtSign}${fmtMoney(item.amt)}</span>`;
 
-        const subitemText = item.subitem || (isExp ? '其他' : '工程款');
-        const subitemClass = isExp ? '' : 'inc';
-        const subitemHtml = `<span class="proj-tx-subitem ${subitemClass}" title="${escapeHtml(subitemText)}">${escapeHtml(subitemText)}</span>`;
+        const subitemText = isExp ? (item.subitem || '其他') : '';
+        const subitemHtml = isExp
+          ? `<span class="proj-tx-subitem" title="${escapeHtml(subitemText)}">${escapeHtml(subitemText)}</span>`
+          : `<span style="color:#94a3b8;">-</span>`;
 
         let payeeHtml = '<span style="color:#94a3b8;">-</span>';
         const payeeText = (item.payee && item.payee.trim()) ? item.payee.trim() : '';
