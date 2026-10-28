@@ -388,7 +388,7 @@ def run_backup_pipeline(lists_only: bool = False, max_media_files: Optional[int]
 
                 # Download newly added / modified file
                 local_target = os.path.join(temp_receipts_dir, name)
-                success, file_hash, byte_size = sp.download_file(rel_url, local_target)
+                success, file_hash, byte_size = sp.download_file(rel_url, local_target, unique_id=file_meta.get("UniqueId"))
                 if success:
                     new_downloads_count += 1
                     folder_new_count += 1
@@ -490,7 +490,7 @@ def run_backup_pipeline(lists_only: bool = False, max_media_files: Optional[int]
                         continue
 
                     local_target = os.path.join(temp_receipts_dir, name)
-                    success, file_hash, byte_size = sp.download_file(rel_url, local_target)
+                    success, file_hash, byte_size = sp.download_file(rel_url, local_target, unique_id=file_meta.get("UniqueId"))
                     if success:
                         new_downloads_count += 1
                         new_bytes_transferred += byte_size
@@ -599,7 +599,7 @@ def run_backup_pipeline(lists_only: bool = False, max_media_files: Optional[int]
                     byte_size = casa_snapshot_bytes
                     success = True
                 else:
-                    success, file_hash, byte_size = sp.download_file(rel_url, local_target)
+                    success, file_hash, byte_size = sp.download_file(rel_url, local_target, unique_id=file_meta.get("UniqueId"))
 
                 if success:
                     if manifest_entry and manifest_entry.get("sha256") == file_hash:

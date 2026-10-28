@@ -11,6 +11,7 @@ import json
 import re
 import hashlib
 import random
+import urllib.parse
 import requests
 from typing import List, Dict, Any, Optional, Tuple, Callable
 
@@ -176,11 +177,13 @@ class SharePointClient:
     def fetch_folder_files_metadata(self, server_relative_folder_url: str) -> List[Dict[str, Any]]:
         """
         Lists metadata of all files in a SharePoint document library folder.
+        Uses modern GetFolderByServerRelativePath with parameter alias to safely handle special characters.
         """
         clean_folder = server_relative_folder_url.strip()
+        quoted_folder = urllib.parse.quote(clean_folder.replace("'", "''"))
         url = (
-            f"{self.site_url}/_api/web/GetFolderByServerRelativeUrl('{clean_folder}')/Files"
-            "?$select=Name,ServerRelativeUrl,Length,TimeLastModified,UniqueId&$top=5000"
+            f"{self.site_url}/_api/web/GetFolderByServerRelativePath(decodedurl=@a)/Files"
+            f"?$select=Name,ServerRelativeUrl,Length,TimeLastModified,UniqueId&$top=5000&@a='{quoted_folder}'"
         )
         files = []
         while url:
@@ -195,9 +198,16 @@ class SharePointClient:
         return files
 
     def fetch_subfolders(self, server_relative_folder_url: str) -> List[str]:
-        """Lists server relative URLs of subfolders inside a given folder."""
+        """
+        Lists server relative URLs of subfolders inside a given folder.
+        Uses modern GetFolderByServerRelativePath with parameter alias to safely handle special characters.
+        """
         clean_folder = server_relative_folder_url.strip()
-        url = f"{self.site_url}/_api/web/GetFolderByServerRelativeUrl('{clean_folder}')/Folders?$select=ServerRelativeUrl,Name&$top=5000"
+        quoted_folder = urllib.parse.quote(clean_folder.replace("'", "''"))
+        url = (
+            f"{self.site_url}/_api/web/GetFolderByServerRelativePath(decodedurl=@a)/Folders"
+            f"?$select=ServerRelativeUrl,Name&$top=5000&@a='{quoted_folder}'"
+        )
         subfolders = []
         try:
             resp = self._request_with_guard("GET", url)
@@ -210,11 +220,23 @@ class SharePointClient:
             print(f"⚠️ Could not list subfolders of {clean_folder}: {e}")
         return subfolders
 
-    def download_file(self, server_relative_url: str, local_save_path: str) -> Tuple[bool, str, int]:
+    def download_file(
+        self,
+        server_relative_url: str,
+        local_save_path: str,
+        unique_id: Optional[str] = None
+    ) -> Tuple[bool, str, int]:
         """
         Streams a file from SharePoint and saves it to local disk, returning (success, sha256_hash, byte_size).
+        Safely handles special characters (#, %, quotes, spaces) by prioritizing GetFileById (GUID)
+        and falling back to GetFileByServerRelativePath with parameter alias.
         """
-        url = f"{self.site_url}/_api/web/GetFileByServerRelativeUrl('{server_relative_url}')/$value"
+        if unique_id:
+            url = f"{self.site_url}/_api/web/GetFileById('{unique_id}')/$value"
+        else:
+            quoted_path = urllib.parse.quote(server_relative_url.replace("'", "''"))
+            url = f"{self.site_url}/_api/web/GetFileByServerRelativePath(decodedurl=@a)/$value?@a='{quoted_path}'"
+
         os.makedirs(os.path.dirname(local_save_path), exist_ok=True)
         hasher = hashlib.sha256()
         total_bytes = 0
@@ -229,6 +251,24 @@ class SharePointClient:
                         total_bytes += len(chunk)
             return True, hasher.hexdigest(), total_bytes
         except Exception as e:
+            # If GetFileById was used and failed, attempt fallback to GetFileByServerRelativePath
+            if unique_id:
+                try:
+                    quoted_path = urllib.parse.quote(server_relative_url.replace("'", "''"))
+                    fallback_url = f"{self.site_url}/_api/web/GetFileByServerRelativePath(decodedurl=@a)/$value?@a='{quoted_path}'"
+                    resp = self._request_with_guard("GET", fallback_url, is_binary_stream=True)
+                    hasher = hashlib.sha256()
+                    total_bytes = 0
+                    with open(local_save_path, "wb") as f:
+                        for chunk in resp.iter_content(chunk_size=64 * 1024):
+                            if chunk:
+                                f.write(chunk)
+                                hasher.update(chunk)
+                                total_bytes += len(chunk)
+                    return True, hasher.hexdigest(), total_bytes
+                except Exception as fallback_e:
+                    print(f"❌ Failed to download {server_relative_url} via fallback: {fallback_e}")
+
             print(f"❌ Failed to download {server_relative_url}: {e}")
             if os.path.exists(local_save_path):
                 try:
