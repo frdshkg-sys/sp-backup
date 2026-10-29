@@ -3393,7 +3393,7 @@
             </div>
 
             <div class="form-group">
-              <label>支票編號 <span class="badge-auto" id="exp-chq-badge">(選取字頭自動計算)</span></label>
+              <label>支票編號 <span class="badge-auto" id="exp-chq-badge" style="display:none;"></span></label>
               <div class="cheque-group">
                 <select id="exp-chq-prefix" class="cheque-prefix" onchange="onChequePrefixChange()">
                   <option value="CK">CK</option>
@@ -3403,7 +3403,7 @@
                   <option value="TEST">TEST (測試專用)</option>
                   <option value="OTHER">其他</option>
                 </select>
-                <input type="text" id="exp-chq-num" class="cheque-num" placeholder="選擇字頭後自動生成...">
+                <input type="text" id="exp-chq-num" class="cheque-num">
               </div>
             </div>
 
@@ -3417,7 +3417,7 @@
                 <option value="__custom__">+ 其他 (自訂銀行)...</option>
               </select>
               <div id="exp-bank-custom-wrap" style="display:none; margin-top:8px;">
-                <input type="text" id="exp-bank-custom" placeholder="請輸入自訂銀行名稱 (例如：恒生銀行、南洋商業銀行)">
+                <input type="text" id="exp-bank-custom" placeholder="輸入自訂銀行名稱">
               </div>
             </div>
 
@@ -3431,24 +3431,23 @@
 
             <div class="form-group col-full">
               <label>收款人 / 廠商</label>
-              <input type="text" id="exp-payee" placeholder="格式：{中文全名} {英文全名}">
+              <input type="text" id="exp-payee">
             </div>
 
             <div class="form-group col-full">
-              <label>備註 (Remarks)</label>
-              <input type="text" id="exp-remarks" placeholder="請輸入備註說明 (選填，將自動套用至本批次所有分攤項目)..." autocomplete="off">
+              <label>備註</label>
+              <input type="text" id="exp-remarks" autocomplete="off">
             </div>
 
             <!-- File Upload -->
             <div class="form-group col-full">
-              <label>收據/支票檔案上傳 (PDF / JPG / PNG) <span class="badge-auto"
-                  id="exp-file-badge">(自動以支票號碼命名)</span></label>
+              <label>收據檔案上傳 <span class="badge-auto" id="exp-file-badge" style="display:none;"></span></label>
               <div class="dropzone" id="exp-dropzone" onclick="triggerFileUpload('expense')">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                 </svg>
-                <p id="exp-dropzone-text">拖放收據圖檔或 PDF 至此，或 <span>點擊瀏覽上傳</span></p>
+                <p id="exp-dropzone-text">拖放檔案至此（PDF / 圖片），或 <span>點擊瀏覽上傳</span></p>
                 <input type="file" id="exp-file" accept=".pdf,.jpg,.jpeg,.png" style="display:none"
                   onchange="handleFileSelect('expense', this.files)">
               </div>
@@ -3537,7 +3536,7 @@
 
           <div class="form-group">
             <label>入賬金額 (HKD) <span class="req">*</span></label>
-            <input type="text" inputmode="decimal" id="inc-amount" placeholder="例如：150000 或 10990.35" required
+            <input type="text" inputmode="decimal" id="inc-amount" placeholder="0.00" required
               autocomplete="off">
           </div>
 
@@ -3545,7 +3544,7 @@
             <label>所屬項目</label>
             <div class="combobox-container" id="inc-project-combobox">
               <div class="combobox-input-wrap">
-                <input type="text" class="combobox-input" id="inc-project-search" placeholder="輸入項目名稱或編號搜尋 (可選)..."
+                <input type="text" class="combobox-input" id="inc-project-search" placeholder="搜尋項目名稱或編號..."
                   autocomplete="off">
                 <div class="combobox-actions">
                   <button type="button" class="combobox-clear" id="inc-project-clear" title="清除選取">✕</button>
@@ -3568,24 +3567,24 @@
               <option value="__custom__">+ 其他 (自訂銀行)...</option>
             </select>
             <div id="inc-bank-custom-wrap" style="display:none; margin-top:8px;">
-              <input type="text" id="inc-bank-custom" placeholder="請輸入自訂銀行名稱 (例如：恒生銀行、花旗銀行)">
+              <input type="text" id="inc-bank-custom" placeholder="輸入自訂銀行名稱">
             </div>
           </div>
 
           <div class="form-group col-full">
-            <label>備註 (Remarks)</label>
-            <input type="text" id="inc-remarks" placeholder="輸入收入備註說明 (選填)..." autocomplete="off">
+            <label>備註</label>
+            <input type="text" id="inc-remarks" autocomplete="off">
           </div>
 
           <!-- File Upload -->
           <div class="form-group col-full">
-            <label>收據/水單檔案上傳 (PDF / JPG / PNG) <span class="badge-auto" id="inc-file-badge">(圖檔自動轉為標準 A4 PDF 並以單號存放至 DocLib/收入)</span></label>
+            <label>收據檔案上傳 <span class="badge-auto" id="inc-file-badge" style="display:none;"></span></label>
             <div class="dropzone" id="inc-dropzone" onclick="triggerFileUpload('income')">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
               </svg>
-              <p id="inc-dropzone-text">拖放銀行入賬傳票或水單至此（支援 PDF / JPG / PNG，圖檔將自動轉換為標準 A4 直式 PDF），或 <span>點擊瀏覽上傳</span></p>
+              <p id="inc-dropzone-text">拖放檔案至此（PDF / 圖片），或 <span>點擊瀏覽上傳</span></p>
               <input type="file" id="inc-file" accept=".pdf,.jpg,.jpeg,.png" style="display:none"
                 onchange="handleFileSelect('income', this.files)">
             </div>
@@ -3916,7 +3915,7 @@
 
             <!-- Expense Specific Fields -->
             <div class="form-group edit-expense-field">
-              <label>支票編號 <span class="badge-auto" id="edit-chq-badge">(選取字頭自動計算)</span></label>
+              <label>支票編號 <span class="badge-auto" id="edit-chq-badge" style="display:none;"></span></label>
               <div class="cheque-group">
                 <select id="edit-chq-prefix" class="cheque-prefix" onchange="onEditChequePrefixChange()">
                   <option value="CK">CK</option>
@@ -3926,7 +3925,7 @@
                   <option value="TEST">TEST (測試專用)</option>
                   <option value="OTHER">其他</option>
                 </select>
-                <input type="text" id="edit-cheque" class="cheque-num" placeholder="選擇字頭後自動生成...">
+                <input type="text" id="edit-cheque" class="cheque-num">
               </div>
             </div>
 
@@ -3940,18 +3939,18 @@
                 <option value="__custom__">+ 其他 (自訂銀行)...</option>
               </select>
               <div id="edit-exp-bank-custom-wrap" style="display:none; margin-top:8px;">
-                <input type="text" id="edit-exp-bank-custom" placeholder="請輸入自訂銀行名稱">
+                <input type="text" id="edit-exp-bank-custom" placeholder="輸入自訂銀行名稱">
               </div>
             </div>
 
             <div class="form-group edit-expense-field">
               <label>收款人 / 廠商</label>
-              <input type="text" id="edit-payee" placeholder="輸入收款公司或個人">
+              <input type="text" id="edit-payee">
             </div>
 
             <div class="form-group edit-expense-field">
               <label>小類</label>
-              <input type="text" id="edit-subitem" placeholder="例如：材料款、工程尾款、運輸費">
+              <input type="text" id="edit-subitem">
             </div>
 
             <div class="form-group edit-expense-field" id="edit-payment-status-group">
@@ -3963,8 +3962,8 @@
             </div>
 
             <div class="form-group" id="edit-remarks-group">
-              <label>備註 (Remarks)</label>
-              <input type="text" id="edit-remarks" placeholder="請輸入備註說明 (選填)..." autocomplete="off">
+              <label>備註</label>
+              <input type="text" id="edit-remarks" autocomplete="off">
             </div>
 
             <!-- Income Specific Fields -->
@@ -4013,7 +4012,7 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                 </svg>
-                <p id="edit-dropzone-text">若需更換收據，請拖放新檔案至此，或 <span>點擊瀏覽上傳</span></p>
+                <p id="edit-dropzone-text">拖放檔案至此（PDF / 圖片），或 <span>點擊瀏覽上傳</span></p>
                 <input type="file" id="edit-file" accept=".pdf,.jpg,.jpeg,.png" style="display:none"
                   onchange="handleFileSelect('edit', this.files)">
               </div>
@@ -5532,7 +5531,7 @@
       } else {
         if (chqNum) {
           chqNum.disabled = false;
-          chqNum.placeholder = '選擇字頭後自動生成...';
+          chqNum.placeholder = '';
         }
         if (chqPrefix) {
           chqPrefix.disabled = false;
@@ -6613,7 +6612,7 @@
           <td>
             <div class="exp-row-proj-box" id="exp-row-proj-box-${r.id}">
               <input type="text" class="exp-row-proj-input" id="exp-row-proj-input-${r.id}"
-                     placeholder="輸入項目名稱或編號搜尋..."
+                     placeholder="搜尋項目名稱或編號..."
                      value="${escapeHtml(r.projName || '')}"
                      autocomplete="off"
                      onfocus="onExpRowProjFocus(${r.id})"
@@ -6627,14 +6626,12 @@
           </td>
           <td>
             <input type="text" class="exp-row-subitem-input" id="exp-row-invoice-${r.id}"
-                   placeholder="發票號碼..."
                    value="${escapeHtml(r.invoiceNo || '')}"
                    autocomplete="off"
                    oninput="onExpRowInvoiceChange(${r.id}, this.value)">
           </td>
           <td>
             <input type="text" class="exp-row-subitem-input" id="exp-row-subitem-${r.id}"
-                   placeholder="例如：Salary、材料款..."
                    value="${escapeHtml(r.subitem || '')}"
                    autocomplete="off"
                    oninput="onExpRowSubitemChange(${r.id}, this.value)">
@@ -9556,7 +9553,7 @@
         }
         if (chqNum) {
           chqNum.disabled = false;
-          chqNum.placeholder = '選擇字頭後自動生成...';
+          chqNum.placeholder = '';
         }
         // If cheque is empty, auto-generate next number!
         if (!chqNum || !chqNum.value || chqNum.value.trim() === '') {
@@ -9631,7 +9628,7 @@
           <td>
             <div class="exp-row-proj-box" id="edit-batch-proj-box-${idx}">
               <input type="text" class="exp-row-proj-input" id="edit-batch-proj-input-${idx}"
-                     placeholder="輸入項目名稱或編號搜尋..."
+                     placeholder="搜尋項目名稱或編號..."
                      value="${escapeHtml(curProjName)}"
                      autocomplete="off"
                      ${Boolean(item._pendingVoid) ? 'disabled' : ''}
@@ -9646,7 +9643,6 @@
           </td>
           <td>
             <input type="text" class="exp-row-subitem-input" id="edit-batch-invoice-${idx}"
-                   placeholder="發票號碼..."
                    value="${escapeHtml(curInvoice)}"
                    autocomplete="off"
                    ${Boolean(item._pendingVoid) ? 'disabled' : ''}
@@ -9654,7 +9650,6 @@
           </td>
           <td>
             <input type="text" class="exp-row-subitem-input" id="edit-batch-subitem-${idx}"
-                   placeholder="例如：材料款、工程尾款..."
                    value="${escapeHtml(curSubitem)}"
                    autocomplete="off"
                    ${Boolean(item._pendingVoid) ? 'disabled' : ''}
@@ -10876,7 +10871,7 @@
         } else {
           if (modeBox) modeBox.style.display = 'none';
           if (dropzoneText) {
-            dropzoneText.innerHTML = '若需更換收據，請拖放新檔案至此，或 <span>點擊瀏覽上傳</span>';
+            dropzoneText.innerHTML = '拖放檔案至此（PDF / 圖片），或 <span>點擊瀏覽上傳</span>';
           }
         }
       } else {
@@ -10886,7 +10881,7 @@
         noReceiptLabel.style.display = 'inline';
         if (modeBox) modeBox.style.display = 'none';
         if (dropzoneText) {
-          dropzoneText.innerHTML = '拖放新檔案至此，或 <span>點擊瀏覽上傳</span>';
+          dropzoneText.innerHTML = '拖放檔案至此（PDF / 圖片），或 <span>點擊瀏覽上傳</span>';
         }
       }
 
@@ -10943,7 +10938,7 @@
       }
       if (chqNum) {
         chqNum.disabled = false;
-        chqNum.placeholder = '選擇字頭後自動生成...';
+        chqNum.placeholder = '';
       }
       if (chqBadge) {
         chqBadge.textContent = '選擇字頭即自動計算下一個號碼';
