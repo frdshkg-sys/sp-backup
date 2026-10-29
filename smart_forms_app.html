@@ -4585,24 +4585,6 @@
       return isNaN(t) ? 0 : t;
     }
 
-    function sortDashboardProjects(list) {
-      if (!list || !Array.isArray(list)) return list;
-      return list.sort((a, b) => {
-        const timeA = getProjectStartTime(a);
-        const timeB = getProjectStartTime(b);
-
-        if (timeA > 0 && timeB > 0) {
-          if (timeB !== timeA) return timeB - timeA; // newest to oldest
-          return (a.title || a.Title || '').localeCompare(b.title || b.Title || '', 'zh-HK');
-        }
-        if (timeA > 0 && timeB <= 0) return -1;
-        if (timeA <= 0 && timeB > 0) return 1;
-
-        // Both do not have 預計施工日期: sort by name
-        return (a.title || a.Title || '').localeCompare(b.title || b.Title || '', 'zh-HK');
-      });
-    }
-
     function compareProjectsByStartDateDesc(a, b) {
       const timeA = getProjectStartTime(a);
       const timeB = getProjectStartTime(b);
@@ -4615,6 +4597,17 @@
       if (timeA <= 0 && timeB > 0) return 1;
 
       return (a.title || a.Title || '').localeCompare(b.title || b.Title || '', 'zh-HK');
+    }
+
+    const INITIAL_PROJECT_FIRST_EXPENSES = {"82": 1780315200000, "83": 1780488000000, "84": 1780488000000, "85": 1780488000000, "86": 1775131200000, "87": 1777896000000, "88": 1785931200000, "89": 1782734400000, "90": 1780315200000, "91": 1787313600000, "93": 1783252800000, "94": 1781265600000, "95": 1783252800000, "96": 1774699200000, "97": 1775131200000, "98": 1774958400000, "99": 1778673600000, "100": 1780488000000, "101": 1777896000000, "102": 1780488000000, "103": 1773835200000, "104": 1777896000000, "105": 1776168000000, "106": 1785931200000, "107": 1772539200000, "111": 1772625600000, "112": 1779883200000, "113": 1774526400000, "114": 1765195200000, "115": 1777896000000, "116": 1773230400000, "117": 1772452800000, "118": 1772452800000, "119": 1774008000000, "120": 1770292800000, "121": 1767355200000, "122": 1763985600000, "123": 1768564800000, "124": 1767009600000, "125": 1767614400000, "128": 1764849600000, "129": 1768219200000, "130": 1767182400000, "131": 1764158400000, "132": 1772539200000, "133": 1769601600000, "134": 1761220800000, "136": 1763380800000, "137": 1761652800000, "140": 1761652800000, "142": 1761220800000, "146": 1760529600000, "147": 1748606400000, "148": 1761652800000, "149": 1760529600000, "150": 1760184000000, "151": 1763035200000, "152": 1758888000000, "153": 1735819200000, "154": 1723809600000, "155": 1774958400000, "156": 1746187200000, "158": 1762516800000, "159": 1754481600000, "161": 1756987200000, "162": 1756987200000, "163": 1755172800000, "164": 1753704000000, "165": 1773835200000, "166": 1755864000000, "167": 1761652800000, "168": 1759579200000, "169": 1757419200000, "172": 1732708800000, "173": 1754136000000, "174": 1754136000000, "175": 1753963200000, "176": 1762257600000, "177": 1759579200000, "178": 1759579200000, "179": 1762257600000, "182": 1759579200000, "184": 1757592000000, "186": 1752148800000, "187": 1756987200000, "191": 1735905600000, "192": 1743249600000, "193": 1755518400000, "195": 1783252800000, "196": 1740398400000, "197": 1749211200000, "198": 1748260800000, "199": 1746187200000, "200": 1749470400000, "201": 1751025600000, "202": 1780315200000, "203": 1785931200000, "204": 1775563200000, "205": 1777896000000, "206": 1777896000000, "208": 1710849600000, "209": 1748433600000, "211": 1773835200000, "212": 1773835200000, "213": 1680782400000, "214": 1732190400000, "215": 1730721600000, "217": 1727956800000, "218": 1736596800000, "219": 1739188800000, "220": 1751457600000, "222": 1735646400000, "223": 1740139200000, "224": 1722513600000, "225": 1140868800000, "226": 1740398400000, "227": 1749643200000, "228": 1739188800000, "229": 1739188800000, "230": 1704196800000, "231": 1718625600000, "233": 1740484800000, "234": 1737547200000, "235": 1742385600000, "236": 1735732800000, "237": 1740398400000, "238": 1737460800000, "239": 1746187200000, "241": 1742558400000, "244": 1743249600000, "246": 1744372800000, "250": 1744027200000, "252": 1723636800000, "254": 1733054400000, "256": 1732708800000, "258": 1729857600000, "260": 1694001600000, "262": 1691668800000, "264": 1690372800000, "266": 1690372800000, "268": 1691755200000, "270": 1733054400000, "272": 1690372800000, "274": 1674561600000, "276": 1674561600000, "278": 1726920000000, "280": 1674561600000, "284": 1681905600000, "286": 1699012800000, "288": 1674475200000, "290": 1674561600000, "292": 1700308800000, "294": 1690459200000, "296": 1735819200000, "298": 1705406400000, "302": 1690372800000, "304": 1690372800000, "306": 1726920000000, "308": 1727956800000, "310": 1713182400000, "311": 1716811200000, "314": 1723118400000, "318": 1729857600000, "320": 1700136000000, "322": 1708689600000, "326": 1732881600000, "328": 1734177600000, "330": 1722945600000, "332": 1690372800000, "336": 1732795200000, "338": 1728388800000, "340": 1707393600000, "342": 1729684800000, "344": 1731499200000, "346": 1725969600000, "348": 1674561600000, "352": 1690372800000, "354": 1690286400000, "356": 1717588800000, "358": 1690545600000, "360": 1690200000000, "362": 1706788800000, "364": 1690545600000, "366": 1693828800000, "368": 1690372800000, "370": 1695988800000, "372": 1690200000000, "374": 1690545600000, "376": 1702036800000, "378": 1690372800000, "380": 1693828800000, "382": 1690372800000, "384": 1690372800000, "386": 1691409600000, "388": 1691582400000, "390": 1690372800000, "392": 1691582400000, "394": 1723118400000, "400": 1690891200000, "404": 1673956800000, "410": 1690372800000, "414": 1674561600000, "416": 1690545600000, "420": 1674561600000, "422": 1687953600000, "838": 1674561600000, "844": 1793275200000, "855": 1790769600000, "861": 1791374400000, "862": 1791374400000, "863": 1791374400000, "864": 1791374400000, "865": 1791374400000};
+    let projectListFirstExpense = new Map(Object.entries(INITIAL_PROJECT_FIRST_EXPENSES).map(([k, v]) => [Number(k), v]));
+    let projectListFirstExpenseStatus = 'done';  // 'idle' | 'loading' | 'done' | 'error'
+    let projectListFirstExpensePromise = null;   // shared in-flight load (dedupe)
+    let projectListExpenseFetchGen = 0;          // invalidates in-flight loads after manual refresh
+
+    function sortDashboardProjects(list) {
+      if (!list || !Array.isArray(list)) return list;
+      return sortProjectList(list, 'expense', projectListFirstExpense);
     }
 
     // Table-only sort. Never used by the 🏗️ dropdown, which keeps sortDashboardProjects.
@@ -5384,7 +5377,10 @@
             sortDashboardProjects(dashboardProjectsList);
             const validProjects = getDashboardFilteredProjects();
             renderDashboardProjectDropdown(validProjects);
-            if (typeof selectedDashProject !== 'undefined' && selectedDashProject) {
+            if (!userManuallySelectedProject && validProjects.length > 0) {
+              const firstProj = validProjects.find(p => p.id !== 838 && p.code !== 'UNASSIGNED') || validProjects[0];
+              if (firstProj) selectDashProject(firstProj);
+            } else if (typeof selectedDashProject !== 'undefined' && selectedDashProject) {
               const updated = validProjects.find(x => x.id === selectedDashProject.id);
               if (updated) selectDashProject(updated);
             }
@@ -11984,7 +11980,8 @@
       return list;
     }
 
-    let selectedDashProject = getDashboardFilteredProjects().find(p => p.id === 228) || getDashboardFilteredProjects().find(p => p.id !== 838 && p.code !== 'UNASSIGNED') || getDashboardFilteredProjects()[0] || null;
+    let userManuallySelectedProject = false;
+    let selectedDashProject = getDashboardFilteredProjects().find(p => p.id !== 838 && p.code !== 'UNASSIGNED') || getDashboardFilteredProjects()[0] || null;
     let dashboardInitialized = false;
     let projectListQuery = '';            // current 項目清單總表 search filter (name/code)
     let projectListMgrQuery = '';         // 項目清單總表：負責人文字篩選
@@ -11997,10 +11994,6 @@
     let projectListRenderSeq = 0;         // guards against superseded renders
     let projectListDateMode = 'expense';  // date column sort: 'expense' (default) | 'date'
     let projectListColorMode = 'none';  // row tint: 'none' (default) | 'profit' | 'unpaid'
-    let projectListFirstExpense = new Map();     // pid -> earliest non-void expense epoch ms
-    let projectListFirstExpenseStatus = 'idle';  // 'idle' | 'loading' | 'done' | 'error'
-    let projectListFirstExpensePromise = null;   // shared in-flight load (dedupe)
-    let projectListExpenseFetchGen = 0;          // invalidates in-flight loads after manual refresh
 
     let projectTxCache = {
       228: [
@@ -12624,7 +12617,7 @@
       const match = list.find(p => (p.title || p.Title || '').trim().toLowerCase() === projName.trim().toLowerCase());
       if (match) {
         switchDashboardView('project');
-        selectDashProject(match);
+        selectDashProject(match, true);
         const card = document.getElementById('card-project-balance');
         if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
@@ -13005,8 +12998,8 @@
       const validProjects = getDashboardFilteredProjects();
       if (validProjects.length > 0) {
         if (selectedDashProject) {
-          const stillSelected = validProjects.find(p => p.id === selectedDashProject.id);
-          if (stillSelected) {
+          const stillSelected = validProjects.find(p => (p.id !== undefined ? p.id : p.Id) === (selectedDashProject.id !== undefined ? selectedDashProject.id : selectedDashProject.Id));
+          if (stillSelected && userManuallySelectedProject) {
             selectDashProject(stillSelected);
           } else {
             const fallback = validProjects.find(p => p.id !== 838 && p.code !== 'UNASSIGNED') || validProjects[0];
@@ -13199,6 +13192,18 @@
           if (gen === projectListExpenseFetchGen) {
             projectListFirstExpense = map;
             projectListFirstExpenseStatus = 'done';
+            sortDashboardProjects(dashboardProjectsList);
+            const valid = getDashboardFilteredProjects();
+            renderDashboardProjectDropdown(valid);
+            if (!userManuallySelectedProject && valid.length > 0) {
+              const firstProj = valid.find(p => p.id !== 838 && p.code !== 'UNASSIGNED') || valid[0];
+              if (firstProj && (!selectedDashProject || (selectedDashProject.id !== undefined ? selectedDashProject.id : selectedDashProject.Id) !== (firstProj.id !== undefined ? firstProj.id : firstProj.Id))) {
+                selectDashProject(firstProj);
+              }
+            }
+            if (currentDashboardView === 'list') {
+              renderProjectList();
+            }
           }
         } catch (err) {
           console.warn('項目清單：最早支出日期載入失敗，暫按施工日期排序', err);
@@ -13223,7 +13228,7 @@
     function openProjectFromList(id) {
       const p = dashboardProjectsList.find(x => (x.id !== undefined ? x.id : x.Id) == id);
       if (!p) return;
-      selectDashProject(p);
+      selectDashProject(p, true);
       switchDashboardView('project');
     }
 
@@ -13507,8 +13512,9 @@
       }
     }
 
-    function selectDashProject(p) {
+    function selectDashProject(p, isManual = false) {
       if (!p) return;
+      if (isManual) userManuallySelectedProject = true;
       selectedDashProject = p;
 
       const titleStr = p.title || p.Title || '未命名項目';
@@ -13689,13 +13695,20 @@
       projects.forEach(p => {
         const div = document.createElement('div');
         div.className = 'project-opt';
-        if (selectedDashProject && selectedDashProject.id === p.id) div.classList.add('selected');
+        const pIdNum = Number(p.id !== undefined ? p.id : p.Id);
+        const selIdNum = selectedDashProject ? Number(selectedDashProject.id !== undefined ? selectedDashProject.id : selectedDashProject.Id) : 0;
+        if (selIdNum && selIdNum === pIdNum) div.classList.add('selected');
 
-        const pStartDate = p.startDate || p.OData__x9810__x8a08__x65bd__x5de5__x65 || p._x9810__x8a08__x65bd__x5de5__x65;
-        const sDate = pStartDate ? new Date(pStartDate) : null;
-        const dateStr = sDate && !isNaN(sDate.getTime())
-          ? `${sDate.getFullYear()}/${String(sDate.getMonth() + 1).padStart(2, '0')}/${String(sDate.getDate()).padStart(2, '0')}`
-          : (pStartDate ? String(pStartDate).slice(0, 10).replace(/-/g, '/') : '');
+        const firstTs = projectListFirstExpense && projectListFirstExpense.get ? (projectListFirstExpense.get(pIdNum) || 0) : 0;
+        let dateStr = '';
+        if (firstTs > 0) {
+          dateStr = fmtListDate(firstTs);
+        } else {
+          const pStartDate = p.startDate || p.OData__x9810__x8a08__x65bd__x5de5__x65 || p._x9810__x8a08__x65bd__x5de5__x65;
+          if (pStartDate) {
+            dateStr = fmtListDate(pStartDate);
+          }
+        }
 
         div.innerHTML = `
         <div class="project-opt-title" style="display:flex; justify-content:space-between; align-items:baseline; gap:8px;">
@@ -13709,7 +13722,7 @@
       `;
 
         div.addEventListener('click', () => {
-          selectDashProject(p);
+          selectDashProject(p, true);
           closeDashDropdown();
         });
 
@@ -13779,7 +13792,7 @@
         });
         // 重置日期欄排序與最早支出快取，讓本次刷新重新掃描
         projectListDateMode = 'expense';
-        projectListFirstExpense = new Map();
+        projectListFirstExpense = new Map(Object.entries(INITIAL_PROJECT_FIRST_EXPENSES).map(([k, v]) => [Number(k), v]));
         projectListFirstExpenseStatus = 'idle';
         projectListFirstExpensePromise = null;
         projectListExpenseFetchGen++; // discard any in-flight old scan
@@ -13833,7 +13846,9 @@
       switchDashboardView(currentDashboardView);
       // 1. 渲染預設項目
       const validProjects = getDashboardFilteredProjects();
-      if (!selectedDashProject && validProjects.length > 0) {
+      if (!userManuallySelectedProject && validProjects.length > 0) {
+        selectedDashProject = validProjects.find(p => p.id !== 838 && p.code !== 'UNASSIGNED') || validProjects[0];
+      } else if (!selectedDashProject && validProjects.length > 0) {
         selectedDashProject = validProjects.find(p => p.id !== 838 && p.code !== 'UNASSIGNED') || validProjects[0];
       }
       if (selectedDashProject) {
