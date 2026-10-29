@@ -3993,8 +3993,8 @@
                 <span id="edit-no-receipt-label" style="display:none; color:var(--text-muted);">無收據檔案</span>
               </div>
 
-              <!-- Mode selector for Income records when an existing receipt exists -->
-              <div id="edit-inc-receipt-mode-container" style="display:none; margin-bottom:10px; padding:8px 12px; background:#f0f9ff; border:1px solid #bae6fd; border-radius:6px; font-size:13px;">
+              <!-- Mode selector for records when an existing receipt exists -->
+              <div id="edit-receipt-mode-container" style="display:none; margin-bottom:10px; padding:8px 12px; background:#f0f9ff; border:1px solid #bae6fd; border-radius:6px; font-size:13px;">
                 <div style="display:flex; align-items:center; gap:18px; flex-wrap:wrap;">
                   <span style="font-weight:600; color:#0369a1;">收據模式：</span>
                   <label style="display:flex; align-items:center; gap:6px; cursor:pointer; color:#0f172a;">
@@ -5568,17 +5568,16 @@
     }
 
     function resolveTargetReceiptFileName(type, originalFileName) {
-      const ext = getCleanFileExtension(originalFileName);
       if (type === 'expense') {
         const chq = (document.getElementById('exp-chq-num')?.value || '').trim();
-        return chq ? `${chq}${ext}` : (originalFileName || `EXP_${Date.now()}${ext}`);
+        return chq ? `${chq}.pdf` : (originalFileName ? `${originalFileName.replace(/\.[^/.]+$/, "")}.pdf` : `EXP_${Date.now()}.pdf`);
       } else if (type === 'income') {
         const incTitle = (document.getElementById('inc-title')?.value || '').trim();
         return incTitle ? `${incTitle}.pdf` : (originalFileName || `INC_${Date.now()}.pdf`);
       } else if (type === 'edit') {
         if (currentEditType === 'expense') {
-          const chq = (document.getElementById('edit-cheque')?.value || '').trim();
-          return chq ? `${chq}${ext}` : `${selectedEditTx?.Title || 'EXP'}${ext}`;
+          const chq = (document.getElementById('edit-cheque')?.value || selectedEditTx?.cheque || '').trim();
+          return chq ? `${chq}.pdf` : `${selectedEditTx?.Title || 'EXP'}.pdf`;
         } else {
           const incTitle = (selectedEditTx?.Title || document.getElementById('edit-display-id')?.textContent || '').trim();
           return incTitle ? `${incTitle}.pdf` : (originalFileName || `INC_${Date.now()}.pdf`);
@@ -6048,12 +6047,56 @@
 
       if (type === 'income') {
         await processIncomeNewFileUpload(file);
-      } else if (type === 'edit' && currentEditType === 'income') {
-        await processIncomeEditFileUpload(file);
+      } else if (type === 'expense') {
+        await processExpenseNewFileUpload(file);
+      } else if (type === 'edit') {
+        if (currentEditType === 'income') {
+          await processIncomeEditFileUpload(file);
+        } else if (currentEditType === 'expense') {
+          await processExpenseEditFileUpload(file);
+        } else {
+          currentUploadedFiles.edit = file;
+          updateFilePreviewUI(type);
+          setEditSubmitButtonState('idle');
+        }
       } else {
         currentUploadedFiles[type] = file;
         updateFilePreviewUI(type);
         if (type === 'edit') setEditSubmitButtonState('idle');
+      }
+    }
+
+    async function processExpenseNewFileUpload(file) {
+      const chqNum = (document.getElementById('exp-chq-num')?.value || '').trim() || 'EXP';
+      const isPdf = file.name.toLowerCase().endsWith('.pdf') || file.type === 'application/pdf';
+      const btn = document.getElementById('exp-submit-btn');
+      const toast = document.getElementById('exp-toast');
+
+      showFileProcessingUI('expense', '正在處理收據檔案...');
+      if (btn) btn.disabled = true;
+
+      try {
+        let finalFile = file;
+        if (!isPdf) {
+          showFileProcessingUI('expense', '正在將圖片轉換為標準 A4 直式 PDF...');
+          finalFile = await convertImageFileToA4Pdf(file, chqNum);
+        } else {
+          finalFile.targetFileName = `${chqNum}.pdf`;
+        }
+        currentUploadedFiles.expense = finalFile;
+        updateFilePreviewUI('expense');
+        if (toast && toast.className.includes('error')) toast.style.display = 'none';
+      } catch (err) {
+        console.error("Expense file processing error:", err);
+        if (toast) {
+          toast.className = 'toast error';
+          toast.innerHTML = `❌ <strong>處理收據檔案失敗:</strong> ${escapeHtml(err.message)}<br><small>若為圖檔請確認為標準 JPG/PNG 格式，或先轉為 PDF 後上傳。</small>`;
+          toast.style.display = 'block';
+        }
+        const targetSpan = document.getElementById('exp-file-target-name');
+        if (targetSpan) targetSpan.innerHTML = `<span style="color:#ef4444; font-weight:600;">❌ 處理失敗: ${escapeHtml(err.message)}</span>`;
+      } finally {
+        if (btn) btn.disabled = false;
       }
     }
 
@@ -6180,18 +6223,115 @@
       }
     }
 
+    async function processExpenseEditFileUpload(file) {
+      const chqNum = (document.getElementById('edit-cheque')?.value || selectedEditTx?.cheque || selectedEditTx?.Title || 'EXP').trim();
+      const isPdf = file.name.toLowerCase().endsWith('.pdf') || file.type === 'application/pdf';
+      let receiptUrl = (selectedEditTx && (selectedEditTx.receiptUrl || selectedEditTx.receipt || ''));
+      if (selectedEditBatch && selectedEditBatch.length > 0) {
+        const batchReceipt = selectedEditBatch.find(x => x.receiptUrl && x.receiptUrl.trim())?.receiptUrl;
+        if (batchReceipt) receiptUrl = batchReceipt;
+      }
+      const hasExistingReceipt = Boolean(receiptUrl && receiptUrl.trim());
+      const mode = document.querySelector('input[name="edit-receipt-mode"]:checked')?.value || 'append';
+      const btn = document.getElementById('edit-submit-btn');
+      const toast = document.getElementById('edit-toast');
+
+      currentUploadedFiles.edit_rawFile = file;
+
+      showFileProcessingUI('edit', '正在處理收據檔案...');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '正在處理收據檔案 (載入 PDF / 合併中)...';
+      }
+
+      try {
+        let finalFile;
+        if (mode === 'append' && hasExistingReceipt) {
+          showFileProcessingUI('edit', '正在下載現有收據並將新檔案追加至末頁...');
+          finalFile = await appendFileToExistingReceipt(receiptUrl, file, chqNum);
+        } else {
+          if (!isPdf) {
+            showFileProcessingUI('edit', '正在將圖片轉換為標準 A4 直式 PDF...');
+            finalFile = await convertImageFileToA4Pdf(file, chqNum);
+          } else {
+            finalFile = file;
+            finalFile.targetFileName = `${chqNum}.pdf`;
+          }
+        }
+        currentUploadedFiles.edit = finalFile;
+        updateFilePreviewUI('edit');
+        setEditSubmitButtonState('idle');
+        if (toast && toast.className.includes('error')) toast.style.display = 'none';
+      } catch (err) {
+        console.error("Edit expense receipt processing error:", err);
+
+        // Fallback gracefully: if append mode failed, switch to overwrite mode so the user is never blocked!
+        const rOverwrite = document.getElementById('edit-receipt-mode-overwrite');
+        if (rOverwrite && mode === 'append') {
+          showFileProcessingUI('edit', '⚠️ 追加合併失敗，正在切換為以新檔案直接作為收據覆蓋...');
+          try {
+            let fallbackFile;
+            if (!isPdf) {
+              fallbackFile = await convertImageFileToA4Pdf(file, chqNum);
+            } else {
+              fallbackFile = file;
+              fallbackFile.targetFileName = `${chqNum}.pdf`;
+            }
+            currentUploadedFiles.edit = fallbackFile;
+            updateFilePreviewUI('edit');
+            setEditSubmitButtonState('idle');
+
+            rOverwrite.checked = true;
+            const dropzoneText = document.getElementById('edit-dropzone-text');
+            if (dropzoneText) {
+              dropzoneText.innerHTML = '拖放新檔案至此（將<span>覆蓋原檔</span>），或 <span>點擊瀏覽上傳</span>';
+            }
+
+            if (toast) {
+              toast.className = 'toast warning';
+              toast.innerHTML = `⚠️ <strong>無法下載現有收據以進行追加合併:</strong> ${escapeHtml(err.message)}<br><span style="font-size:12px; margin-top:4px; display:inline-block; color:#b45309;">系統已自動為您切換為「覆蓋原檔」模式。若確認以此新檔案作為收據，請直接點擊下方「儲存修改」。<br>(提示：若欲追加合併，請至 <code>chrome://extensions</code> 點擊「CHUN KING SharePoint Forms Auto-Bridge」重新載入 🔄 按鈕後重試)</span>`;
+              toast.style.display = 'block';
+            }
+            return;
+          } catch (fallbackErr) {
+            console.error("Fallback processing error:", fallbackErr);
+          }
+        }
+
+        // If fallback also failed or already in overwrite mode:
+        if (toast) {
+          toast.className = 'toast error';
+          toast.innerHTML = `❌ <strong>處理收據失敗:</strong> ${escapeHtml(err.message)}<br><small>請確認檔案格式是否正確，或至 <code>chrome://extensions</code> 重新載入擴充功能。</small>`;
+          toast.style.display = 'block';
+        }
+        const targetSpan = document.getElementById('edit-file-target-name');
+        if (targetSpan) {
+          targetSpan.innerHTML = `<span style="color:#ef4444; font-weight:600;">❌ 處理失敗: ${escapeHtml(err.message)}</span>`;
+        }
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '儲存修改';
+        }
+      }
+    }
+
     function onEditReceiptModeChange() {
       const mode = document.querySelector('input[name="edit-receipt-mode"]:checked')?.value || 'append';
       const dropzoneText = document.getElementById('edit-dropzone-text');
-      if (dropzoneText && currentEditType === 'income') {
+      if (dropzoneText) {
         if (mode === 'append') {
           dropzoneText.innerHTML = '拖放新檔案至此（將<span>追加至末頁</span>），或 <span>點擊瀏覽上傳</span>';
         } else {
           dropzoneText.innerHTML = '拖放新檔案至此（將<span>覆蓋原檔</span>），或 <span>點擊瀏覽上傳</span>';
         }
       }
-      if (currentEditType === 'income' && currentUploadedFiles.edit_rawFile) {
-        processIncomeEditFileUpload(currentUploadedFiles.edit_rawFile);
+      if (currentUploadedFiles.edit_rawFile) {
+        if (currentEditType === 'income') {
+          processIncomeEditFileUpload(currentUploadedFiles.edit_rawFile);
+        } else if (currentEditType === 'expense') {
+          processExpenseEditFileUpload(currentUploadedFiles.edit_rawFile);
+        }
       }
     }
     window.onEditReceiptModeChange = onEditReceiptModeChange;
@@ -9409,6 +9549,8 @@
         }
         removeFile('edit');
         setDropzoneEnabled('edit-dropzone', false, '未付記錄不支援上傳收據 (待切換為已付並設定支票號碼後方可更換收據)');
+        const modeBox = document.getElementById('edit-receipt-mode-container') || document.getElementById('edit-inc-receipt-mode-container');
+        if (modeBox) modeBox.style.display = 'none';
       } else {
         if (chqPrefix) {
           chqPrefix.disabled = false;
@@ -9424,6 +9566,17 @@
           chqBadge.textContent = '選擇字頭即自動計算下一個號碼';
         }
         setDropzoneEnabled('edit-dropzone', true);
+        const modeBox = document.getElementById('edit-receipt-mode-container') || document.getElementById('edit-inc-receipt-mode-container');
+        const hasReceipt = Boolean(selectedEditTx && (selectedEditTx.receiptUrl || selectedEditTx.receipt));
+        if (modeBox && hasReceipt) {
+          modeBox.style.display = 'block';
+          const rAppend = document.getElementById('edit-receipt-mode-append');
+          if (rAppend) rAppend.checked = true;
+          const dropzoneText = document.getElementById('edit-dropzone-text');
+          if (dropzoneText) {
+            dropzoneText.innerHTML = '拖放新檔案至此（將<span>追加至末頁</span>），或 <span>點擊瀏覽上傳</span>';
+          }
+        }
         updateFilePreviewUI('edit');
       }
       syncSharedFieldsToBatchInMemory();
@@ -10695,13 +10848,15 @@
       const receiptBox = document.getElementById('edit-current-receipt-container');
       const receiptLink = document.getElementById('edit-current-receipt-link');
       const noReceiptLabel = document.getElementById('edit-no-receipt-label');
-      const incModeBox = document.getElementById('edit-inc-receipt-mode-container');
+      const modeBox = document.getElementById('edit-receipt-mode-container') || document.getElementById('edit-inc-receipt-mode-container');
       const dropzoneText = document.getElementById('edit-dropzone-text');
 
       const rawReceiptUrl = tx.receiptUrl || tx.receipt || '';
       const receiptUrl = normalizeReceiptUrl(rawReceiptUrl);
       selectedEditTx.receiptUrl = receiptUrl;
       selectedEditTx.receiptDesc = tx.receiptDesc || tx.Title || '收據檔案';
+
+      const isUnpaidExp = isExp && (tx.paymentStatus === '未付' || (!tx.cheque && tx.paymentStatus !== '已付'));
 
       if (receiptUrl) {
         receiptBox.style.display = 'flex';
@@ -10712,15 +10867,15 @@
         receiptLink.textContent = `檢視現有收據檔案 (${selectedEditTx.receiptDesc || '點擊開啟'})`;
         noReceiptLabel.style.display = 'none';
 
-        if (currentEditType === 'income') {
-          if (incModeBox) incModeBox.style.display = 'block';
+        if (!isUnpaidExp) {
+          if (modeBox) modeBox.style.display = 'block';
           const rAppend = document.getElementById('edit-receipt-mode-append');
           if (rAppend) rAppend.checked = true;
           if (dropzoneText) {
             dropzoneText.innerHTML = '拖放新檔案至此（將<span>追加至末頁</span>），或 <span>點擊瀏覽上傳</span>';
           }
         } else {
-          if (incModeBox) incModeBox.style.display = 'none';
+          if (modeBox) modeBox.style.display = 'none';
           if (dropzoneText) {
             dropzoneText.innerHTML = '若需更換收據，請拖放新檔案至此，或 <span>點擊瀏覽上傳</span>';
           }
@@ -10730,13 +10885,9 @@
         receiptLink.style.display = 'none';
         receiptLink.removeAttribute('data-receipt-url');
         noReceiptLabel.style.display = 'inline';
-        if (incModeBox) incModeBox.style.display = 'none';
+        if (modeBox) modeBox.style.display = 'none';
         if (dropzoneText) {
-          if (currentEditType === 'income') {
-            dropzoneText.innerHTML = '拖放水單或收據至此（支援 PDF / JPG / PNG，圖檔將自動轉換為標準 A4 直式 PDF），或 <span>點擊瀏覽上傳</span>';
-          } else {
-            dropzoneText.innerHTML = '若需更換收據，請拖放新檔案至此，或 <span>點擊瀏覽上傳</span>';
-          }
+          dropzoneText.innerHTML = '拖放新檔案至此，或 <span>點擊瀏覽上傳</span>';
         }
       }
 
