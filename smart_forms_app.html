@@ -3557,6 +3557,11 @@
           </div>
 
           <div class="form-group">
+            <label>發票號碼</label>
+            <input type="text" id="inc-invoice-no" autocomplete="off">
+          </div>
+
+          <div class="form-group">
             <label>收款銀行</label>
             <select id="inc-bank" onchange="onBankSelectChange('inc')">
               <option value="東亞銀行">東亞銀行</option>
@@ -3967,6 +3972,11 @@
             </div>
 
             <!-- Income Specific Fields -->
+            <div class="form-group edit-income-field" style="display:none;">
+              <label>發票號碼</label>
+              <input type="text" id="edit-invoice-no" autocomplete="off">
+            </div>
+
             <div class="form-group edit-income-field" style="display:none;">
               <label>收款銀行</label>
               <select id="edit-inc-bank" onchange="onBankSelectChange('edit-inc')">
@@ -7199,6 +7209,7 @@
           fileUrl = await uploadFileToDocLib(currentUploadedFiles.income, folder, targetName);
         }
 
+        const incInvoice = (document.getElementById('inc-invoice-no')?.value || '').trim();
         const payload = {
           "__metadata": { "type": "SP.Data.ListListItem" },
           "Title": title,
@@ -7208,6 +7219,10 @@
           "RecordStatus": status,
           "Remarks": (document.getElementById('inc-remarks')?.value || '').trim()
         };
+
+        if (incInvoice) {
+          payload["Invoice_x0020_No_x002e_"] = incInvoice;
+        }
 
         if (projId) {
           payload["OData__x6240__x5c6c__x9805__x76ee_Id"] = projId;
@@ -7262,6 +7277,8 @@
         if (incBankWrap) incBankWrap.style.display = 'none';
         const incBankCustom = document.getElementById('inc-bank-custom');
         if (incBankCustom) incBankCustom.value = '';
+        const incInvoiceInp = document.getElementById('inc-invoice-no');
+        if (incInvoiceInp) incInvoiceInp.value = '';
         const incRemarksInp = document.getElementById('inc-remarks');
         if (incRemarksInp) incRemarksInp.value = '';
         generateIncomeDefaults();
@@ -8761,7 +8778,10 @@
 
             // Target indexed Title column; if numeric, also target indexed ID column in parallel
             const titleWhere = `<Or><Eq><FieldRef Name='Title' /><Value Type='Text'>${escapedQ}</Value></Eq><Or><Eq><FieldRef Name='Title' /><Value Type='Text'>${p7}</Value></Eq><Or><Eq><FieldRef Name='Title' /><Value Type='Text'>${p5}</Value></Eq><Or><Contains><FieldRef Name='Title' /><Value Type='Text'>${pRaw}</Value></Contains><Contains><FieldRef Name='Title' /><Value Type='Text'>${escapedQ}</Value></Contains></Or></Or></Or></Or>`;
-            const queries = [queryCaml(titleWhere, 100)];
+            const queries = [
+              queryCaml(titleWhere, 100),
+              queryCaml(`<Contains><FieldRef Name='Invoice_x0020_No_x002e_' /><Value Type='Text'>${escapedQ}</Value></Contains>`, 50)
+            ];
             if (numMatch && num > 0) {
               const idWhere = `<Eq><FieldRef Name='ID' /><Value Type='Integer'>${num}</Value></Eq>`;
               queries.push(queryCaml(idWhere, 10));
@@ -8794,21 +8814,21 @@
             (rowsTitle || []).forEach(r => rowMap.set(String(r.ID), r));
             rows = Array.from(rowMap.values());
           } else {
-            // 4. General keyword search: Query indexed Title, Payee, and Project in parallel to maintain index seeks
+            // 4. General keyword search: Query indexed Title, Payee, Project, and Invoice in parallel to maintain index seeks
             const titleWhere = `<Contains><FieldRef Name='Title' /><Value Type='Text'>${escapedQ}</Value></Contains>`;
             const projWhere = `<Contains><FieldRef Name='_x6240__x5c6c__x9805__x76ee_' /><Value Type='Lookup'>${escapedQ}</Value></Contains>`;
+            const invWhere = `<Contains><FieldRef Name='Invoice_x0020_No_x002e_' /><Value Type='Text'>${escapedQ}</Value></Contains>`;
 
             const queries = [
               queryCaml(titleWhere, 50),
-              queryCaml(projWhere, 50)
+              queryCaml(projWhere, 50),
+              queryCaml(invWhere, 50)
             ];
             if (isExp) {
               const chqWhere = `<Contains><FieldRef Name='_x652f__x7968__x7de8__x865f_' /><Value Type='Text'>${escapedQ}</Value></Contains>`;
               queries.push(queryCaml(chqWhere, 100));
               const payeeWhere = `<Contains><FieldRef Name='_x6536__x6b3e__x4eba_' /><Value Type='Text'>${escapedQ}</Value></Contains>`;
               queries.push(queryCaml(payeeWhere, 50));
-              const invWhere = `<Contains><FieldRef Name='Invoice_x0020_No_x002e_' /><Value Type='Text'>${escapedQ}</Value></Contains>`;
-              queries.push(queryCaml(invWhere, 50));
             }
 
             const queryResults = await Promise.all(queries);
@@ -8953,6 +8973,13 @@
                 displayTitle = displayTitle.replace(regex, '<mark>$1</mark>');
               } catch (_) { }
             }
+            let invDisplay = tx.invoiceNo ? escapeHtml(tx.invoiceNo) : '';
+            if (q && invDisplay) {
+              try {
+                const regex = new RegExp(`(${escapeRegex(q)})`, 'gi');
+                invDisplay = invDisplay.replace(regex, '<mark>$1</mark>');
+              } catch (_) { }
+            }
             const amtStr = `$${Number(tx.amount || 0).toLocaleString()}`;
             div.innerHTML = `
             <div class="combobox-item-title" style="display:flex; justify-content:space-between; align-items:center;">
@@ -8961,6 +8988,7 @@
             </div>
             <div class="combobox-item-meta" style="margin-top:3px;">
               ${escapeHtml(tx.dateDisplay || '')} &nbsp;|&nbsp; 項目: ${escapeHtml(tx.projName || '無')}
+              ${invDisplay ? ` &nbsp;|&nbsp; 發票: ${invDisplay}` : ''}
               ${tx.bank ? ` &nbsp;|&nbsp; 銀行: ${escapeHtml(tx.bank)}` : ''}
               ${tx.remarks ? ` &nbsp;|&nbsp; 備註: ${escapeHtml(tx.remarks)}` : ''}
             </div>
@@ -10837,6 +10865,9 @@
         }
       } else {
         setBankSelectValue('edit-inc', tx.bank || '東亞銀行');
+        if (document.getElementById('edit-invoice-no')) {
+          document.getElementById('edit-invoice-no').value = cleanInvoiceNoStr(tx.invoiceNo || '');
+        }
       }
 
       const receiptBox = document.getElementById('edit-current-receipt-container');
@@ -10945,6 +10976,7 @@
       }
 
       document.getElementById('form-edit-tx').reset();
+      if (document.getElementById('edit-invoice-no')) document.getElementById('edit-invoice-no').value = '';
       if (editProjCombobox) editProjCombobox.clear();
       removeFile('edit');
       setDropzoneEnabled('edit-dropzone', true);
@@ -11744,6 +11776,8 @@
         } else {
           payload["OData__x6536__x9805__x9280__x884c_"] = getBankValue('edit-inc');
           payload["OData__x6240__x5c6c__x9805__x76ee_Id"] = newProjId;
+          const editInv = (document.getElementById('edit-invoice-no')?.value || '').trim();
+          payload["Invoice_x0020_No_x002e_"] = editInv;
           if (newFileUrl) {
             payload["OData__x6536__x64da_"] = {
               "__metadata": { "type": "SP.FieldUrlValue" },
@@ -11800,6 +11834,7 @@
           selectedEditTx.paymentStatus = editPayStatus;
         } else {
           selectedEditTx.bank = getBankValue('edit-inc');
+          selectedEditTx.invoiceNo = (document.getElementById('edit-invoice-no')?.value || '').trim();
         }
 
         if (newFileUrl) {
@@ -12727,6 +12762,7 @@
           incTotal += amt;
 
           const rcpt = parseReceiptField(r['_x6536__x64da_'], r['_x6536__x64da_.desc']);
+          const incInvNo = cleanInvoiceNoStr(r['Invoice_x0020_No_x002e_'] || r['InvoiceNo'] || r['Invoice No.'] || r.OData_Invoice_x0020_No_x002e_ || '');
           periodItems.push({
             id: parseInt(r.ID || r.Id || 0, 10),
             title: r.Title || '',
@@ -12737,7 +12773,7 @@
             project: extractProjectNameFromRow(r),
             payee: r['_x6536__x9805__x9280__x884c_'] || (r['Title'] || ''),
             cheque: r['Title'] || '',
-            invoiceNo: '',
+            invoiceNo: incInvNo,
             paymentStatus: '已付',
             receipt: rcpt.url,
             receiptDesc: rcpt.desc,
@@ -14104,6 +14140,7 @@
             const rawAmt = r['_x91d1__x984d_.'] || strClean(r['_x91d1__x984d_']);
             const bank = r['_x6536__x9805__x9280__x884c_'] || '';
             const payeeLabel = bank ? `${bank} (入賬)` : (r['Title'] || '');
+            const incInvNo = cleanInvoiceNoStr(r['Invoice_x0020_No_x002e_'] || r['InvoiceNo'] || r['Invoice No.'] || r.OData_Invoice_x0020_No_x002e_ || '');
             items.push({
               id: parseInt(r.ID || r.Id || 0, 10),
               title: r.Title || '',
@@ -14113,7 +14150,7 @@
               subitem: '工程款',
               payee: payeeLabel,
               cheque: r['Title'] || '',
-              invoiceNo: '',
+              invoiceNo: incInvNo,
               paymentStatus: '已付',
               receipt: rcpt.url,
               receiptDesc: rcpt.desc,
