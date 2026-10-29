@@ -3844,11 +3844,11 @@
       <!-- Search / Record Selector -->
       <div class="edit-selector-card">
         <div class="form-group col-full">
-          <label>搜尋並選取交易記錄 <span class="badge-auto" id="edit-tx-count-badge">(全庫即時搜尋)</span></label>
+          <label>搜尋交易記錄</label>
           <div class="combobox-container" id="edit-tx-combobox">
             <div class="combobox-input-wrap">
               <input type="text" class="combobox-input" id="edit-tx-search"
-                placeholder="輸入支票編號、廠商、發票號碼、小類或項目關鍵字全庫檢索..." autocomplete="off">
+                placeholder="搜尋支票號碼、廠商、項目或關鍵字..." autocomplete="off">
               <div class="combobox-actions">
                 <button type="button" class="combobox-clear" id="edit-tx-clear" title="清除選取">✕</button>
                 <span class="combobox-arrow">▼</span>
@@ -3859,8 +3859,8 @@
           </div>
         </div>
         <div class="quick-actions-bar">
-          <button type="button" class="btn-sm" onclick="refreshEditTxList()">重新載入最新記錄</button>
-          <span id="edit-load-status" style="font-size:12px; color:var(--text-muted);">已就緒 (輸入關鍵字即可全庫檢索)</span>
+          <button type="button" class="btn-sm" onclick="refreshEditTxList()">重新載入</button>
+          <span id="edit-load-status" style="font-size:12px; color:var(--text-muted);">已就緒</span>
         </div>
       </div>
 
@@ -8583,7 +8583,7 @@
       if (!q) {
         renderEditTxResults(loadedEditTransactions.slice(0, 30), '', false, 'recent');
         const statusEl = document.getElementById('edit-load-status');
-        if (statusEl) statusEl.textContent = '已就緒 (輸入關鍵字即可全庫檢索)';
+        if (statusEl) statusEl.textContent = '已就緒';
         return;
       }
 
@@ -8591,15 +8591,14 @@
         const dropdown = document.getElementById('edit-tx-dropdown');
         if (dropdown) {
           dropdown.innerHTML = `
-          <div class="combobox-empty" style="color:var(--text-muted); font-size:12.5px; padding:14px 16px; line-height:1.5;">
-            請輸入至少 2 個字元以啟動全庫搜尋<br>
-            <span style="font-size:11.5px; color:#64748b;">(支援支票編號、廠商、發票號碼、所屬項目或小類關鍵字)</span>
+          <div class="combobox-empty" style="color:var(--text-muted); font-size:12.5px; padding:12px 16px;">
+            請輸入至少 2 個字元進行搜尋
           </div>
         `;
           dropdown.style.display = 'block';
         }
         const statusEl = document.getElementById('edit-load-status');
-        if (statusEl) statusEl.textContent = '請輸入至少 2 個字元以啟動全庫檢索...';
+        if (statusEl) statusEl.textContent = '請輸入至少 2 個字元進行搜尋...';
         return;
       }
 
@@ -8609,13 +8608,13 @@
         dropdown.innerHTML = `
         <div class="combobox-loading-item" style="padding:14px; text-align:center; color:#0284c7; font-size:13px; display:flex; align-items:center; justify-content:center; gap:8px;">
           <span style="display:inline-block; width:13px; height:13px; border:2px solid #0284c7; border-top-color:transparent; border-radius:50%; animation:spin 0.8s linear infinite;"></span>
-          正在 SharePoint 全庫 (10,000+ 筆) 中即時搜尋 "<strong>${escapeHtml(q)}</strong>"...
+          正在搜尋 "<strong>${escapeHtml(q)}</strong>"...
         </div>
       `;
         dropdown.style.display = 'block';
       }
       const statusEl = document.getElementById('edit-load-status');
-      if (statusEl) statusEl.textContent = `準備全庫搜尋 "${q}"...`;
+      if (statusEl) statusEl.textContent = `正在搜尋「${q}」...`;
 
       // 300ms debounce to prevent API throttling
       editTxSearchTimer = setTimeout(() => {
@@ -8703,7 +8702,7 @@
       const statusEl = document.getElementById('edit-load-status');
       const dropdown = document.getElementById('edit-tx-dropdown');
 
-      if (statusEl) statusEl.textContent = `正在檢索 SharePoint 全庫 "${q}"...`;
+      if (statusEl) statusEl.textContent = `正在搜尋「${q}」...`;
 
       try {
         await getDigest();
@@ -8871,12 +8870,12 @@
           }
         });
 
-        if (statusEl) statusEl.textContent = `全庫檢索完成：找到 ${newItems.length} 筆相符記錄`;
+        if (statusEl) statusEl.textContent = `找到 ${newItems.length} 筆相符記錄`;
         renderEditTxResults(newItems, q, true, 'server');
       } catch (err) {
         if (seq !== editTxSearchSeq) return;
         console.warn("searchServerTransactions notice:", err);
-        if (statusEl) statusEl.textContent = `全庫檢索提示: ${err.message}`;
+        if (statusEl) statusEl.textContent = `搜尋提示: ${err.message}`;
         if (dropdown) {
           dropdown.innerHTML = `<div class="combobox-empty">檢索失敗：${escapeHtml(err.message)}</div>`;
           dropdown.style.display = 'block';
@@ -8900,7 +8899,7 @@
       if (filteredEditTransactions.length === 0) {
         const emptyDiv = document.createElement('div');
         emptyDiv.className = 'combobox-empty';
-        emptyDiv.innerHTML = (mode === 'server') ? `全庫無相符的交易記錄 (已檢索 10,000+ 筆)` : `尚無相符記錄`;
+        emptyDiv.innerHTML = (mode === 'server') ? `無相符記錄` : `尚無記錄`;
         frag.appendChild(emptyDiv);
       } else {
         filteredEditTransactions.slice(0, 50).forEach(tx => {
@@ -8988,12 +8987,12 @@
           summaryDiv.style.color = '#0369a1';
           summaryDiv.style.backgroundColor = '#f0f9ff';
           summaryDiv.style.borderTop = '1px solid #e0f2fe';
-          summaryDiv.textContent = `已由全庫檢索，共找到 ${filteredEditTransactions.length} 筆相符記錄${filteredEditTransactions.length > 50 ? ' (顯示前 50 筆)' : ''}`;
+          summaryDiv.textContent = `共 ${filteredEditTransactions.length} 筆相符記錄${filteredEditTransactions.length > 50 ? ' (顯示前 50 筆)' : ''}`;
         } else {
           summaryDiv.style.color = 'var(--text-muted)';
           summaryDiv.style.backgroundColor = '#f8fafc';
           summaryDiv.style.borderTop = '1px solid #f1f5f9';
-          summaryDiv.textContent = `顯示最新 ${filteredEditTransactions.length} 筆記錄，輸入關鍵字即可全庫檢索`;
+          summaryDiv.textContent = `最新 ${filteredEditTransactions.length} 筆記錄`;
         }
         frag.appendChild(summaryDiv);
       }
@@ -9013,7 +9012,7 @@
       const statusEl = document.getElementById('edit-load-status');
       const badgeEl = document.getElementById('edit-tx-count-badge');
 
-      if (statusEl) statusEl.textContent = `正在讀取最新 ${isExp ? '支出' : '收入'} 記錄...`;
+      if (statusEl) statusEl.textContent = `正在讀取最新記錄...`;
 
       try {
         await getDigest();
@@ -9078,8 +9077,8 @@
 
         loadedEditTransactions = items;
 
-        if (badgeEl) badgeEl.textContent = `全庫即時搜尋模式 (支援 10,000+ 筆)`;
-        if (statusEl) statusEl.textContent = '已就緒 (輸入關鍵字即可全庫檢索)';
+        if (badgeEl) badgeEl.textContent = '';
+        if (statusEl) statusEl.textContent = '已就緒';
 
       } catch (err) {
         console.error("loadRecentTransactions error:", err);
