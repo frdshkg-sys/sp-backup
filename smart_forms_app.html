@@ -4585,6 +4585,24 @@
       return isNaN(t) ? 0 : t;
     }
 
+    function sortDashboardProjects(list) {
+      if (!list || !Array.isArray(list)) return list;
+      return list.sort((a, b) => {
+        const timeA = getProjectStartTime(a);
+        const timeB = getProjectStartTime(b);
+
+        if (timeA > 0 && timeB > 0) {
+          if (timeB !== timeA) return timeB - timeA; // newest to oldest
+          return (a.title || a.Title || '').localeCompare(b.title || b.Title || '', 'zh-HK');
+        }
+        if (timeA > 0 && timeB <= 0) return -1;
+        if (timeA <= 0 && timeB > 0) return 1;
+
+        // Both do not have 預計施工日期: sort by name
+        return (a.title || a.Title || '').localeCompare(b.title || b.Title || '', 'zh-HK');
+      });
+    }
+
     function compareProjectsByStartDateDesc(a, b) {
       const timeA = getProjectStartTime(a);
       const timeB = getProjectStartTime(b);
@@ -4599,11 +4617,7 @@
       return (a.title || a.Title || '').localeCompare(b.title || b.Title || '', 'zh-HK');
     }
 
-    let projectListFirstExpense = new Map();     // pid -> earliest non-void expense epoch ms
-    let projectListFirstExpenseStatus = 'idle';  // 'idle' | 'loading' | 'done' | 'error'
-    let projectListFirstExpensePromise = null;   // shared in-flight load (dedupe)
-    let projectListExpenseFetchGen = 0;          // invalidates in-flight loads after manual refresh
-
+    // Table-only sort. Never used by the 🏗️ dropdown, which keeps sortDashboardProjects.
     // mode: 'expense' | 'date'; expenseMap: Map<projectId, earliest expense epoch ms>
     function sortProjectList(list, mode, expenseMap) {
       if (!Array.isArray(list)) return list;
@@ -4623,14 +4637,6 @@
         }
         return compareProjectsByStartDateDesc(a, b); // no expense (or fallback)
       });
-    }
-
-    function sortDashboardProjects(list) {
-      if (!list || !Array.isArray(list)) return list;
-      const sorted = sortProjectList(list, 'expense', projectListFirstExpense);
-      list.length = 0;
-      list.push(...sorted);
-      return list;
     }
 
     let allProjects = [...INITIAL_PROJECTS];
@@ -5378,10 +5384,7 @@
             sortDashboardProjects(dashboardProjectsList);
             const validProjects = getDashboardFilteredProjects();
             renderDashboardProjectDropdown(validProjects);
-            if (!userManuallySelectedProject && validProjects.length > 0) {
-              const firstProj = validProjects.find(p => p.id !== 838 && p.code !== 'UNASSIGNED') || validProjects[0];
-              if (firstProj) selectDashProject(firstProj);
-            } else if (typeof selectedDashProject !== 'undefined' && selectedDashProject) {
+            if (typeof selectedDashProject !== 'undefined' && selectedDashProject) {
               const updated = validProjects.find(x => x.id === selectedDashProject.id);
               if (updated) selectDashProject(updated);
             }
@@ -11975,14 +11978,13 @@
 
     function getDashboardFilteredProjects() {
       const list = dashboardProjectsList || [];
-      const filtered = dashboardExcludeTest
-        ? list.filter(p => !isTestProjectName(p.title || p.Title || ''))
-        : list;
-      return sortDashboardProjects(filtered);
+      if (dashboardExcludeTest) {
+        return list.filter(p => !isTestProjectName(p.title || p.Title || ''));
+      }
+      return list;
     }
 
-    let userManuallySelectedProject = false;
-    let selectedDashProject = getDashboardFilteredProjects().find(p => p.id !== 838 && p.code !== 'UNASSIGNED') || getDashboardFilteredProjects()[0] || null;
+    let selectedDashProject = getDashboardFilteredProjects().find(p => p.id === 228) || getDashboardFilteredProjects().find(p => p.id !== 838 && p.code !== 'UNASSIGNED') || getDashboardFilteredProjects()[0] || null;
     let dashboardInitialized = false;
     let projectListQuery = '';            // current 項目清單總表 search filter (name/code)
     let projectListMgrQuery = '';         // 項目清單總表：負責人文字篩選
@@ -11995,6 +11997,10 @@
     let projectListRenderSeq = 0;         // guards against superseded renders
     let projectListDateMode = 'expense';  // date column sort: 'expense' (default) | 'date'
     let projectListColorMode = 'none';  // row tint: 'none' (default) | 'profit' | 'unpaid'
+    let projectListFirstExpense = new Map();     // pid -> earliest non-void expense epoch ms
+    let projectListFirstExpenseStatus = 'idle';  // 'idle' | 'loading' | 'done' | 'error'
+    let projectListFirstExpensePromise = null;   // shared in-flight load (dedupe)
+    let projectListExpenseFetchGen = 0;          // invalidates in-flight loads after manual refresh
 
     let projectTxCache = {
       228: [
@@ -12618,7 +12624,7 @@
       const match = list.find(p => (p.title || p.Title || '').trim().toLowerCase() === projName.trim().toLowerCase());
       if (match) {
         switchDashboardView('project');
-        selectDashProject(match, true);
+        selectDashProject(match);
         const card = document.getElementById('card-project-balance');
         if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
@@ -12999,8 +13005,8 @@
       const validProjects = getDashboardFilteredProjects();
       if (validProjects.length > 0) {
         if (selectedDashProject) {
-          const stillSelected = validProjects.find(p => (p.id !== undefined ? p.id : p.Id) === (selectedDashProject.id !== undefined ? selectedDashProject.id : selectedDashProject.Id));
-          if (stillSelected && userManuallySelectedProject) {
+          const stillSelected = validProjects.find(p => p.id === selectedDashProject.id);
+          if (stillSelected) {
             selectDashProject(stillSelected);
           } else {
             const fallback = validProjects.find(p => p.id !== 838 && p.code !== 'UNASSIGNED') || validProjects[0];
@@ -13180,21 +13186,6 @@
       return map;
     }
 
-    function onProjectFirstExpenseDatesLoaded() {
-      sortDashboardProjects(dashboardProjectsList);
-      const valid = getDashboardFilteredProjects();
-      renderDashboardProjectDropdown(valid);
-      if (!userManuallySelectedProject && valid.length > 0) {
-        const firstProj = valid.find(p => p.id !== 838 && p.code !== 'UNASSIGNED') || valid[0];
-        if (firstProj && (!selectedDashProject || (selectedDashProject.id !== undefined ? selectedDashProject.id : selectedDashProject.Id) !== (firstProj.id !== undefined ? firstProj.id : firstProj.Id))) {
-          selectDashProject(firstProj);
-        }
-      }
-      if (currentDashboardView === 'list' && typeof renderProjectListSync === 'function') {
-        renderProjectListSync(projectListRenderSeq);
-      }
-    }
-
     async function ensureProjectFirstExpenseDates() {
       if (projectListFirstExpenseStatus === 'done') return projectListFirstExpense;
       if (projectListFirstExpenseStatus === 'error') return projectListFirstExpense; // no auto-retry
@@ -13208,7 +13199,6 @@
           if (gen === projectListExpenseFetchGen) {
             projectListFirstExpense = map;
             projectListFirstExpenseStatus = 'done';
-            onProjectFirstExpenseDatesLoaded();
           }
         } catch (err) {
           console.warn('項目清單：最早支出日期載入失敗，暫按施工日期排序', err);
@@ -13233,7 +13223,7 @@
     function openProjectFromList(id) {
       const p = dashboardProjectsList.find(x => (x.id !== undefined ? x.id : x.Id) == id);
       if (!p) return;
-      selectDashProject(p, true);
+      selectDashProject(p);
       switchDashboardView('project');
     }
 
@@ -13517,9 +13507,8 @@
       }
     }
 
-    function selectDashProject(p, isManual = false) {
+    function selectDashProject(p) {
       if (!p) return;
-      if (isManual) userManuallySelectedProject = true;
       selectedDashProject = p;
 
       const titleStr = p.title || p.Title || '未命名項目';
@@ -13702,17 +13691,11 @@
         div.className = 'project-opt';
         if (selectedDashProject && selectedDashProject.id === p.id) div.classList.add('selected');
 
-        const pid = Number(p.id !== undefined ? p.id : p.Id);
-        const firstTs = projectListFirstExpense && projectListFirstExpense.get ? (projectListFirstExpense.get(pid) || 0) : 0;
-        let dateStr = '';
-        if (firstTs > 0) {
-          dateStr = fmtListDate(firstTs);
-        } else {
-          const pStartDate = p.startDate || p.OData__x9810__x8a08__x65bd__x5de5__x65 || p._x9810__x8a08__x65bd__x5de5__x65;
-          if (pStartDate) {
-            dateStr = fmtListDate(pStartDate);
-          }
-        }
+        const pStartDate = p.startDate || p.OData__x9810__x8a08__x65bd__x5de5__x65 || p._x9810__x8a08__x65bd__x5de5__x65;
+        const sDate = pStartDate ? new Date(pStartDate) : null;
+        const dateStr = sDate && !isNaN(sDate.getTime())
+          ? `${sDate.getFullYear()}/${String(sDate.getMonth() + 1).padStart(2, '0')}/${String(sDate.getDate()).padStart(2, '0')}`
+          : (pStartDate ? String(pStartDate).slice(0, 10).replace(/-/g, '/') : '');
 
         div.innerHTML = `
         <div class="project-opt-title" style="display:flex; justify-content:space-between; align-items:baseline; gap:8px;">
@@ -13726,7 +13709,7 @@
       `;
 
         div.addEventListener('click', () => {
-          selectDashProject(p, true);
+          selectDashProject(p);
           closeDashDropdown();
         });
 
@@ -13815,7 +13798,7 @@
           fetchPeriodData(currentPeriod),
           loadDashboardProjects(),
           (curPid && needFetchTx) ? fetchProjectTransactions(curPid) : Promise.resolve(),
-          ensureProjectFirstExpenseDates()
+          isManual ? ensureProjectFirstExpenseDates() : Promise.resolve()
         ]);
       } finally {
         if (btn) {
@@ -13848,19 +13831,15 @@
     function initDashboardTab() {
       updateProjectListDateHeader();
       switchDashboardView(currentDashboardView);
-      // 1. 渲染預設項目（若尚未由使用者手動選取，預設選取已排序清單的第一個項目）
+      // 1. 渲染預設項目
       const validProjects = getDashboardFilteredProjects();
-      if (!userManuallySelectedProject && validProjects.length > 0) {
-        selectedDashProject = validProjects.find(p => p.id !== 838 && p.code !== 'UNASSIGNED') || validProjects[0];
-      } else if (!selectedDashProject && validProjects.length > 0) {
+      if (!selectedDashProject && validProjects.length > 0) {
         selectedDashProject = validProjects.find(p => p.id !== 838 && p.code !== 'UNASSIGNED') || validProjects[0];
       }
       if (selectedDashProject) {
         selectDashProject(selectedDashProject);
       }
       renderDashboardProjectDropdown(validProjects);
-
-      ensureProjectFirstExpenseDates().catch(err => console.warn('ensureProjectFirstExpenseDates notice:', err));
 
       if (periodCache[currentPeriod]) {
         computeAndRenderPeriodData(periodCache[currentPeriod]);
