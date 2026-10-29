@@ -4603,7 +4603,7 @@
     // State for max numbers (自動讀取 SharePoint 最新真實序號，並結合本地快取)
     const DEFAULT_MAX_NUMBERS = {
       exp: 8160,
-      inc: 1170,
+      inc: 1210,
       ck: 609,     // 最新連續到 CK0609，下一張正式支票為 CK0610
       ws: 2015,    // 最新連續到 WS2015，下一張正式支票為 WS2016
       chq: 4180,   // 最新連續到 CHQ004180，下一張正式支票為 CHQ004181
@@ -5413,8 +5413,7 @@
 
     function generateIncomeDefaults() {
       const nextInc = maxNumbers.inc + 1;
-      const year = new Date().getFullYear();
-      document.getElementById('inc-title').value = `INC-${String(nextInc).padStart(5, '0')}-${year}`;
+      document.getElementById('inc-title').value = `INC-${String(nextInc).padStart(5, '0')}`;
     }
 
     function onChequePrefixChange() {
