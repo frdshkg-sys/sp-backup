@@ -3617,28 +3617,28 @@
         <div class="form-grid">
           <div class="form-group col-full">
             <label>項目名稱 <span class="req">*</span></label>
-            <input type="text" id="proj-title" placeholder="例如：尖沙咀文化中心大堂翻新工程" required>
+            <input type="text" id="proj-title" required>
           </div>
 
           <div class="form-group">
             <label>項目編號</label>
-            <input type="text" id="proj-code" placeholder="例如：CK-2026-001" style="text-transform:uppercase;"
+            <input type="text" id="proj-code" style="text-transform:uppercase;"
               oninput="this.value = this.value.toUpperCase()">
           </div>
 
           <div class="form-group">
             <label>分類</label>
-            <input type="text" id="proj-cat" placeholder="例如：水喉工程、電力維修、裝修">
+            <input type="text" id="proj-cat">
           </div>
 
           <div class="form-group">
             <label>負責人</label>
-            <input type="text" id="proj-manager" placeholder="例如：歡哥、蛇總、達哥">
+            <input type="text" id="proj-manager">
           </div>
 
           <div class="form-group">
             <label>合約金額 (HKD)</label>
-            <input type="text" inputmode="decimal" id="proj-amount" placeholder="例如：500000" autocomplete="off">
+            <input type="text" inputmode="decimal" id="proj-amount" placeholder="0.00" autocomplete="off">
           </div>
 
           <div class="form-group">
@@ -3652,8 +3652,8 @@
           </div>
 
           <div class="form-group col-full">
-            <label>項目備註 (可選)</label>
-            <textarea id="proj-remarks" rows="3" placeholder="例如：合約特殊條款、進度說明、工程聯絡人或重要備忘事項..."
+            <label>項目備註</label>
+            <textarea id="proj-remarks" rows="3"
               style="resize: vertical; min-height: 76px;"></textarea>
           </div>
         </div>
@@ -3662,7 +3662,7 @@
 
         <div class="form-actions-row">
           <button type="button" id="proj-submit-btn" class="btn-submit" onclick="submitProject(event)">
-            建立新項目
+            建立項目
           </button>
         </div>
       </form>
@@ -7318,7 +7318,7 @@
             document.getElementById('proj-code').focus();
             isSubmittingProject = false;
             btn.disabled = false;
-            btn.innerHTML = '建立新項目';
+            btn.innerHTML = '建立項目';
             return;
           }
         }
@@ -7371,7 +7371,7 @@
       } finally {
         isSubmittingProject = false;
         btn.disabled = false;
-        btn.innerHTML = '建立新項目';
+        btn.innerHTML = '建立項目';
       }
     }
 
