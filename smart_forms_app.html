@@ -13509,10 +13509,6 @@
         div.className = 'project-opt';
         if (selectedDashProject && selectedDashProject.id === p.id) div.classList.add('selected');
 
-        const net = (p.recv || 0) - (p.cost || 0);
-        const netStr = net >= 0 ? `+${fmtCompact(net)}` : fmtCompact(net);
-        const netColor = net >= 0 ? '#059669' : '#dc2626';
-
         const pStartDate = p.startDate || p.OData__x9810__x8a08__x65bd__x5de5__x65 || p._x9810__x8a08__x65bd__x5de5__x65;
         const sDate = pStartDate ? new Date(pStartDate) : null;
         const dateStr = sDate && !isNaN(sDate.getTime())
@@ -13527,7 +13523,6 @@
         <div class="project-opt-sub">
           <span>合約: ${fmtCompact(p.contract || p.amt || 0)}</span>
           <span>已收: ${fmtCompact(p.recv || 0)}</span>
-          <span style="color:${netColor}; font-weight:600;">結餘: ${netStr}</span>
         </div>
       `;
 
