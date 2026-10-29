@@ -3994,19 +3994,16 @@
               </div>
 
               <!-- Mode selector for Income records when an existing receipt exists -->
-              <div id="edit-inc-receipt-mode-container" style="display:none; margin-bottom:12px; padding:10px 14px; background:#f0f9ff; border:1px solid #bae6fd; border-radius:6px; font-size:13px;">
-                <div style="font-weight:600; color:#0369a1; margin-bottom:6px; display:flex; align-items:center; gap:6px;">
-                  <span>📑 收入收據處理模式：</span>
-                  <span style="font-size:11.5px; font-weight:normal; color:#0284c7;">(支援 PDF / JPG / PNG，圖檔自動轉為 A4 直式 PDF)</span>
-                </div>
-                <div style="display:flex; gap:18px; flex-wrap:wrap;">
-                  <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-weight:600; color:#0f172a;">
+              <div id="edit-inc-receipt-mode-container" style="display:none; margin-bottom:10px; padding:8px 12px; background:#f0f9ff; border:1px solid #bae6fd; border-radius:6px; font-size:13px;">
+                <div style="display:flex; align-items:center; gap:18px; flex-wrap:wrap;">
+                  <span style="font-weight:600; color:#0369a1;">收據模式：</span>
+                  <label style="display:flex; align-items:center; gap:6px; cursor:pointer; color:#0f172a;">
                     <input type="radio" name="edit-receipt-mode" id="edit-receipt-mode-append" value="append" checked onchange="onEditReceiptModeChange()">
-                    <span>➕ 追加至現有 PDF 末頁 <span style="font-weight:normal; color:#475569; font-size:12px;">(多張憑證/水單補件合併)</span></span>
+                    <span>追加至末頁</span>
                   </label>
-                  <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-weight:600; color:#475569;">
+                  <label style="display:flex; align-items:center; gap:6px; cursor:pointer; color:#475569;">
                     <input type="radio" name="edit-receipt-mode" id="edit-receipt-mode-overwrite" value="overwrite" onchange="onEditReceiptModeChange()">
-                    <span>🔄 完全覆蓋替換原檔 <span style="font-weight:normal; color:#64748b; font-size:12px;">(原收據有誤需重傳)</span></span>
+                    <span>覆蓋原檔</span>
                   </label>
                 </div>
               </div>
@@ -6188,9 +6185,9 @@
       const dropzoneText = document.getElementById('edit-dropzone-text');
       if (dropzoneText && currentEditType === 'income') {
         if (mode === 'append') {
-          dropzoneText.innerHTML = '拖放新檔案至此（PDF / JPG / PNG），將<span>自動追加至現有 PDF 末頁</span>，或 <span>點擊瀏覽上傳</span>';
+          dropzoneText.innerHTML = '拖放新檔案至此（將<span>追加至末頁</span>），或 <span>點擊瀏覽上傳</span>';
         } else {
-          dropzoneText.innerHTML = '拖放新檔案至此（PDF / JPG / PNG），將<span>完全覆蓋替換原收據</span>，或 <span>點擊瀏覽上傳</span>';
+          dropzoneText.innerHTML = '拖放新檔案至此（將<span>覆蓋原檔</span>），或 <span>點擊瀏覽上傳</span>';
         }
       }
       if (currentEditType === 'income' && currentUploadedFiles.edit_rawFile) {
@@ -10720,7 +10717,7 @@
           const rAppend = document.getElementById('edit-receipt-mode-append');
           if (rAppend) rAppend.checked = true;
           if (dropzoneText) {
-            dropzoneText.innerHTML = '拖放新檔案至此（PDF / JPG / PNG），將<span>自動追加至現有 PDF 末頁</span>，或 <span>點擊瀏覽上傳</span>';
+            dropzoneText.innerHTML = '拖放新檔案至此（將<span>追加至末頁</span>），或 <span>點擊瀏覽上傳</span>';
           }
         } else {
           if (incModeBox) incModeBox.style.display = 'none';
