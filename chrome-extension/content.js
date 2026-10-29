@@ -74,11 +74,18 @@
 
         try {
             var resp = await fetch(reqUrl, reqOptions);
-            var text = await resp.text();
+            var text = null;
             var json = null;
-            try {
-                json = JSON.parse(text);
-            } catch (jsonErr) {}
+            var buffer = null;
+
+            if (reqOptions && reqOptions.binary) {
+                buffer = await resp.arrayBuffer();
+            } else {
+                text = await resp.text();
+                try {
+                    json = JSON.parse(text);
+                } catch (jsonErr) {}
+            }
 
             var responseData = {
                 type: 'SP_FETCH_RESPONSE',
@@ -86,7 +93,8 @@
                 ok: resp.ok,
                 status: resp.status,
                 data: json,
-                text: text
+                text: text,
+                buffer: buffer
             };
 
             console.log("✅ [SP-Bridge] 請求完成，狀態碼:", resp.status);

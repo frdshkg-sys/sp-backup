@@ -34,6 +34,19 @@ class SharePointProxyHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path.startswith("/_api") or "/_api" in self.path:
             self.proxy_sharepoint("GET")
+        elif self.path.startswith("/sites/CHUNKING/SiteAssets/lib/"):
+            lib_name = self.path.replace("/sites/CHUNKING/SiteAssets/lib/", "")
+            local_lib = os.path.join(BASE_DIR, "lib", lib_name)
+            if os.path.exists(local_lib):
+                self.send_response(200)
+                self.send_header("Content-Type", "application/javascript")
+                self.end_headers()
+                with open(local_lib, "rb") as f:
+                    self.wfile.write(f.read())
+                return
+            self.proxy_sharepoint("GET")
+        elif self.path.startswith("/sites/CHUNKING/"):
+            self.proxy_sharepoint("GET")
         elif self.path == "/" or self.path == "/app" or self.path.startswith("/#") or self.path.startswith("/?"):
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")

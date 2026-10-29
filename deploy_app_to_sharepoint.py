@@ -45,7 +45,7 @@ if not digest:
     print("❌ Could not obtain digest after retries.")
     sys.exit(1)
 
-# 2. Ensure /sites/CHUNKING/SiteAssets/app folder exists
+# 2. Ensure /sites/CHUNKING/SiteAssets/app and lib folders exist
 try:
     session.post(
         f"{SITE_URL}/_api/web/GetFolderByServerRelativeUrl('/sites/CHUNKING/SiteAssets')/Folders/add(url='app')",
@@ -53,6 +53,29 @@ try:
     )
 except Exception:
     pass
+
+try:
+    session.post(
+        f"{SITE_URL}/_api/web/GetFolderByServerRelativeUrl('/sites/CHUNKING/SiteAssets')/Folders/add(url='lib')",
+        headers={'Accept': 'application/json;odata=verbose', 'X-RequestDigest': digest, 'Content-Type': 'application/json;odata=verbose'}
+    )
+except Exception:
+    pass
+
+# Upload lib/pdf-lib.min.js if present
+lib_pdf_path = os.path.join(BASE_DIR, "lib", "pdf-lib.min.js")
+if os.path.exists(lib_pdf_path):
+    with open(lib_pdf_path, 'rb') as f:
+        pdf_lib_bytes = f.read()
+    up_res = session.post(
+        f"{SITE_URL}/_api/web/GetFolderByServerRelativeUrl('/sites/CHUNKING/SiteAssets/lib')/Files/add(url='pdf-lib.min.js',overwrite=true)",
+        headers={'Accept': 'application/json;odata=verbose', 'X-RequestDigest': digest},
+        data=pdf_lib_bytes
+    )
+    if up_res.status_code in [200, 201]:
+        print("🎉 Successfully uploaded pdf-lib.min.js to /sites/CHUNKING/SiteAssets/lib!")
+    else:
+        print(f"⚠️ Warning: pdf-lib upload status: {up_res.status_code}")
 
 # 3. Upload smart_forms_app.html to both /SiteAssets/forms and /SiteAssets/app
 with open(HTML_PATH, 'rb') as f:
