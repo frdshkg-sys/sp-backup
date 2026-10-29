@@ -110,7 +110,37 @@ for folder in target_folders:
             print(f"❌ Failed to upload {filename} to {folder} after all retries.")
             sys.exit(1)
 
-# 4. Verify deployed files
+# 4. Package and upload chrome-extension.zip (Version 1.4)
+import zipfile
+import io
+
+ext_dir = os.path.join(BASE_DIR, "chrome-extension")
+if os.path.exists(ext_dir):
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, 'w', zipfile.ZIP_DEFLATED) as z:
+        for root, dirs, files in os.walk(ext_dir):
+            for f in files:
+                if f.startswith('.'):
+                    continue
+                full_path = os.path.join(root, f)
+                rel_path = os.path.relpath(full_path, BASE_DIR)
+                z.write(full_path, rel_path)
+    zip_bytes = buf.getvalue()
+
+    for folder in target_folders:
+        zip_url = f"{SITE_URL}/_api/web/GetFolderByServerRelativeUrl('{folder}')/Files/add(url='chrome-extension.zip',overwrite=true)"
+        for attempt in range(5):
+            res_zip = session.post(zip_url, headers=headers, data=zip_bytes)
+            if res_zip.status_code in [200, 201]:
+                print(f"🎉 Successfully uploaded chrome-extension.zip to {folder}! Status: {res_zip.status_code}")
+                break
+            elif res_zip.status_code == 429:
+                time.sleep((attempt + 1) * 4)
+            else:
+                print(f"⚠️ Warning uploading zip to {folder}: {res_zip.status_code}")
+                break
+
+# 5. Verify deployed files
 for folder in target_folders:
     for filename in target_files:
         subpath = folder.replace('/sites/CHUNKING', '')
@@ -120,5 +150,13 @@ for folder in target_folders:
             print(f"✅ Verified: {folder}/{filename} size matches local file size exactly!")
         else:
             print(f"⚠️ Size difference detected during verification for {folder}/{filename}.")
+
+# Also verify chrome-extension.zip
+for folder in target_folders:
+    subpath = folder.replace('/sites/CHUNKING', '')
+    v_zip = session.get(f"{SITE_URL}{subpath}/chrome-extension.zip")
+    print(f"🔍 Verification fetch ({folder}/chrome-extension.zip) status: {v_zip.status_code}, length: {len(v_zip.content)} bytes")
+    if len(v_zip.content) == len(zip_bytes):
+        print(f"✅ Verified: {folder}/chrome-extension.zip is latest v1.4!")
 
 
