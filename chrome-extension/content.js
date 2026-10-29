@@ -64,7 +64,18 @@
             return;
         }
 
-        // 2. SharePoint API 代理請求
+        // 2. 開啟連結（繞過 iframe sandbox 限制）
+        if (e.data.type === 'SP_OPEN_URL' && e.data.url) {
+            console.log("🔗 [SP-Bridge] 收到頂層視窗開啟連結請求:", e.data.url);
+            try {
+                window.open(e.data.url, '_blank');
+            } catch (openErr) {
+                console.error("❌ [SP-Bridge] 開啟連結失敗:", openErr);
+            }
+            return;
+        }
+
+        // 3. SharePoint API 代理請求
         if (e.data.type !== 'SP_FETCH_PROXY') return;
         var reqId = e.data.id;
         var reqUrl = e.data.url;
