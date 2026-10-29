@@ -90,7 +90,20 @@
             var buffer = null;
 
             if (reqOptions && reqOptions.binary) {
-                buffer = await resp.arrayBuffer();
+                var ab = await resp.arrayBuffer();
+                buffer = ab;
+                try {
+                    var u8 = new Uint8Array(ab);
+                    var binaryStr = '';
+                    var len = u8.byteLength;
+                    var chunk = 8192;
+                    for (var i = 0; i < len; i += chunk) {
+                        binaryStr += String.fromCharCode.apply(null, u8.subarray(i, Math.min(i + chunk, len)));
+                    }
+                    var b64 = btoa(binaryStr);
+                } catch (b64Err) {
+                    console.warn("Base64 conversion failed:", b64Err);
+                }
             } else {
                 text = await resp.text();
                 try {
@@ -105,7 +118,8 @@
                 status: resp.status,
                 data: json,
                 text: text,
-                buffer: buffer
+                buffer: buffer,
+                base64: b64 || null
             };
 
             console.log("✅ [SP-Bridge] 請求完成，狀態碼:", resp.status);

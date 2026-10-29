@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "CHUN KING SharePoint Forms Auto-Bridge",
-  "version": "1.3",
+  "version": "1.4",
   "description": "自動在 SharePoint 頁面注入 API 通信與路由橋樑，使內嵌智慧表單支援自動頁籤跳轉與直接送出資料。",
   "content_scripts": [
     {

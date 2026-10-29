@@ -4918,13 +4918,23 @@
             if (ev.data.error) {
               reject(new Error(ev.data.error));
             } else {
+              let buf = ev.data.buffer;
+              if ((!buf || (buf.byteLength === 0 && !ev.data.ok)) && ev.data.base64) {
+                try {
+                  const binStr = atob(ev.data.base64);
+                  const u8 = new Uint8Array(binStr.length);
+                  for (let i = 0; i < binStr.length; i++) u8[i] = binStr.charCodeAt(i);
+                  buf = u8.buffer;
+                } catch (_) {}
+              }
               resolve({
                 ok: ev.data.ok,
                 status: ev.data.status,
                 json: async () => ev.data.data,
                 text: async () => ev.data.text,
-                buffer: ev.data.buffer,
-                arrayBuffer: async () => ev.data.buffer
+                buffer: buf,
+                base64: ev.data.base64,
+                arrayBuffer: async () => buf
               });
             }
           }
@@ -5676,55 +5686,78 @@
       });
     }
 
+    // Helper to safely extract ArrayBuffer from any response (Native Response, Extension Bridge, Base64)
+    async function extractArrayBufferFromResponse(res) {
+      if (!res) return null;
+      if (res instanceof ArrayBuffer) return res;
+      if (res.buffer instanceof ArrayBuffer && !(res instanceof Response)) return res.buffer;
+      if (res.base64 && typeof res.base64 === 'string') {
+        try {
+          const binStr = atob(res.base64);
+          const len = binStr.length;
+          const u8 = new Uint8Array(len);
+          for (let i = 0; i < len; i++) u8[i] = binStr.charCodeAt(i);
+          return u8.buffer;
+        } catch (_) {}
+      }
+      if (typeof res.arrayBuffer === 'function') {
+        try {
+          const ab = await res.arrayBuffer();
+          if (ab && ab.byteLength > 0) return ab;
+        } catch (_) {}
+      }
+      if (res.buffer && res.buffer.byteLength > 0) return res.buffer;
+      return null;
+    }
+
     // Safe Canvas fallback with strict timeout (used only if native JPG/PNG embedding fails)
     async function imageBytesToJpegBytesViaCanvas(rawBytes) {
       return new Promise((resolve) => {
         let done = false;
         const timer = setTimeout(() => {
           if (!done) { done = true; resolve(null); }
-        }, 3000);
+        }, 4000);
 
         try {
-          const blob = new Blob([rawBytes]);
-          const reader = new FileReader();
-          reader.onload = () => {
+          let mime = 'image/jpeg';
+          if (rawBytes[0] === 0x89 && rawBytes[1] === 0x50 && rawBytes[2] === 0x4E && rawBytes[3] === 0x47) {
+            mime = 'image/png';
+          }
+          const blob = new Blob([rawBytes], { type: mime });
+          const objectUrl = URL.createObjectURL(blob);
+          const img = new Image();
+          img.onload = () => {
+            URL.revokeObjectURL(objectUrl);
             if (done) return;
-            const img = new Image();
-            img.onload = () => {
-              if (done) return;
-              try {
-                const canvas = document.createElement('canvas');
-                canvas.width = img.naturalWidth || img.width || 800;
-                canvas.height = img.naturalHeight || img.height || 600;
-                const ctx = canvas.getContext('2d');
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0);
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
-                const binStr = atob(dataUrl.split(',')[1]);
-                const len = binStr.length;
-                const u8 = new Uint8Array(len);
-                for (let i = 0; i < len; i++) {
-                  u8[i] = binStr.charCodeAt(i);
-                }
-                done = true;
-                clearTimeout(timer);
-                resolve(u8);
-              } catch (_) {
-                done = true;
-                clearTimeout(timer);
-                resolve(null);
+            try {
+              const canvas = document.createElement('canvas');
+              canvas.width = img.naturalWidth || img.width || 800;
+              canvas.height = img.naturalHeight || img.height || 600;
+              const ctx = canvas.getContext('2d');
+              ctx.fillStyle = '#ffffff';
+              ctx.fillRect(0, 0, canvas.width, canvas.height);
+              ctx.drawImage(img, 0, 0);
+              const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+              const binStr = atob(dataUrl.split(',')[1]);
+              const len = binStr.length;
+              const u8 = new Uint8Array(len);
+              for (let i = 0; i < len; i++) {
+                u8[i] = binStr.charCodeAt(i);
               }
-            };
-            img.onerror = () => {
-              if (!done) { done = true; clearTimeout(timer); resolve(null); }
-            };
-            img.src = reader.result;
+              done = true;
+              clearTimeout(timer);
+              resolve(u8);
+            } catch (_) {
+              done = true;
+              clearTimeout(timer);
+              resolve(null);
+            }
           };
-          reader.onerror = () => {
+          img.onerror = () => {
+            URL.revokeObjectURL(objectUrl);
             if (!done) { done = true; clearTimeout(timer); resolve(null); }
           };
-          reader.readAsDataURL(blob);
+          img.src = objectUrl;
         } catch (_) {
           if (!done) { done = true; clearTimeout(timer); resolve(null); }
         }
@@ -5783,46 +5816,72 @@
       return pdfFile;
     }
 
-    // Bulletproof receipt binary fetcher with 4 resilient fallback strategies
+    // Bulletproof receipt binary fetcher with resilient multi-strategy fallbacks
     async function fetchReceiptBinary(url) {
       if (!url) throw new Error("無效的收據位址");
       const fullUrl = normalizeReceiptUrl(url);
+      const safeUrl = encodeURI(decodeURI(fullUrl));
 
-      // Strategy 1: Direct native fetch with credentials (same origin inside SharePoint)
+      // Strategy 1: Extension / Window Top Bridge (Primary and essential inside SharePoint ODSP sandbox iframe)
       try {
-        const safeUrl = encodeURI(decodeURI(fullUrl));
-        const r = await _nativeFetch(safeUrl, { credentials: 'include' });
-        if (r.ok) {
-          const buf = await r.arrayBuffer();
-          if (buf && buf.byteLength > 0) return new Uint8Array(buf);
-        }
+        const rBridge = await spFetch(safeUrl, { binary: true, headers: { 'Accept': 'application/pdf, application/octet-stream, */*' } });
+        const buf = await extractArrayBufferFromResponse(rBridge);
+        if (buf && buf.byteLength > 0) return new Uint8Array(buf);
       } catch (e1) {
-        console.warn("fetchReceiptBinary Strategy 1 (native) notice:", e1);
+        console.warn("fetchReceiptBinary Strategy 1 (bridge) notice:", e1);
       }
 
-      // Strategy 2: SharePoint REST API GetFileByServerRelativeUrl/$value
+      // Strategy 2: SharePoint REST API GetFileByServerRelativeUrl/$value via Bridge
       try {
         let srvRel = fullUrl;
         if (srvRel.startsWith('http://') || srvRel.startsWith('https://')) {
           try {
-            srvRel = new URL(srvRel).pathname;
+            srvRel = decodeURI(new URL(srvRel).pathname);
           } catch (_) {}
         }
         if (srvRel.startsWith('/sites/')) {
-          const restValUrl = `${SITE_URL}/_api/web/GetFileByServerRelativeUrl('${encodeURIComponent(srvRel)}')/$value`;
+          const restValUrl = `${SITE_URL}/_api/web/GetFileByServerRelativeUrl('${encodeURI(srvRel)}')/$value`;
+          const rRest = await spFetch(restValUrl, { binary: true, headers: { 'Accept': 'application/octet-stream, application/pdf, */*' } });
+          const buf = await extractArrayBufferFromResponse(rRest);
+          if (buf && buf.byteLength > 0) return new Uint8Array(buf);
+        }
+      } catch (e2) {
+        console.warn("fetchReceiptBinary Strategy 2 (REST bridge) notice:", e2);
+      }
+
+      // Strategy 3: Direct native fetch with credentials (standalone / localhost / top window)
+      try {
+        const r = await _nativeFetch(safeUrl, { credentials: 'include', headers: { 'Accept': 'application/pdf, */*' } });
+        if (r.ok) {
+          const buf = await r.arrayBuffer();
+          if (buf && buf.byteLength > 0) return new Uint8Array(buf);
+        }
+      } catch (e3) {
+        console.warn("fetchReceiptBinary Strategy 3 (native) notice:", e3);
+      }
+
+      // Strategy 4: Direct native REST API GetFileByServerRelativeUrl/$value
+      try {
+        let srvRel = fullUrl;
+        if (srvRel.startsWith('http://') || srvRel.startsWith('https://')) {
+          try {
+            srvRel = decodeURI(new URL(srvRel).pathname);
+          } catch (_) {}
+        }
+        if (srvRel.startsWith('/sites/')) {
+          const restValUrl = `${SITE_URL}/_api/web/GetFileByServerRelativeUrl('${encodeURI(srvRel)}')/$value`;
           const rRest = await _nativeFetch(restValUrl, { credentials: 'include' });
           if (rRest.ok) {
             const buf = await rRest.arrayBuffer();
             if (buf && buf.byteLength > 0) return new Uint8Array(buf);
           }
         }
-      } catch (e2) {
-        console.warn("fetchReceiptBinary Strategy 2 (REST $value) notice:", e2);
+      } catch (e4) {
+        console.warn("fetchReceiptBinary Strategy 4 (native REST) notice:", e4);
       }
 
-      // Strategy 3: XMLHttpRequest with responseType = 'arraybuffer'
+      // Strategy 5: XMLHttpRequest with responseType = 'arraybuffer'
       try {
-        const safeUrl = encodeURI(decodeURI(fullUrl));
         const buf = await new Promise((resolve, reject) => {
           const xhr = new XMLHttpRequest();
           xhr.open('GET', safeUrl, true);
@@ -5837,26 +5896,15 @@
           };
           xhr.onerror = () => reject(new Error('XHR Network Error'));
           xhr.ontimeout = () => reject(new Error('XHR Timeout'));
-          xhr.timeout = 30000;
+          xhr.timeout = 20000;
           xhr.send();
         });
         if (buf && buf.byteLength > 0) return new Uint8Array(buf);
-      } catch (e3) {
-        console.warn("fetchReceiptBinary Strategy 3 (XHR) notice:", e3);
+      } catch (e5) {
+        console.warn("fetchReceiptBinary Strategy 5 (XHR) notice:", e5);
       }
 
-      // Strategy 4: Extension bridge fetch with binary flag
-      try {
-        const safeUrl = encodeURI(decodeURI(fullUrl));
-        const rBridge = await spFetch(safeUrl, { binary: true });
-        if (rBridge && rBridge.buffer) {
-          return new Uint8Array(rBridge.buffer);
-        }
-      } catch (e4) {
-        console.warn("fetchReceiptBinary Strategy 4 (bridge) notice:", e4);
-      }
-
-      throw new Error(`無法下載現有收據檔案 (${fullUrl})。請確認原檔案是否存在。`);
+      throw new Error(`無法下載現有收據檔案 (${fullUrl})。若在 SharePoint 內嵌模式，請確認擴充功能已重新載入。`);
     }
 
     async function appendFileToExistingReceipt(existingReceiptUrl, newFile, targetTitle) {
@@ -6007,6 +6055,7 @@
       const incTitle = (document.getElementById('inc-title')?.value || '').trim() || 'INC';
       const isPdf = file.name.toLowerCase().endsWith('.pdf') || file.type === 'application/pdf';
       const btn = document.getElementById('inc-submit-btn');
+      const toast = document.getElementById('inc-toast');
 
       showFileProcessingUI('income', '正在處理水單/收據檔案...');
       if (btn) btn.disabled = true;
@@ -6021,10 +6070,16 @@
         }
         currentUploadedFiles.income = finalFile;
         updateFilePreviewUI('income');
+        if (toast && toast.className.includes('error')) toast.style.display = 'none';
       } catch (err) {
         console.error("Income file processing error:", err);
-        alert(`處理檔案失敗: ${err.message}`);
-        removeFile('income');
+        if (toast) {
+          toast.className = 'toast error';
+          toast.innerHTML = `❌ <strong>處理水單/收據檔案失敗:</strong> ${escapeHtml(err.message)}<br><small>若為圖檔請確認為標準 JPG/PNG 格式，或先轉為 PDF 後上傳。</small>`;
+          toast.style.display = 'block';
+        }
+        const targetSpan = document.getElementById('inc-file-target-name');
+        if (targetSpan) targetSpan.innerHTML = `<span style="color:#ef4444; font-weight:600;">❌ 處理失敗: ${escapeHtml(err.message)}</span>`;
       } finally {
         if (btn) btn.disabled = false;
       }
@@ -6037,6 +6092,7 @@
       const hasExistingReceipt = Boolean(receiptUrl && receiptUrl.trim());
       const mode = document.querySelector('input[name="edit-receipt-mode"]:checked')?.value || 'append';
       const btn = document.getElementById('edit-submit-btn');
+      const toast = document.getElementById('edit-toast');
 
       currentUploadedFiles.edit_rawFile = file;
 
@@ -6063,10 +6119,53 @@
         currentUploadedFiles.edit = finalFile;
         updateFilePreviewUI('edit');
         setEditSubmitButtonState('idle');
+        if (toast && toast.className.includes('error')) toast.style.display = 'none';
       } catch (err) {
         console.error("Edit income receipt processing error:", err);
-        alert(`處理收據合併失敗: ${err.message}。\n若欲直接以新檔案覆蓋，可切換至「完全覆蓋替換原檔」模式。`);
-        removeFile('edit');
+
+        // Fallback gracefully: if append mode failed, switch to overwrite mode so the user is never blocked!
+        const rOverwrite = document.getElementById('edit-receipt-mode-overwrite');
+        if (rOverwrite && mode === 'append') {
+          showFileProcessingUI('edit', '⚠️ 追加合併失敗，正在切換為以新檔案直接作為收據覆蓋...');
+          try {
+            let fallbackFile;
+            if (!isPdf) {
+              fallbackFile = await convertImageFileToA4Pdf(file, incTitle);
+            } else {
+              fallbackFile = file;
+              fallbackFile.targetFileName = `${incTitle}.pdf`;
+            }
+            currentUploadedFiles.edit = fallbackFile;
+            updateFilePreviewUI('edit');
+            setEditSubmitButtonState('idle');
+
+            rOverwrite.checked = true;
+            const dropzoneText = document.getElementById('edit-dropzone-text');
+            if (dropzoneText) {
+              dropzoneText.innerHTML = '拖放新檔案至此（PDF / JPG / PNG），將<span>完全覆蓋替換原收據</span>，或 <span>點擊瀏覽上傳</span>';
+            }
+
+            if (toast) {
+              toast.className = 'toast warning';
+              toast.innerHTML = `⚠️ <strong>無法下載現有收據以進行追加合併:</strong> ${escapeHtml(err.message)}<br><span style="font-size:12px; margin-top:4px; display:inline-block; color:#b45309;">系統已自動為您切換為「完全覆蓋替換原檔」模式。若確認以此新檔案作為收據，請直接點擊下方「儲存修改」。<br>(提示：若欲追加合併，請至 <code>chrome://extensions</code> 點擊「CHUN KING SharePoint Forms Auto-Bridge」重新載入 🔄 按鈕後重試)</span>`;
+              toast.style.display = 'block';
+            }
+            return;
+          } catch (fallbackErr) {
+            console.error("Fallback processing error:", fallbackErr);
+          }
+        }
+
+        // If fallback also failed or already in overwrite mode:
+        if (toast) {
+          toast.className = 'toast error';
+          toast.innerHTML = `❌ <strong>處理收據失敗:</strong> ${escapeHtml(err.message)}<br><small>請確認檔案格式是否正確，或至 <code>chrome://extensions</code> 重新載入擴充功能。</small>`;
+          toast.style.display = 'block';
+        }
+        const targetSpan = document.getElementById('edit-file-target-name');
+        if (targetSpan) {
+          targetSpan.innerHTML = `<span style="color:#ef4444; font-weight:600;">❌ 處理失敗: ${escapeHtml(err.message)}</span>`;
+        }
       } finally {
         if (btn) {
           btn.disabled = false;
